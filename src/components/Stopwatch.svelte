@@ -320,17 +320,17 @@
 
     .btn-clear-laps {
         padding: 0.5rem 1rem;
-        background: #555;
+        background: #ef4444;
         border: none;
-        border-radius: 10px;
-        color: white;
+        border-radius: 8px;
+        color: #fff;
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.2s;
     }
 
     .btn-clear-laps:hover {
-        background: #666;
+        background: #dc2626;
         transform: translateY(-1px);
     }
 

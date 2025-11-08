@@ -32,6 +32,11 @@
     let newTimerSoundName = "Default";
     let newTimerVibrate = true;
 
+    // Wheel picker refs
+    let hoursWheelRef: HTMLDivElement;
+    let minutesWheelRef: HTMLDivElement;
+    let secondsWheelRef: HTMLDivElement;
+
     let timerIntervals: Map<string, number> = new Map();
 
     function formatTime(seconds: number): string {
@@ -43,6 +48,90 @@
             return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
         }
         return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+
+    // Generate options for wheel pickers
+    function getHourOptions(): number[] {
+        const options = [];
+        for (let i = 0; i <= 23; i++) {
+            options.push(i);
+        }
+        return options;
+    }
+
+    function getMinuteOptions(): number[] {
+        const options = [];
+        for (let i = 0; i <= 59; i++) {
+            options.push(i);
+        }
+        return options;
+    }
+
+    function getSecondOptions(): number[] {
+        const options = [];
+        for (let i = 0; i <= 59; i++) {
+            options.push(i);
+        }
+        return options;
+    }
+
+    // Scroll wheel picker to center item
+    function scrollToValue(
+        container: HTMLDivElement,
+        value: number,
+        options: number[],
+    ) {
+        if (!container) return;
+        const index = options.indexOf(value);
+        if (index === -1) return;
+        const itemHeight = 40;
+        const scrollPosition = index * itemHeight;
+        container.scrollTo({
+            top: scrollPosition,
+            behavior: "smooth",
+        });
+    }
+
+    // Handle wheel scroll snap
+    let scrollTimeout: number;
+    function handleWheelScroll(
+        container: HTMLDivElement,
+        options: number[],
+        setter: (value: number) => void,
+    ) {
+        if (!container) return;
+
+        clearTimeout(scrollTimeout);
+
+        scrollTimeout = window.setTimeout(() => {
+            const itemHeight = 40;
+            const scrollTop = container.scrollTop;
+            const index = Math.round(scrollTop / itemHeight);
+            const clampedIndex = Math.max(
+                0,
+                Math.min(index, options.length - 1),
+            );
+
+            container.scrollTo({
+                top: clampedIndex * itemHeight,
+                behavior: "smooth",
+            });
+            setter(options[clampedIndex]);
+        }, 100);
+    }
+
+    // Initialize wheel positions when opening timer editor
+    $: if (
+        showAddTimer &&
+        hoursWheelRef &&
+        minutesWheelRef &&
+        secondsWheelRef
+    ) {
+        setTimeout(() => {
+            scrollToValue(hoursWheelRef, newTimerHours, getHourOptions());
+            scrollToValue(minutesWheelRef, newTimerMinutes, getMinuteOptions());
+            scrollToValue(secondsWheelRef, newTimerSeconds, getSecondOptions());
+        }, 50);
     }
 
     function createTimer() {
@@ -274,38 +363,112 @@
 
             <div class="form-group">
                 <label>{t.duration}</label>
-                <div class="duration-inputs">
-                    <div class="duration-input">
-                        <input
-                            type="number"
-                            bind:value={newTimerHours}
-                            min="0"
-                            max="23"
-                            class="duration-number"
-                        />
-                        <span class="duration-label">h</span>
+                <div class="time-picker-container">
+                    <div class="time-picker-column">
+                        <div class="picker-label">Hours</div>
+                        <div class="wheel-picker-wrapper">
+                            <div class="wheel-picker-overlay"></div>
+                            <div class="wheel-picker-selection"></div>
+                            <div
+                                class="wheel-picker"
+                                bind:this={hoursWheelRef}
+                                on:scroll={() =>
+                                    handleWheelScroll(
+                                        hoursWheelRef,
+                                        getHourOptions(),
+                                        (v) => (newTimerHours = v),
+                                    )}
+                            >
+                                {#each getHourOptions() as hour}
+                                    <div
+                                        class="wheel-item"
+                                        class:selected={newTimerHours === hour}
+                                        on:click={() => {
+                                            newTimerHours = hour;
+                                            scrollToValue(
+                                                hoursWheelRef,
+                                                hour,
+                                                getHourOptions(),
+                                            );
+                                        }}
+                                    >
+                                        {hour.toString().padStart(2, "0")}
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
                     </div>
-                    <span class="duration-separator">:</span>
-                    <div class="duration-input">
-                        <input
-                            type="number"
-                            bind:value={newTimerMinutes}
-                            min="0"
-                            max="59"
-                            class="duration-number"
-                        />
-                        <span class="duration-label">m</span>
+                    <div class="time-picker-separator">:</div>
+                    <div class="time-picker-column">
+                        <div class="picker-label">Minutes</div>
+                        <div class="wheel-picker-wrapper">
+                            <div class="wheel-picker-overlay"></div>
+                            <div class="wheel-picker-selection"></div>
+                            <div
+                                class="wheel-picker"
+                                bind:this={minutesWheelRef}
+                                on:scroll={() =>
+                                    handleWheelScroll(
+                                        minutesWheelRef,
+                                        getMinuteOptions(),
+                                        (v) => (newTimerMinutes = v),
+                                    )}
+                            >
+                                {#each getMinuteOptions() as minute}
+                                    <div
+                                        class="wheel-item"
+                                        class:selected={newTimerMinutes ===
+                                            minute}
+                                        on:click={() => {
+                                            newTimerMinutes = minute;
+                                            scrollToValue(
+                                                minutesWheelRef,
+                                                minute,
+                                                getMinuteOptions(),
+                                            );
+                                        }}
+                                    >
+                                        {minute.toString().padStart(2, "0")}
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
                     </div>
-                    <span class="duration-separator">:</span>
-                    <div class="duration-input">
-                        <input
-                            type="number"
-                            bind:value={newTimerSeconds}
-                            min="0"
-                            max="59"
-                            class="duration-number"
-                        />
-                        <span class="duration-label">s</span>
+                    <div class="time-picker-separator">:</div>
+                    <div class="time-picker-column">
+                        <div class="picker-label">Seconds</div>
+                        <div class="wheel-picker-wrapper">
+                            <div class="wheel-picker-overlay"></div>
+                            <div class="wheel-picker-selection"></div>
+                            <div
+                                class="wheel-picker"
+                                bind:this={secondsWheelRef}
+                                on:scroll={() =>
+                                    handleWheelScroll(
+                                        secondsWheelRef,
+                                        getSecondOptions(),
+                                        (v) => (newTimerSeconds = v),
+                                    )}
+                            >
+                                {#each getSecondOptions() as second}
+                                    <div
+                                        class="wheel-item"
+                                        class:selected={newTimerSeconds ===
+                                            second}
+                                        on:click={() => {
+                                            newTimerSeconds = second;
+                                            scrollToValue(
+                                                secondsWheelRef,
+                                                second,
+                                                getSecondOptions(),
+                                            );
+                                        }}
+                                    >
+                                        {second.toString().padStart(2, "0")}
+                                    </div>
+                                {/each}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -596,47 +759,120 @@
         border-color: #ff9500;
     }
 
-    .duration-inputs {
+    .time-picker-container {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
         justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: #1a1a1a;
+        border-radius: 12px;
+        border: 1px solid #333;
+        margin-bottom: 0.5rem;
     }
 
-    .duration-input {
+    .time-picker-column {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.25rem;
+        gap: 0.5rem;
     }
 
-    .duration-number {
-        width: 70px;
-        padding: 0.75rem;
-        background: #2a2a2a;
-        border: 2px solid #444;
-        border-radius: 12px;
-        color: #fff;
-        font-size: 1.5rem;
-        text-align: center;
-        font-family: "SF Mono", "Monaco", monospace;
-    }
-
-    .duration-number:focus {
-        outline: none;
-        border-color: #ff9500;
-    }
-
-    .duration-label {
-        font-size: 0.9rem;
+    .picker-label {
+        font-size: 0.85rem;
         color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
     }
 
-    .duration-separator {
-        font-size: 2rem;
-        color: #fff;
+    .wheel-picker-wrapper {
+        position: relative;
+        width: 80px;
+        height: 160px;
+        overflow: hidden;
+        border-radius: 12px;
+        background: #1a1a1a;
+        border: 2px solid #333;
+    }
+
+    .wheel-picker-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            to bottom,
+            rgba(26, 26, 26, 0.95) 0%,
+            transparent 30%,
+            transparent 70%,
+            rgba(26, 26, 26, 0.95) 100%
+        );
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .wheel-picker-selection {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 40px;
+        transform: translateY(-50%);
+        border-top: 2px solid #ff9500;
+        border-bottom: 2px solid #ff9500;
+        background: rgba(255, 149, 0, 0.05);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .wheel-picker {
+        height: 100%;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 60px 0;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .wheel-picker::-webkit-scrollbar {
+        display: none;
+    }
+
+    .wheel-item {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
         font-weight: bold;
+        font-family: "SF Mono", "Monaco", "Inconsolata", monospace;
+        color: #555;
+        cursor: pointer;
+        scroll-snap-align: center;
+        transition: all 0.3s ease;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .wheel-item:hover {
+        color: #777;
+    }
+
+    .wheel-item.selected {
+        color: #ff9500;
+        font-size: 1.75rem;
+        text-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
+    }
+
+    .time-picker-separator {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #ff9500;
         margin: 0 0.25rem;
+        padding-top: 1.5rem;
     }
 
     .sound-select-btn {
@@ -792,11 +1028,6 @@
 
         .timer-total {
             font-size: 1rem;
-        }
-
-        .duration-number {
-            width: 60px;
-            font-size: 1.25rem;
         }
     }
 </style>
