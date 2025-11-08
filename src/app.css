@@ -1,79 +1,284 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+    /* Color Palette */
+    --primary: #e94560;
+    --primary-dark: #d32f2f;
+    --secondary: #0f3460;
+    --secondary-light: #1a5490;
+    --accent: #ffd700;
+    --accent-orange: #ff8c00;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+    /* Background Colors */
+    --bg-primary: #0f0c29;
+    --bg-secondary: #16213e;
+    --bg-tertiary: #1a1a2e;
+    --bg-modal: #16213e;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --text-accent: #e94560;
+    --time-color: #e94560;
+    --sun-label-color: #ffd700;
+
+    /* UI Colors */
+    --border-color: #0f3460;
+    --divider-color: #0f3460;
+    --hover-bg: rgba(233, 69, 96, 0.1);
+
+    /* Clock Colors */
+    --clock-face-bg: #1a1a2e;
+    --clock-border: #0f3460;
+    --marker-color: #16213e;
+    --marker-major-color: #0f3460;
+    --hour-hand-color: #e94560;
+    --minute-hand-color: #e94560;
+    --second-hand-color: #ff6b9d;
+    --center-dot-color: #e94560;
+
+    /* Alarm Colors */
+    --alarm-marker-bg: #ffd700;
+    --alarm-marker-border: #ff8c00;
+    --alarm-inner-color: #ff8c00;
+    --alarm-bg: #1a1a2e;
+    --alarm-border: #0f3460;
+    --alarm-border-hover: #e94560;
+    --alarm-border-disabled: #2a2a3e;
+
+    /* Toggle Colors */
+    --toggle-off: #2a2a3e;
+    --toggle-on: #e94560;
+
+    /* Button Colors */
+    --btn-bg: #0f3460;
+    --btn-border: #1a5490;
+    --btn-hover: #e94560;
+    --btn-hover-bg: #1a5490;
+    --btn-edit-hover: #1a5490;
+    --btn-delete-hover: #d32f2f;
+    --btn-cancel-bg: #2a2a3e;
+    --btn-cancel-hover: #3a3a4e;
+    --btn-save-bg: #e94560;
+    --btn-save-hover: #d63850;
+    --btn-active-bg: #e94560;
+    --btn-active-border: #e94560;
+
+    /* Badge Colors */
+    --badge-bg: rgba(233, 69, 96, 0.1);
+    --badge-color: #e94560;
+
+    /* Input Colors */
+    --input-bg: #0f3460;
+    --input-border: #1a5490;
+    --input-focus: #e94560;
+
+    /* Day Selection Colors */
+    --day-bg: #0f3460;
+    --day-border: #1a5490;
+    --day-hover: #e94560;
+    --day-selected-bg: #e94560;
+    --day-selected-border: #e94560;
+
+    /* Slider Colors */
+    --slider-bg: #0f3460;
+    --slider-thumb: #e94560;
+
+    /* Sun Times Colors */
+    --sun-item-bg: #1a1a2e;
+    --sun-item-border: #0f3460;
+    --sun-item-hover: #ffd700;
+    --today-border: #ffd700;
+    --today-bg: rgba(255, 215, 0, 0.05);
+    --time-block-bg: #0f3460;
+
+    /* Checkbox Colors */
+    --checkbox-bg: #0f3460;
+    --checkbox-hover: #1a5490;
+
+    /* Picker Colors */
+    --picker-bg: #0a2540;
+    --picker-btn-bg: #0f3460;
+    --picker-btn-border: #1a5490;
+    --picker-btn-hover: #1a5490;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+    margin: 0;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+        "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-.card {
-  padding: 2em;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+code {
+    font-family:
+        "SF Mono", "Monaco", "Inconsolata", "Fira Code", "Courier New",
+        monospace;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+    font-family: inherit;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-light);
+}
+
+/* Selection */
+::selection {
+    background: var(--primary);
+    color: white;
+}
+
+::-moz-selection {
+    background: var(--primary);
+    color: white;
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Utility Classes */
+.text-center {
+    text-align: center;
+}
+
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-accent {
+    color: var(--text-accent);
+}
+
+.mt-1 {
+    margin-top: 0.5rem;
+}
+.mt-2 {
+    margin-top: 1rem;
+}
+.mt-3 {
+    margin-top: 1.5rem;
+}
+.mt-4 {
+    margin-top: 2rem;
+}
+
+.mb-1 {
+    margin-bottom: 0.5rem;
+}
+.mb-2 {
+    margin-bottom: 1rem;
+}
+.mb-3 {
+    margin-bottom: 1.5rem;
+}
+.mb-4 {
+    margin-bottom: 2rem;
+}
+
+.p-1 {
+    padding: 0.5rem;
+}
+.p-2 {
+    padding: 1rem;
+}
+.p-3 {
+    padding: 1.5rem;
+}
+.p-4 {
+    padding: 2rem;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 13px;
+    }
 }
