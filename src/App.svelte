@@ -26,6 +26,7 @@
     let currentTime = new Date();
     let timeInterval: number;
     let locationWatchId: string | null = null;
+    let navBarHeight = 0;
 
     let showAlarmEditor = false;
     let editingAlarm: Alarm | null = null;
@@ -48,6 +49,32 @@
     const unsubLocation = location.subscribe((value) => (locationData = value));
     const unsubSunTimes = sunTimes.subscribe((value) => (sunTimesData = value));
 
+    // Detect Android navigation bar height
+    function detectNavBarHeight() {
+        if (typeof window !== "undefined") {
+            // Calculate the difference between window height and visual viewport height
+            const windowHeight = window.innerHeight;
+            const visualHeight = window.visualViewport?.height || windowHeight;
+            const detectedHeight = windowHeight - visualHeight;
+
+            // If we detect a navigation bar OR if we're on Android and detection failed,
+            // use detected height or fallback to typical Android 3-button nav height (72px)
+            if (detectedHeight > 0) {
+                navBarHeight = detectedHeight;
+            } else if (
+                typeof navigator !== "undefined" &&
+                /Android/i.test(navigator.userAgent)
+            ) {
+                // Fallback for Android devices where visualViewport doesn't work
+                // Typical Android 3-button navigation is 48dp which is ~72px on most devices
+                navBarHeight = 72;
+            } else {
+                navBarHeight = 0;
+            }
+        }
+    }
+
+    // Reactive derived translation
     $: t = getTranslation(settingsData.language as Language);
     $: sortedAlarms = [...alarmsData].sort((a, b) => {
         if (a.enabled && !b.enabled) return -1;
@@ -73,6 +100,20 @@
 
         // Initialize alarm listeners
         alarmService.initializeListeners(handleAlarmTriggered);
+
+        // Detect navigation bar height
+        detectNavBarHeight();
+
+        // Update on resize (keyboard, orientation change, etc.)
+        if (typeof window !== "undefined") {
+            window.addEventListener("resize", detectNavBarHeight);
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener(
+                    "resize",
+                    detectNavBarHeight,
+                );
+            }
+        }
     });
 
     onDestroy(() => {
@@ -83,6 +124,17 @@
         unsubSettings();
         unsubLocation();
         unsubSunTimes();
+
+        // Clean up resize listeners
+        if (typeof window !== "undefined") {
+            window.removeEventListener("resize", detectNavBarHeight);
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener(
+                    "resize",
+                    detectNavBarHeight,
+                );
+            }
+        }
     });
 
     async function requestPermissions() {
@@ -283,7 +335,7 @@
     }
 </script>
 
-<main>
+<main style="padding-bottom: {navBarHeight + 96}px;">
     <div class="app-container">
         <!-- Header -->
         <header class="app-header">
@@ -467,7 +519,7 @@
         </div>
 
         <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
+        <nav class="bottom-nav" style="bottom: {navBarHeight}px;">
             <button
                 class="nav-btn"
                 class:active={currentView === "alarms"}
@@ -542,13 +594,14 @@
 
     main {
         min-height: 100vh;
-        padding-bottom: 5rem;
+        /* Dynamic padding set via inline style based on detected nav bar height */
     }
 
     .app-container {
         max-width: 800px;
         margin: 0 auto;
         padding: 1rem;
+        padding-top: calc(1rem + env(safe-area-inset-top, 0px));
     }
 
     .app-header {
@@ -597,7 +650,7 @@
         grid-template-columns: repeat(5, 1fr);
         background: #1a1a1a;
         border-top: 1px solid #333;
-        padding: 0.5rem;
+        padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
         gap: 0.25rem;
         z-index: 1000;
     }
@@ -644,6 +697,7 @@
 
     .content-container {
         min-height: calc(100vh - 200px);
+        padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
     }
 
     .view-content {
@@ -664,7 +718,7 @@
     .btn-add-alarm {
         width: 100%;
         max-width: 600px;
-        margin: 1rem auto;
+        margin: 1rem auto 2rem;
         display: flex;
         align-items: center;
         justify-content: center;

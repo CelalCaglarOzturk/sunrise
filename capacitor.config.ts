@@ -7,6 +7,10 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: "https",
   },
+  android: {
+    webContentsDebuggingEnabled: true,
+    allowMixedContent: false,
+  },
   plugins: {
     LocalNotifications: {
       smallIcon: "ic_stat_icon_config_sample",
@@ -17,6 +21,10 @@ const config: CapacitorConfig = {
       launchShowDuration: 2000,
       backgroundColor: "#0f0c29",
       showSpinner: false,
+    },
+    StatusBar: {
+      style: "DARK",
+      backgroundColor: "#000000",
     },
   },
 };
