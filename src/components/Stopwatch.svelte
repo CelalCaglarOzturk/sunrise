@@ -248,6 +248,7 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-stopwatch:disabled {
@@ -327,6 +328,7 @@
         font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-clear-laps:hover {

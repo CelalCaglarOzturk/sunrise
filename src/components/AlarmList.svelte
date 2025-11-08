@@ -270,6 +270,7 @@
         background-color: #333;
         transition: 0.4s;
         border-radius: 34px;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .toggle-slider:before {
@@ -296,6 +297,7 @@
         flex: 1;
         cursor: pointer;
         min-width: 0;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .alarm-time {
@@ -364,6 +366,7 @@
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-icon:hover {

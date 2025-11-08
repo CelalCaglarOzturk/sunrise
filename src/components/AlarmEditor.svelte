@@ -662,6 +662,7 @@
         justify-content: center;
         border-radius: 8px;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-close:hover {
@@ -729,7 +730,7 @@
         cursor: pointer;
         font-size: 0.95rem;
         transition: all 0.2s;
-        white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .mode-btn:hover:not(:disabled) {
@@ -894,6 +895,7 @@
         cursor: pointer;
         font-size: 0.8rem;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .quick-btn:hover {
@@ -919,6 +921,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .day-btn:hover {
@@ -942,6 +945,7 @@
         font-size: 1rem;
         text-align: left;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .sound-select-btn:hover {
@@ -967,6 +971,7 @@
         color: var(--text-primary, #fff);
         cursor: pointer;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .sound-picker button:hover {
@@ -1042,6 +1047,7 @@
         background-color: #444;
         transition: 0.3s;
         border-radius: 26px;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .toggle-slider:before {
@@ -1087,6 +1093,7 @@
         -webkit-appearance: none;
         appearance: none;
         cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .volume-slider::-webkit-slider-thumb {
@@ -1098,6 +1105,7 @@
         border-radius: 50%;
         cursor: pointer;
         transition: all 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .volume-slider::-webkit-slider-thumb:hover {
@@ -1113,6 +1121,7 @@
         border: none;
         cursor: pointer;
         transition: all 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .volume-slider::-moz-range-thumb:hover {

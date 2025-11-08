@@ -536,6 +536,7 @@
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-icon:hover {
@@ -581,6 +582,7 @@
         transition: all 0.2s ease;
         gap: 0.25rem;
         min-height: 64px;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .nav-btn:hover {
@@ -642,6 +644,7 @@
         font-weight: 700;
         cursor: pointer;
         transition: all 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-add-alarm:hover {
@@ -688,6 +691,7 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-primary:hover {
@@ -733,6 +737,7 @@
         border-radius: 10px;
         cursor: pointer;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .setting-label:hover {
@@ -762,6 +767,7 @@
         background-color: #333;
         transition: 0.4s;
         border-radius: 34px;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .toggle-slider:before {
@@ -805,6 +811,7 @@
         font-size: 0.95rem;
         transition: all 0.2s;
         white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .format-btn:hover {
@@ -847,6 +854,7 @@
         font-size: 1rem;
         cursor: pointer;
         transition: all 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .language-select:focus {
@@ -870,6 +878,7 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-secondary:hover {

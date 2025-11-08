@@ -613,6 +613,7 @@
         border-radius: 8px;
         transition: all 0.2s;
         color: #d97706;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-delete-timer:hover {
@@ -676,6 +677,7 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-start,
@@ -886,6 +888,7 @@
         font-size: 1rem;
         text-align: left;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .sound-select-btn:hover {
@@ -905,6 +908,7 @@
         border: 2px solid #333;
         cursor: pointer;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .toggle-option-label:hover {
@@ -946,6 +950,7 @@
         background-color: #444;
         transition: 0.3s;
         border-radius: 26px;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .toggle-slider:before {
@@ -982,6 +987,7 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-cancel {
@@ -1013,6 +1019,7 @@
         font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
         box-shadow: 0 4px 15px rgba(255, 149, 0, 0.3);
     }
 
