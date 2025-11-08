@@ -126,6 +126,7 @@ export interface Translation {
   clearLaps: string;
   volume: string;
   disableAll: string;
+  enableAll: string;
   deleteAll: string;
   disableAllAlarms: string;
   deleteAllAlarms: string;

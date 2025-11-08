@@ -382,7 +382,7 @@
     .empty-state h3 {
         margin: 0.5rem 0;
         font-size: 1.5rem;
-        color: var(--text-primary, #e94560);
+        color: #ff9500;
     }
 
     .timers-list {
@@ -393,30 +393,30 @@
     }
 
     .timer-item {
-        background: var(--alarm-bg, #1a1a2e);
+        background: #1a1a1a;
         border-radius: 16px;
         padding: 1.5rem;
-        border: 2px solid var(--alarm-border, #0f3460);
+        border: 2px solid #333;
         transition: all 0.3s ease;
     }
 
     .timer-item.running {
-        border-color: var(--primary, #e94560);
-        box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+        border-color: #ff9500;
+        box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
     }
 
     .timer-item.finished {
-        border-color: var(--accent, #ffd700);
+        border-color: #ff9500;
         animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
         0%,
         100% {
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
         }
         50% {
-            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.6);
+            box-shadow: 0 4px 20px rgba(255, 149, 0, 0.6);
         }
     }
 
@@ -430,7 +430,7 @@
     .timer-label {
         font-size: 1.1rem;
         font-weight: 600;
-        color: var(--text-primary, #fff);
+        color: #fff;
     }
 
     .btn-delete-timer {
@@ -441,10 +441,12 @@
         padding: 0.25rem 0.5rem;
         border-radius: 8px;
         transition: all 0.2s;
+        color: #ff3b30;
     }
 
     .btn-delete-timer:hover {
-        background: var(--btn-delete-hover, #d32f2f);
+        background: #ff3b30;
+        color: #fff;
     }
 
     .timer-display {
@@ -457,13 +459,13 @@
     .timer-time {
         font-size: 3rem;
         font-weight: bold;
-        color: var(--time-color, #e94560);
+        color: #fff;
         font-family: "SF Mono", "Monaco", monospace;
     }
 
     .timer-total {
         font-size: 1.2rem;
-        color: var(--text-secondary, #888);
+        color: #888;
         margin-left: 0.5rem;
         font-family: "SF Mono", "Monaco", monospace;
     }
@@ -471,7 +473,7 @@
     .timer-progress {
         width: 100%;
         height: 8px;
-        background: var(--slider-bg, #0f3460);
+        background: #333;
         border-radius: 4px;
         overflow: hidden;
         margin-bottom: 1rem;
@@ -479,7 +481,7 @@
 
     .timer-progress-bar {
         height: 100%;
-        background: linear-gradient(90deg, #e94560, #ffd700);
+        background: #ff9500;
         transition: width 0.5s linear;
         border-radius: 4px;
     }
@@ -507,57 +509,57 @@
 
     .btn-start,
     .btn-resume {
-        background: var(--primary, #e94560);
+        background: #ff9500;
         color: white;
     }
 
     .btn-start:hover,
     .btn-resume:hover {
-        background: var(--primary-dark, #d32f2f);
+        background: #e68600;
         transform: translateY(-2px);
     }
 
     .btn-pause {
-        background: var(--accent-orange, #ff8c00);
+        background: #555;
         color: white;
     }
 
     .btn-pause:hover {
-        background: #ff7700;
+        background: #666;
         transform: translateY(-2px);
     }
 
     .btn-reset {
-        background: var(--btn-bg, #0f3460);
+        background: #555;
         color: white;
     }
 
     .btn-reset:hover {
-        background: var(--btn-hover-bg, #1a5490);
+        background: #666;
     }
 
     .timer-finished {
         margin-top: 1rem;
         padding: 0.75rem;
-        background: rgba(255, 215, 0, 0.1);
+        background: rgba(255, 149, 0, 0.1);
         border-radius: 12px;
         text-align: center;
         font-weight: bold;
-        color: var(--accent, #ffd700);
+        color: #ff9500;
         font-size: 1.1rem;
     }
 
     .timer-editor {
-        background: var(--modal-bg, #16213e);
+        background: #1a1a1a;
         border-radius: 16px;
         padding: 1.5rem;
         margin-bottom: 1rem;
-        border: 2px solid var(--border-color, #0f3460);
+        border: 2px solid #333;
     }
 
     .timer-editor h3 {
         margin: 0 0 1rem 0;
-        color: var(--text-primary, #e94560);
+        color: #ff9500;
     }
 
     .form-group {
@@ -567,23 +569,23 @@
     .form-group label {
         display: block;
         margin-bottom: 0.5rem;
-        color: var(--text-primary, #fff);
+        color: #fff;
         font-weight: 500;
     }
 
     .form-input {
         width: 100%;
         padding: 0.75rem;
-        background: var(--input-bg, #0f3460);
-        border: 2px solid var(--input-border, #1a5490);
+        background: #2a2a2a;
+        border: 2px solid #444;
         border-radius: 12px;
-        color: var(--text-primary, #fff);
+        color: #fff;
         font-size: 1rem;
     }
 
     .form-input:focus {
         outline: none;
-        border-color: var(--input-focus, #e94560);
+        border-color: #ff9500;
     }
 
     .duration-inputs {
@@ -603,10 +605,10 @@
     .duration-number {
         width: 70px;
         padding: 0.75rem;
-        background: var(--input-bg, #0f3460);
-        border: 2px solid var(--input-border, #1a5490);
+        background: #2a2a2a;
+        border: 2px solid #444;
         border-radius: 12px;
-        color: var(--text-primary, #fff);
+        color: #fff;
         font-size: 1.5rem;
         text-align: center;
         font-family: "SF Mono", "Monaco", monospace;
@@ -614,17 +616,17 @@
 
     .duration-number:focus {
         outline: none;
-        border-color: var(--input-focus, #e94560);
+        border-color: #ff9500;
     }
 
     .duration-label {
         font-size: 0.9rem;
-        color: var(--text-secondary, #888);
+        color: #888;
     }
 
     .duration-separator {
         font-size: 2rem;
-        color: var(--text-primary, #fff);
+        color: #fff;
         font-weight: bold;
         margin: 0 0.25rem;
     }
@@ -632,10 +634,10 @@
     .sound-select-btn {
         width: 100%;
         padding: 0.75rem;
-        background: var(--btn-bg, #0f3460);
-        border: 2px solid var(--btn-border, #1a5490);
+        background: #2a2a2a;
+        border: 2px solid #444;
         border-radius: 12px;
-        color: var(--text-primary, #fff);
+        color: #fff;
         cursor: pointer;
         font-size: 1rem;
         text-align: left;
@@ -643,7 +645,7 @@
     }
 
     .sound-select-btn:hover {
-        border-color: var(--btn-hover, #e94560);
+        border-color: #ff9500;
     }
 
     .checkbox-group {
@@ -656,13 +658,13 @@
         gap: 0.75rem;
         cursor: pointer;
         padding: 0.75rem;
-        background: var(--checkbox-bg, #0f3460);
+        background: #2a2a2a;
         border-radius: 12px;
         transition: all 0.2s;
     }
 
     .checkbox-label:hover {
-        background: var(--checkbox-hover, #1a5490);
+        background: #333;
     }
 
     .checkbox-label input[type="checkbox"] {
@@ -673,7 +675,7 @@
 
     .checkbox-label span {
         font-size: 1rem;
-        color: var(--text-primary, #fff);
+        color: #fff;
     }
 
     .timer-editor-actions {
@@ -693,27 +695,27 @@
     }
 
     .btn-cancel {
-        background: var(--btn-cancel-bg, #2a2a3e);
-        color: var(--text-primary, #fff);
+        background: #555;
+        color: #fff;
     }
 
     .btn-cancel:hover {
-        background: var(--btn-cancel-hover, #3a3a4e);
+        background: #666;
     }
 
     .btn-save {
-        background: var(--btn-save-bg, #e94560);
+        background: #ff9500;
         color: white;
     }
 
     .btn-save:hover {
-        background: var(--btn-save-hover, #d63850);
+        background: #e68600;
     }
 
     .btn-add-timer {
         width: 100%;
         padding: 1rem;
-        background: linear-gradient(135deg, #e94560, #d32f2f);
+        background: #ff9500;
         border: none;
         border-radius: 16px;
         color: white;
@@ -721,12 +723,12 @@
         font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        box-shadow: 0 4px 15px rgba(255, 149, 0, 0.3);
     }
 
     .btn-add-timer:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+        box-shadow: 0 6px 20px rgba(255, 149, 0, 0.4);
     }
 
     @media (max-width: 768px) {

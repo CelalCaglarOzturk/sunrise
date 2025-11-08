@@ -223,9 +223,9 @@
     .stopwatch-time {
         font-size: 4rem;
         font-weight: bold;
-        color: var(--time-color, #e94560);
+        color: #fff;
         font-family: "SF Mono", "Monaco", "Inconsolata", monospace;
-        text-shadow: 0 2px 10px rgba(233, 69, 96, 0.3);
+        text-shadow: 0 2px 10px rgba(255, 149, 0, 0.3);
         letter-spacing: 0.05em;
     }
 
@@ -256,53 +256,53 @@
 
     .btn-start,
     .btn-resume {
-        background: var(--primary, #e94560);
+        background: #ff9500;
         color: white;
     }
 
     .btn-start:hover,
     .btn-resume:hover {
-        background: var(--primary-dark, #d32f2f);
+        background: #e68600;
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        box-shadow: 0 4px 15px rgba(255, 149, 0, 0.4);
     }
 
     .btn-pause {
-        background: var(--accent-orange, #ff8c00);
+        background: #555;
         color: white;
     }
 
     .btn-pause:hover {
-        background: #ff7700;
+        background: #666;
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+        box-shadow: 0 4px 15px rgba(85, 85, 85, 0.4);
     }
 
     .btn-lap {
-        background: var(--secondary, #0f3460);
+        background: #333;
         color: white;
     }
 
     .btn-lap:hover:not(:disabled) {
-        background: var(--secondary-light, #1a5490);
+        background: #444;
         transform: translateY(-2px);
     }
 
     .btn-reset {
-        background: var(--btn-bg, #0f3460);
+        background: #555;
         color: white;
     }
 
     .btn-reset:hover {
-        background: var(--btn-hover-bg, #1a5490);
+        background: #666;
         transform: translateY(-2px);
     }
 
     .laps-section {
-        background: var(--modal-bg, #16213e);
+        background: #1a1a1a;
         border-radius: 16px;
         padding: 1.5rem;
-        border: 2px solid var(--border-color, #0f3460);
+        border: 2px solid #333;
     }
 
     .laps-header {
@@ -314,13 +314,13 @@
 
     .laps-header h3 {
         margin: 0;
-        color: var(--text-primary, #e94560);
+        color: #ff9500;
         font-size: 1.3rem;
     }
 
     .btn-clear-laps {
         padding: 0.5rem 1rem;
-        background: var(--btn-delete-hover, #d32f2f);
+        background: #555;
         border: none;
         border-radius: 10px;
         color: white;
@@ -330,7 +330,7 @@
     }
 
     .btn-clear-laps:hover {
-        background: #b71c1c;
+        background: #666;
         transform: translateY(-1px);
     }
 
@@ -347,24 +347,24 @@
         align-items: center;
         gap: 1rem;
         padding: 1rem;
-        background: var(--alarm-bg, #1a1a2e);
+        background: #1a1a1a;
         border-radius: 12px;
-        border: 2px solid var(--alarm-border, #0f3460);
+        border: 2px solid #333;
         transition: all 0.2s;
     }
 
     .lap-item:hover {
-        border-color: var(--alarm-border-hover, #e94560);
+        border-color: #555;
     }
 
     .lap-item.fastest {
-        border-color: var(--accent, #ffd700);
-        background: rgba(255, 215, 0, 0.05);
+        border-color: #ff9500;
+        background: rgba(255, 149, 0, 0.05);
     }
 
     .lap-item.slowest {
-        border-color: var(--primary, #e94560);
-        background: rgba(233, 69, 96, 0.05);
+        border-color: #666;
+        background: rgba(102, 102, 102, 0.05);
     }
 
     .lap-number {
@@ -374,20 +374,20 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--btn-bg, #0f3460);
+        background: #333;
         border-radius: 50%;
         font-weight: bold;
-        color: var(--text-primary, #fff);
+        color: #fff;
         font-size: 1.1rem;
     }
 
     .lap-item.fastest .lap-number {
-        background: var(--accent, #ffd700);
+        background: #ff9500;
         color: #000;
     }
 
     .lap-item.slowest .lap-number {
-        background: var(--primary, #e94560);
+        background: #555;
         color: #fff;
     }
 
@@ -423,17 +423,17 @@
     }
 
     .laps-list::-webkit-scrollbar-track {
-        background: var(--bg-secondary, #16213e);
+        background: #1a1a1a;
         border-radius: 3px;
     }
 
     .laps-list::-webkit-scrollbar-thumb {
-        background: var(--secondary, #0f3460);
+        background: #333;
         border-radius: 3px;
     }
 
     .laps-list::-webkit-scrollbar-thumb:hover {
-        background: var(--secondary-light, #1a5490);
+        background: #555;
     }
 
     @media (max-width: 768px) {

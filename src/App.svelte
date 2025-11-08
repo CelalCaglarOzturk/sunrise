@@ -6,6 +6,7 @@
     import Timer from "./components/Timer.svelte";
     import Stopwatch from "./components/Stopwatch.svelte";
     import BulkActions from "./components/BulkActions.svelte";
+    import DigitalClock from "./components/DigitalClock.svelte";
     import Icon from "./components/Icon.svelte";
 
     import {
@@ -211,12 +212,74 @@
         showBulkActions = false;
     }
 
+    async function handleEnableAllAlarms() {
+        alarms.enableAll();
+        alarmsData.forEach((alarm) => {
+            alarmService.scheduleAlarm(alarm, locationData);
+        });
+    }
+
     async function handleDeleteAllAlarms() {
         alarmsData.forEach((alarm) => {
             alarmService.cancelAlarm(alarm.id);
         });
         alarms.deleteAll();
         showBulkActions = false;
+    }
+
+    function exportSettings() {
+        const data = {
+            alarms: alarmsData,
+            settings: settingsData,
+            timers: [],
+            version: "1.0.0",
+            exportDate: new Date().toISOString(),
+        };
+
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `gunes-backup-${new Date().toISOString().split("T")[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function importSettings() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "application/json";
+        input.onchange = async (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+
+            try {
+                const text = await file.text();
+                const data = JSON.parse(text);
+
+                if (data.alarms) {
+                    alarms.set(data.alarms);
+                    data.alarms.forEach((alarm: Alarm) => {
+                        if (alarm.enabled) {
+                            alarmService.scheduleAlarm(alarm, locationData);
+                        }
+                    });
+                }
+
+                if (data.settings) {
+                    settings.set(data.settings);
+                }
+
+                alert("Settings imported successfully!");
+            } catch (error) {
+                console.error("Import error:", error);
+                alert("Failed to import settings. Please check the file.");
+            }
+        };
+        input.click();
     }
 </script>
 
@@ -243,11 +306,17 @@
             {#if currentView === "alarms"}
                 <BulkActions
                     visible={showBulkActions}
+                    alarms={alarmsData}
                     {t}
                     onDisableAll={handleDisableAllAlarms}
+                    onEnableAll={handleEnableAllAlarms}
                     onDeleteAll={handleDeleteAllAlarms}
                 />
                 <div class="view-content">
+                    <DigitalClock
+                        {t}
+                        use24Hour={settingsData.use24HourFormat}
+                    />
                     <AlarmList
                         alarms={sortedAlarms}
                         {t}
@@ -362,6 +431,28 @@
                         >
                             {t.grantPermission}
                         </button>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>{t.about}</h3>
+                        <div class="setting-item">
+                            <button
+                                class="btn-secondary"
+                                on:click={exportSettings}
+                            >
+                                <Icon name="download" size={16} />
+                                {t.exportSettings}
+                            </button>
+                        </div>
+                        <div class="setting-item">
+                            <button
+                                class="btn-secondary"
+                                on:click={importSettings}
+                            >
+                                <Icon name="upload" size={16} />
+                                {t.importSettings}
+                            </button>
+                        </div>
                     </div>
                 </div>
             {:else if currentView === "timer"}

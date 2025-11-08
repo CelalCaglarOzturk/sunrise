@@ -366,8 +366,13 @@
         background: #444;
     }
 
+    .btn-delete {
+        color: #ff3b30;
+    }
+
     .btn-delete:hover {
         background: #ff3b30;
+        color: #fff;
     }
 
     @media (max-width: 768px) {

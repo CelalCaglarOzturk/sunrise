@@ -1,16 +1,25 @@
 <script lang="ts">
-    import type { Translation } from "../types";
+    import type { Translation, Alarm } from "../types";
     import Icon from "./Icon.svelte";
 
     export let visible: boolean = false;
+    export let alarms: Alarm[] = [];
     export let t: Translation;
     export let onDisableAll: () => void;
+    export let onEnableAll: () => void;
     export let onDeleteAll: () => void;
+
+    $: allDisabled =
+        alarms.length > 0 && alarms.every((alarm) => !alarm.enabled);
 
     function handleDisableAll() {
         if (confirm(t.disableAllConfirm)) {
             onDisableAll();
         }
+    }
+
+    function handleEnableAll() {
+        onEnableAll();
     }
 
     function handleDeleteAll() {
@@ -22,10 +31,17 @@
 
 {#if visible}
     <div class="bulk-actions">
-        <button class="bulk-btn disable-btn" on:click={handleDisableAll}>
-            <Icon name="chevron-up" size={20} />
-            {t.disableAll}
-        </button>
+        {#if allDisabled}
+            <button class="bulk-btn enable-btn" on:click={handleEnableAll}>
+                <Icon name="chevron-down" size={20} />
+                {t.enableAll || "Enable All"}
+            </button>
+        {:else}
+            <button class="bulk-btn disable-btn" on:click={handleDisableAll}>
+                <Icon name="chevron-up" size={20} />
+                {t.disableAll}
+            </button>
+        {/if}
         <button class="bulk-btn delete-btn" on:click={handleDeleteAll}>
             <Icon name="trash" size={20} />
             {t.deleteAll}
@@ -74,6 +90,16 @@
 
     .disable-btn:hover {
         background: #444;
+        transform: translateY(-2px);
+    }
+
+    .enable-btn {
+        background: #ff9500;
+        color: #fff;
+    }
+
+    .enable-btn:hover {
+        background: #e68600;
         transform: translateY(-2px);
     }
 
