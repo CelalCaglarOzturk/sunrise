@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "dev.mudrock.gunes",
+  appId: "dev.mudrock.sunrise",
   appName: "Sun Clock",
   webDir: "dist",
   server: {

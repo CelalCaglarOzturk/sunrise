@@ -308,23 +308,32 @@
                     <div class="settings-section">
                         <h3>{t.defaultClockMode}</h3>
                         <div class="setting-item">
-                            <label class="setting-label">
-                                <span>
+                            <div class="time-format-toggle">
+                                <button
+                                    class="format-btn"
+                                    class:active={settingsData.defaultClockMode ===
+                                        "normal"}
+                                    on:click={() =>
+                                        settings.update({
+                                            defaultClockMode: "normal",
+                                        })}
+                                >
                                     <Icon name="clock" size={16} />
-                                    {t.normalClock} /
+                                    {t.normalClock}
+                                </button>
+                                <button
+                                    class="format-btn"
+                                    class:active={settingsData.defaultClockMode ===
+                                        "sun"}
+                                    on:click={() =>
+                                        settings.update({
+                                            defaultClockMode: "sun",
+                                        })}
+                                >
                                     <Icon name="sun" size={16} />
                                     {t.sunBasedClock}
-                                </span>
-                                <label class="toggle-switch">
-                                    <input
-                                        type="checkbox"
-                                        checked={settingsData.defaultClockMode ===
-                                            "sun"}
-                                        on:change={toggleDefaultClockMode}
-                                    />
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </label>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
