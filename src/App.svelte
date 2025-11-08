@@ -227,61 +227,6 @@
         alarms.deleteAll();
         showBulkActions = false;
     }
-
-    function exportSettings() {
-        const data = {
-            alarms: alarmsData,
-            settings: settingsData,
-            timers: [],
-            version: "1.0.0",
-            exportDate: new Date().toISOString(),
-        };
-
-        const jsonStr = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `gunes-backup-${new Date().toISOString().split("T")[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    function importSettings() {
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "application/json";
-        input.onchange = async (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (!file) return;
-
-            try {
-                const text = await file.text();
-                const data = JSON.parse(text);
-
-                if (data.alarms) {
-                    alarms.set(data.alarms);
-                    data.alarms.forEach((alarm: Alarm) => {
-                        if (alarm.enabled) {
-                            alarmService.scheduleAlarm(alarm, locationData);
-                        }
-                    });
-                }
-
-                if (data.settings) {
-                    settings.set(data.settings);
-                }
-
-                alert("Settings imported successfully!");
-            } catch (error) {
-                console.error("Import error:", error);
-                alert("Failed to import settings. Please check the file.");
-            }
-        };
-        input.click();
-    }
 </script>
 
 <main style="padding-bottom: 96px;">
@@ -386,21 +331,28 @@
                     <div class="settings-section">
                         <h3>{t.use24Hour}</h3>
                         <div class="setting-item">
-                            <label class="setting-label">
-                                <span
-                                    >{settingsData.use24HourFormat
-                                        ? "24 Hour Format"
-                                        : "12 Hour Format"}</span
+                            <div class="time-format-toggle">
+                                <button
+                                    class="format-btn"
+                                    class:active={!settingsData.use24HourFormat}
+                                    on:click={() =>
+                                        settings.update({
+                                            use24HourFormat: false,
+                                        })}
                                 >
-                                <label class="toggle-switch">
-                                    <input
-                                        type="checkbox"
-                                        checked={settingsData.use24HourFormat}
-                                        on:change={toggle24HourFormat}
-                                    />
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </label>
+                                    12 Hour Format
+                                </button>
+                                <button
+                                    class="format-btn"
+                                    class:active={settingsData.use24HourFormat}
+                                    on:click={() =>
+                                        settings.update({
+                                            use24HourFormat: true,
+                                        })}
+                                >
+                                    24 Hour Format
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -442,23 +394,9 @@
 
                     <div class="settings-section">
                         <h3>{t.about}</h3>
-                        <div class="setting-item">
-                            <button
-                                class="btn-secondary"
-                                on:click={exportSettings}
-                            >
-                                <Icon name="download" size={16} />
-                                {t.exportSettings}
-                            </button>
-                        </div>
-                        <div class="setting-item">
-                            <button
-                                class="btn-secondary"
-                                on:click={importSettings}
-                            >
-                                <Icon name="upload" size={16} />
-                                {t.importSettings}
-                            </button>
+                        <div class="about-content">
+                            <p class="app-name-full">Sun-Based Alarm Clock</p>
+                            <p class="app-version">Version 1.0.0</p>
                         </div>
                     </div>
                 </div>
@@ -834,7 +772,60 @@
     }
 
     input:checked + .toggle-slider:before {
-        transform: translateX(26px);
+        transform: translateX(22px);
+    }
+
+    .time-format-toggle {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+
+    .format-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        min-height: 48px;
+        background: #333;
+        border: 1px solid #555;
+        border-radius: 10px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .format-btn:hover {
+        border-color: #ff9500;
+    }
+
+    .format-btn.active {
+        background: #ff9500;
+        border-color: #ff9500;
+        font-weight: bold;
+    }
+
+    .about-content {
+        padding: 1rem;
+        background: #2a2a2a;
+        border-radius: 12px;
+        border: 2px solid #333;
+        text-align: center;
+    }
+
+    .app-name-full {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #ff9500;
+        margin-bottom: 0.5rem;
+    }
+
+    .app-version {
+        font-size: 0.9rem;
+        color: #888;
     }
 
     .language-select {

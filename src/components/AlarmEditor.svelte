@@ -578,7 +578,9 @@
                 <div class="form-group">
                     <label class="toggle-option-label">
                         <span class="toggle-option-text">
-                            <Icon name="trash" size={16} />
+                            <span class="icon-red">
+                                <Icon name="trash" size={16} />
+                            </span>
                             {t.deleteAfterUse}
                         </span>
                         <label class="toggle-switch">
@@ -719,6 +721,7 @@
         justify-content: center;
         gap: 0.5rem;
         padding: 0.75rem;
+        min-height: 48px;
         background: #333;
         border: 1px solid #555;
         border-radius: 10px;
@@ -726,6 +729,7 @@
         cursor: pointer;
         font-size: 0.95rem;
         transition: all 0.2s;
+        white-space: nowrap;
     }
 
     .mode-btn:hover:not(:disabled) {
@@ -1006,6 +1010,12 @@
         color: #fff;
         font-weight: 500;
         flex: 1;
+    }
+
+    .toggle-option-text .icon-red {
+        color: #ef4444;
+        display: inline-flex;
+        align-items: center;
     }
 
     .toggle-switch {

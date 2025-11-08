@@ -104,12 +104,12 @@
     }
 
     .delete-btn {
-        background: #d97706;
+        background: #ef4444;
         color: #fff;
     }
 
     .delete-btn:hover {
-        background: #b45309;
+        background: #dc2626;
         transform: translateY(-2px);
     }
 
