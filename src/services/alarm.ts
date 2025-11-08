@@ -1,7 +1,7 @@
-import { LocalNotifications } from '@capacitor/local-notifications';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import type { Alarm, Location } from '../types';
-import { sunCalcService } from './sunCalc';
+import { LocalNotifications } from "@capacitor/local-notifications";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import type { Alarm, Location } from "../types";
+import { sunCalcService } from "./sunCalc";
 
 export class AlarmService {
   private static instance: AlarmService;
@@ -19,9 +19,9 @@ export class AlarmService {
   async requestPermissions(): Promise<boolean> {
     try {
       const result = await LocalNotifications.requestPermissions();
-      return result.display === 'granted';
+      return result.display === "granted";
     } catch (error) {
-      console.error('Error requesting notification permissions:', error);
+      console.error("Error requesting notification permissions:", error);
       return false;
     }
   }
@@ -29,9 +29,9 @@ export class AlarmService {
   async checkPermissions(): Promise<boolean> {
     try {
       const result = await LocalNotifications.checkPermissions();
-      return result.display === 'granted';
+      return result.display === "granted";
     } catch (error) {
-      console.error('Error checking notification permissions:', error);
+      console.error("Error checking notification permissions:", error);
       return false;
     }
   }
@@ -45,7 +45,7 @@ export class AlarmService {
       if (!hasPermission) {
         const granted = await this.requestPermissions();
         if (!granted) {
-          throw new Error('Notification permission denied');
+          throw new Error("Notification permission denied");
         }
       }
 
@@ -55,17 +55,20 @@ export class AlarmService {
       const notifications = this.calculateAlarmTimes(alarm, location);
 
       if (notifications.length === 0) {
-        console.warn('No valid alarm times calculated');
+        console.warn("No valid alarm times calculated");
         return;
       }
 
       await LocalNotifications.schedule({
         notifications: notifications.map((notification, index) => ({
-          id: parseInt(alarm.id.replace(/\D/g, '').slice(0, 9)) + index,
-          title: alarm.label || 'Alarm',
+          id: parseInt(alarm.id.replace(/\D/g, "").slice(0, 9)) + index,
+          title: alarm.label || "Alarm",
           body: this.formatAlarmBody(alarm),
           schedule: { at: notification },
-          sound: alarm.soundUri || undefined,
+          // Note: Android notifications can only use sounds from res/raw folder
+          // Custom sounds from storage cannot be used directly
+          // Default notification sound will be used if soundUri is from external storage
+          sound: this.getNotificationSound(alarm.soundUri),
           actionTypeId: alarm.id,
           extra: {
             alarmId: alarm.id,
@@ -73,13 +76,15 @@ export class AlarmService {
             gradualVolume: alarm.gradualVolume,
             gradualDuration: alarm.gradualDuration,
             deleteAfterUse: alarm.deleteAfterUse,
+            soundUri: alarm.soundUri,
+            soundName: alarm.soundName,
           },
         })),
       });
 
       this.scheduledAlarms.add(alarm.id);
     } catch (error) {
-      console.error('Error scheduling alarm:', error);
+      console.error("Error scheduling alarm:", error);
       throw error;
     }
   }
@@ -105,7 +110,7 @@ export class AlarmService {
 
       this.scheduledAlarms.delete(alarmId);
     } catch (error) {
-      console.error('Error canceling alarm:', error);
+      console.error("Error canceling alarm:", error);
       throw error;
     }
   }
@@ -113,7 +118,10 @@ export class AlarmService {
   /**
    * Reschedule all alarms
    */
-  async rescheduleAllAlarms(alarms: Alarm[], location: Location | null): Promise<void> {
+  async rescheduleAllAlarms(
+    alarms: Alarm[],
+    location: Location | null
+  ): Promise<void> {
     try {
       // Cancel all existing notifications
       await LocalNotifications.cancel({
@@ -127,7 +135,7 @@ export class AlarmService {
         await this.scheduleAlarm(alarm, location);
       }
     } catch (error) {
-      console.error('Error rescheduling alarms:', error);
+      console.error("Error rescheduling alarms:", error);
       throw error;
     }
   }
@@ -166,7 +174,7 @@ export class AlarmService {
         );
       } else {
         // Normal time
-        const [hours, minutes] = alarm.time.split(':').map(Number);
+        const [hours, minutes] = alarm.time.split(":").map(Number);
         alarmTime = new Date(now);
         alarmTime.setDate(alarmTime.getDate() + daysAhead);
         alarmTime.setHours(hours, minutes, 0, 0);
@@ -195,7 +203,7 @@ export class AlarmService {
       const offsetHours = Math.floor(offsetAbs / 60);
       const offsetMinutes = offsetAbs % 60;
 
-      let text = '';
+      let text = "";
       if (offsetHours > 0) {
         text += `${offsetHours}h `;
       }
@@ -204,9 +212,9 @@ export class AlarmService {
       }
 
       if (alarm.sunOffset >= 0) {
-        text += 'after sunrise';
+        text += "after sunrise";
       } else {
-        text += 'before sunrise';
+        text += "before sunrise";
       }
 
       return text;
@@ -222,7 +230,7 @@ export class AlarmService {
     try {
       await Haptics.impact({ style: ImpactStyle.Heavy });
     } catch (error) {
-      console.error('Error triggering vibration:', error);
+      console.error("Error triggering vibration:", error);
     }
   }
 
@@ -236,7 +244,7 @@ export class AlarmService {
         notifications: [{ id: notificationId }],
       });
     } catch (error) {
-      console.error('Error handling alarm notification:', error);
+      console.error("Error handling alarm notification:", error);
     }
   }
 
@@ -248,7 +256,7 @@ export class AlarmService {
       const result = await LocalNotifications.getPending();
       return result.notifications;
     } catch (error) {
-      console.error('Error getting pending notifications:', error);
+      console.error("Error getting pending notifications:", error);
       return [];
     }
   }
@@ -261,36 +269,60 @@ export class AlarmService {
   }
 
   /**
+   * Get notification sound (only built-in sounds work on Android)
+   * Custom sounds from external storage need to be handled by the app itself
+   */
+  private getNotificationSound(soundUri: string): string | undefined {
+    // If soundUri is empty or looks like an external file, use default
+    if (
+      !soundUri ||
+      soundUri.startsWith("file://") ||
+      soundUri.startsWith("content://")
+    ) {
+      // Return undefined to use system default notification sound
+      return undefined;
+    }
+    // Only return sound if it's a resource sound (res/raw)
+    return soundUri;
+  }
+
+  /**
    * Initialize notification listeners
    */
   initializeListeners(
     onAlarmTriggered: (alarmId: string, extra: any) => void
   ): void {
-    LocalNotifications.addListener('localNotificationReceived', (notification) => {
-      console.log('Notification received:', notification);
+    LocalNotifications.addListener(
+      "localNotificationReceived",
+      (notification) => {
+        console.log("Notification received:", notification);
 
-      if (notification.extra) {
-        // Trigger vibration if enabled
-        if (notification.extra.vibrate) {
-          this.triggerVibration();
+        if (notification.extra) {
+          // Trigger vibration if enabled
+          if (notification.extra.vibrate) {
+            this.triggerVibration();
+          }
+
+          // Call the alarm triggered callback
+          onAlarmTriggered(notification.extra.alarmId, notification.extra);
         }
-
-        // Call the alarm triggered callback
-        onAlarmTriggered(notification.extra.alarmId, notification.extra);
       }
-    });
+    );
 
-    LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
-      console.log('Notification action performed:', notification);
+    LocalNotifications.addListener(
+      "localNotificationActionPerformed",
+      (notification) => {
+        console.log("Notification action performed:", notification);
 
-      if (notification.notification.extra) {
-        // Handle notification dismissal
-        onAlarmTriggered(
-          notification.notification.extra.alarmId,
-          notification.notification.extra
-        );
+        if (notification.notification.extra) {
+          // Handle notification dismissal
+          onAlarmTriggered(
+            notification.notification.extra.alarmId,
+            notification.notification.extra
+          );
+        }
       }
-    });
+    );
   }
 
   /**

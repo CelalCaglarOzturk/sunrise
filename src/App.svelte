@@ -18,6 +18,7 @@
         saveToStorage,
     } from "./stores";
     import { locationService } from "./services/location";
+    import { filePickerService } from "./services/filePicker";
     import { sunCalcService } from "./services/sunCalc";
     import { alarmService } from "./services/alarm";
     import { getTranslation } from "./utils/translations";
@@ -80,6 +81,7 @@
         if (timeInterval) clearInterval(timeInterval);
         if (locationWatchId) locationService.clearWatch(locationWatchId);
         alarmService.removeListeners();
+        stopAlarmSound();
         unsubAlarms();
         unsubSettings();
         unsubLocation();
@@ -90,6 +92,7 @@
         try {
             await locationService.requestPermissions();
             await alarmService.requestPermissions();
+            await filePickerService.requestPermissions();
         } catch (error) {
             console.error("Error requesting permissions:", error);
         }
@@ -169,6 +172,11 @@
     function handleAlarmTriggered(alarmId: string, extra: any) {
         console.log("Alarm triggered:", alarmId, extra);
 
+        // Play custom sound if available
+        if (extra.soundUri && (extra.soundUri.startsWith('file://') || extra.soundUri.startsWith('content://'))) {
+            playCustomAlarmSound(extra.soundUri, extra.volume || 100, extra.gradualVolume, extra.gradualDuration);
+        }
+
         // If delete after use, remove the alarm
         if (extra.deleteAfterUse) {
             handleDeleteAlarm(alarmId);
@@ -178,6 +186,72 @@
             if (alarm) {
                 alarmService.scheduleAlarm(alarm, locationData);
             }
+        }
+    }
+
+    let alarmAudio: HTMLAudioElement | null = null;
+    let volumeIntervalId: number | null = null;
+
+    function playCustomAlarmSound(soundUri: string, targetVolume: number, gradualVolume: boolean, gradualDuration: number) {
+        try {
+            // Stop any existing alarm sound
+            stopAlarmSound();
+
+            // Create new audio element
+            alarmAudio = new Audio(soundUri);
+            alarmAudio.loop = true;
+
+            if (gradualVolume) {
+                // Start at low volume
+                alarmAudio.volume = 0.1;
+                alarmAudio.play();
+
+                // Gradually increase volume
+                const steps = gradualDuration * 10; // 10 steps per second
+                const volumeIncrement = (targetVolume / 100 - 0.1) / steps;
+                let currentStep = 0;
+
+                volumeIntervalId = window.setInterval(() => {
+                    if (alarmAudio && currentStep < steps) {
+                        currentStep++;
+                        const newVolume = Math.min(0.1 + (volumeIncrement * currentStep), targetVolume / 100);
+                        alarmAudio.volume = newVolume;
+                    } else {
+                        if (volumeIntervalId) {
+                            clearInterval(volumeIntervalId);
+                            volumeIntervalId = null;
+                        }
+                    }
+                }, 100);
+            } else {
+                // Play at target volume immediately
+                alarmAudio.volume = targetVolume / 100;
+                alarmAudio.play();
+            }
+
+            // Add error handler
+            alarmAudio.onerror = (error) => {
+                console.error("Error playing custom alarm sound:", error);
+                stopAlarmSound();
+            };
+
+            // Auto-stop after 10 minutes (safety)
+            setTimeout(() => {
+                stopAlarmSound();
+            }, 600000);
+        } catch (error) {
+            console.error("Error setting up custom alarm sound:", error);
+        }
+    }
+
+    function stopAlarmSound() {
+        if (alarmAudio) {
+            alarmAudio.pause();
+            alarmAudio = null;
+        }
+        if (volumeIntervalId) {
+            clearInterval(volumeIntervalId);
+            volumeIntervalId = null;
         }
     }
 

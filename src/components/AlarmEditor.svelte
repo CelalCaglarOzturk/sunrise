@@ -505,6 +505,13 @@
                             </button>
                         </div>
                     {/if}
+
+                    {#if soundUri && (soundUri.startsWith('file://') || soundUri.startsWith('content://'))}
+                        <div class="sound-warning">
+                            <Icon name="bell" size={14} />
+                            <span>Note: Custom sounds from storage will be played by the app, not by the system notification.</span>
+                        </div>
+                    {/if}
                 </div>
 
                 <!-- Volume -->
@@ -981,7 +988,25 @@
     }
 
     .sound-picker button:hover {
-        background: #333;
+        background: var(--picker-btn-hover, #1a5490);
+    }
+
+    .sound-warning {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding: 0.75rem;
+        background: rgba(255, 149, 0, 0.1);
+        border: 1px solid rgba(255, 149, 0, 0.3);
+        border-radius: 8px;
+        color: #ff9500;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .sound-warning span {
+        flex: 1;
     }
 
     .btn-browse-files {
