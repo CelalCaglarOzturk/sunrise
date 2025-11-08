@@ -17,7 +17,7 @@ export interface Alarm {
 }
 
 export interface AppSettings {
-  defaultClockMode: 'normal' | 'sun'; // default clock mode for new alarms
+  defaultClockMode: "normal" | "sun"; // default clock mode for new alarms
   use24HourFormat: boolean;
   language: string;
   notificationsEnabled: boolean;
@@ -81,6 +81,8 @@ export interface Translation {
   locationPermissionDesc: string;
   notificationPermission: string;
   notificationPermissionDesc: string;
+  alarmPermission: string;
+  alarmPermissionDesc: string;
   grantPermission: string;
   permissions: string;
   noAlarmsYet: string;
@@ -100,6 +102,64 @@ export interface Translation {
   confirmDeleteMessage: string;
   yes: string;
   no: string;
+  timer: string;
+  stopwatch: string;
+  addTimer: string;
+  start: string;
+  pause: string;
+  resume: string;
+  reset: string;
+  stop: string;
+  lap: string;
+  duration: string;
+  setDuration: string;
+  timerFinished: string;
+  noTimersYet: string;
+  createFirstTimer: string;
+  selectSoundFromStorage: string;
+  browseFiles: string;
+  laps: string;
+  lapTime: string;
+  splitTime: string;
+  totalTime: string;
+  clearLaps: string;
 }
 
-export type Language = 'en' | 'tr' | 'es' | 'de' | 'fr' | 'it' | 'pt' | 'ru' | 'ja' | 'zh' | 'ar';
+export type Language =
+  | "en"
+  | "tr"
+  | "es"
+  | "de"
+  | "fr"
+  | "it"
+  | "pt"
+  | "ru"
+  | "ja"
+  | "zh"
+  | "ar";
+
+export interface Timer {
+  id: string;
+  label: string;
+  duration: number; // seconds
+  remainingTime: number; // seconds
+  isRunning: boolean;
+  isPaused: boolean;
+  soundUri: string;
+  soundName: string;
+  vibrate: boolean;
+}
+
+export interface Lap {
+  id: string;
+  lapNumber: number;
+  time: number; // milliseconds
+  splitTime: number; // milliseconds from start
+}
+
+export interface Stopwatch {
+  isRunning: boolean;
+  isPaused: boolean;
+  elapsedTime: number; // milliseconds
+  laps: Lap[];
+}

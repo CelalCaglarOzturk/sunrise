@@ -4,6 +4,9 @@
     import AlarmList from "./components/AlarmList.svelte";
     import AlarmEditor from "./components/AlarmEditor.svelte";
     import SunTimesDisplay from "./components/SunTimesDisplay.svelte";
+    import Timer from "./components/Timer.svelte";
+    import Stopwatch from "./components/Stopwatch.svelte";
+
     import {
         alarms,
         settings,
@@ -24,7 +27,12 @@
 
     let showAlarmEditor = false;
     let editingAlarm: Alarm | null = null;
-    let currentView: "alarms" | "sun-times" | "settings" = "alarms";
+    let currentView:
+        | "alarms"
+        | "sun-times"
+        | "settings"
+        | "timer"
+        | "stopwatch" = "alarms";
 
     let alarmsData: Alarm[] = [];
     let settingsData: any;
@@ -219,31 +227,6 @@
             />
         </section>
 
-        <!-- Navigation -->
-        <nav class="tab-nav">
-            <button
-                class="tab-btn"
-                class:active={currentView === "alarms"}
-                on:click={() => (currentView = "alarms")}
-            >
-                ⏰ {t.alarms}
-            </button>
-            <button
-                class="tab-btn"
-                class:active={currentView === "sun-times"}
-                on:click={() => (currentView = "sun-times")}
-            >
-                ☀️ {t.upcomingSunTimes}
-            </button>
-            <button
-                class="tab-btn"
-                class:active={currentView === "settings"}
-                on:click={() => (currentView = "settings")}
-            >
-                ⚙️ {t.settings}
-            </button>
-        </nav>
-
         <!-- Content Views -->
         <div class="content-container">
             {#if currentView === "alarms"}
@@ -358,8 +341,132 @@
                         </button>
                     </div>
                 </div>
+            {:else if currentView === "timer"}
+                <div class="view-content">
+                    <Timer {t} />
+                </div>
+            {:else if currentView === "stopwatch"}
+                <div class="view-content">
+                    <Stopwatch {t} />
+                </div>
             {/if}
         </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button
+                class="nav-btn"
+                class:active={currentView === "alarms"}
+                on:click={() => (currentView = "alarms")}
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path
+                        d="M10.3 21a1.94 1.94 0 0 0 3.4 0"
+                    /></svg
+                >
+                <span>Alarms</span>
+            </button>
+            <button
+                class="nav-btn"
+                class:active={currentView === "sun-times"}
+                on:click={() => (currentView = "sun-times")}
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path
+                        d="M12 20v2"
+                    /><path d="m4.93 4.93 1.41 1.41" /><path
+                        d="m17.66 17.66 1.41 1.41"
+                    /><path d="M2 12h2" /><path d="M20 12h2" /><path
+                        d="m6.34 17.66-1.41 1.41"
+                    /><path d="m19.07 4.93-1.41 1.41" /></svg
+                >
+                <span>Sun</span>
+            </button>
+            <button
+                class="nav-btn"
+                class:active={currentView === "settings"}
+                on:click={() => (currentView = "settings")}
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path
+                        d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+                    /><circle cx="12" cy="12" r="3" /></svg
+                >
+                <span>Settings</span>
+            </button>
+            <button
+                class="nav-btn"
+                class:active={currentView === "timer"}
+                on:click={() => (currentView = "timer")}
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><line x1="10" x2="14" y1="2" y2="2" /><line
+                        x1="12"
+                        x2="15"
+                        y1="14"
+                        y2="11"
+                    /><circle cx="12" cy="14" r="8" /></svg
+                >
+                <span>Timer</span>
+            </button>
+            <button
+                class="nav-btn"
+                class:active={currentView === "stopwatch"}
+                on:click={() => (currentView = "stopwatch")}
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><circle cx="12" cy="12" r="10" /><polyline
+                        points="12 6 12 12 16 14"
+                    /></svg
+                >
+                <span>Watch</span>
+            </button>
+        </nav>
     </div>
 
     <!-- Alarm Editor Modal -->
@@ -393,7 +500,7 @@
 
     main {
         min-height: 100vh;
-        padding-bottom: 2rem;
+        padding-bottom: 6rem;
     }
 
     .app-container {
@@ -446,41 +553,69 @@
         margin-bottom: 2rem;
     }
 
-    .tab-nav {
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-        background: rgba(15, 52, 96, 0.3);
-        padding: 0.5rem;
-        border-radius: 16px;
+        grid-template-columns: repeat(5, 1fr);
+        background: rgba(15, 20, 40, 0.95);
         backdrop-filter: blur(10px);
+        border-top: 2px solid rgba(233, 69, 96, 0.3);
+        padding: 0.5rem;
+        gap: 0.25rem;
+        z-index: 1000;
     }
 
-    .tab-btn {
-        padding: 0.75rem 1rem;
+    .nav-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
         background: transparent;
-        border: none;
-        border-radius: 12px;
-        color: #fff;
+        border: 2px solid rgba(233, 69, 96, 0.3);
+        border-radius: 4px;
+        color: rgba(255, 255, 255, 0.7);
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.7rem;
         font-weight: 500;
-        transition: all 0.3s ease;
-        white-space: nowrap;
+        transition: all 0.2s ease;
+        gap: 0.25rem;
+        min-height: 64px;
     }
 
-    .tab-btn:hover {
+    .nav-btn:hover {
+        background: rgba(233, 69, 96, 0.1);
+        color: #fff;
+        border-color: rgba(233, 69, 96, 0.5);
+    }
+
+    .nav-btn.active {
         background: rgba(233, 69, 96, 0.2);
+        border-color: #e94560;
+        color: #e94560;
+        font-weight: bold;
     }
 
-    .tab-btn.active {
-        background: #e94560;
-        font-weight: bold;
+    .nav-btn svg {
+        flex-shrink: 0;
+    }
+
+    .nav-btn span {
+        font-size: 0.65rem;
+        text-align: center;
+        line-height: 1.1;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
     }
 
     .content-container {
         min-height: 300px;
+        padding-bottom: 80px;
     }
 
     .view-content {
@@ -705,19 +840,17 @@
             font-size: 1.5rem;
         }
 
-        .tab-nav {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.25rem;
-            padding: 0.25rem;
-        }
-
-        .tab-btn {
-            padding: 0.5rem 0.25rem;
-            font-size: 0.75rem;
-        }
-
         .settings-section {
             padding: 1rem;
+        }
+
+        .nav-btn {
+            min-height: 56px;
+            padding: 0.4rem;
+        }
+
+        .nav-btn span {
+            font-size: 0.6rem;
         }
     }
 </style>

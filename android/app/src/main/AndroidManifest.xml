@@ -56,4 +56,8 @@
 
     <!-- Receive boot completed to reschedule alarms after reboot -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Storage permissions for accessing audio files -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 </manifest>
