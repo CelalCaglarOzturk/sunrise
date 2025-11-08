@@ -1202,6 +1202,30 @@ export function detectSystemLanguage(): Language {
   return "en";
 }
 
+export function detectSystem24HourFormat(): boolean {
+  if (typeof window === "undefined") return true;
+
+  try {
+    // Create a date and format it according to system locale
+    const testDate = new Date(2000, 0, 1, 13, 0, 0);
+    const formatted = testDate.toLocaleTimeString();
+
+    // If the formatted time contains "13" or "1:00 PM" / "1:00 AM" patterns
+    // Check if it uses 24-hour format (contains 13-23 hours)
+    const has13 = formatted.includes("13");
+    const hasPM =
+      formatted.toLowerCase().includes("pm") ||
+      formatted.toLowerCase().includes("am");
+
+    // If it shows 13:00 format, it's 24-hour
+    // If it shows 1:00 PM format, it's 12-hour
+    return has13 || !hasPM;
+  } catch (error) {
+    console.error("Error detecting time format:", error);
+    return true; // Default to 24-hour
+  }
+}
+
 export const supportedLanguages: { code: Language; name: string }[] = [
   { code: "en", name: "English" },
   { code: "tr", name: "Türkçe" },

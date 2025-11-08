@@ -8,7 +8,10 @@ import type {
   Timer,
   Stopwatch,
 } from "../types";
-import { detectSystemLanguage } from "../utils/translations";
+import {
+  detectSystemLanguage,
+  detectSystem24HourFormat,
+} from "../utils/translations";
 
 // Alarms store
 function createAlarmsStore() {
@@ -45,7 +48,7 @@ function createAlarmsStore() {
 function createSettingsStore() {
   const defaultSettings: AppSettings = {
     defaultClockMode: "normal",
-    use24HourFormat: true,
+    use24HourFormat: detectSystem24HourFormat(),
     language: detectSystemLanguage(),
     notificationsEnabled: true,
   };
