@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">dev.mudrock.gunes</string>
+    <string name="title_activity_main">dev.mudrock.gunes</string>
+    <string name="package_name">dev.mudrock.gunes</string>
+    <string name="custom_url_scheme">dev.mudrock.gunes</string>
+</resources>
