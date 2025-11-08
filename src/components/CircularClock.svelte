@@ -19,15 +19,31 @@
     $: seconds = currentTime.getSeconds();
 
     // Calculate hour hand angle (30 degrees per hour, 0.5 degrees per minute)
-    $: hourAngle =
-        useSunBased && sunriseTime
-            ? ((hours * 60 + minutes) / 1440) * 360 - 90
-            : use24Hour
-              ? ((hours * 60 + minutes) / 1440) * 360 - 90
-              : (hours % 12) * 30 + minutes * 0.5 - 90;
+    $: hourAngle = (() => {
+        if (useSunBased && sunriseTime) {
+            // Calculate minutes since sunrise for sun-based mode
+            const minutesSinceSunrise =
+                (currentTime.getTime() - sunriseTime.getTime()) / 60000;
+            // Map to 24-hour dial (1440 minutes = 360 degrees)
+            return ((minutesSinceSunrise % 1440) / 1440) * 360 - 90;
+        } else if (use24Hour) {
+            return ((hours * 60 + minutes) / 1440) * 360 - 90;
+        } else {
+            return (hours % 12) * 30 + minutes * 0.5 - 90;
+        }
+    })();
 
     // Calculate minute hand angle (6 degrees per minute)
-    $: minuteAngle = minutes * 6 - 90;
+    $: minuteAngle = (() => {
+        if (useSunBased && sunriseTime) {
+            const minutesSinceSunrise =
+                (currentTime.getTime() - sunriseTime.getTime()) / 60000;
+            const sunMinutes = Math.floor(minutesSinceSunrise % 60);
+            return sunMinutes * 6 - 90;
+        } else {
+            return minutes * 6 - 90;
+        }
+    })();
 
     // Calculate second hand angle (6 degrees per second)
     $: secondAngle = seconds * 6 - 90;
@@ -99,9 +115,16 @@
         if (useSunBased && sunriseTime) {
             const minutesSinceSunrise =
                 (currentTime.getTime() - sunriseTime.getTime()) / 60000;
-            const sunHours = Math.floor(minutesSinceSunrise / 60);
-            const sunMinutes = Math.floor(minutesSinceSunrise % 60);
-            return `${String(sunHours).padStart(2, "0")}:${String(sunMinutes).padStart(2, "0")}`;
+
+            // Handle time before sunrise
+            const isBeforeSunrise = minutesSinceSunrise < 0;
+            const absMinutes = Math.abs(minutesSinceSunrise);
+
+            const sunHours = Math.floor(absMinutes / 60);
+            const sunMinutes = Math.floor(absMinutes % 60);
+
+            const sign = isBeforeSunrise ? "-" : "";
+            return `${sign}${String(sunHours).padStart(2, "0")}:${String(sunMinutes).padStart(2, "0")}`;
         }
 
         if (use24Hour) {

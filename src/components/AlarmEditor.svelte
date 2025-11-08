@@ -21,6 +21,8 @@
     let label = "";
     let useSunTime = false;
     let sunOffset = 0;
+    let sunOffsetHours = 0;
+    let sunOffsetMinutes = 0;
     let repeatDays: number[] = [];
     let deleteAfterUse = false;
     let soundUri = "";
@@ -49,6 +51,10 @@
         label = alarm.label;
         useSunTime = alarm.useSunTime;
         sunOffset = alarm.sunOffset;
+        sunOffsetHours =
+            Math.floor(Math.abs(alarm.sunOffset) / 60) *
+            (alarm.sunOffset < 0 ? -1 : 1);
+        sunOffsetMinutes = Math.abs(alarm.sunOffset % 60);
         repeatDays = [...alarm.repeatDays];
         deleteAfterUse = alarm.deleteAfterUse;
         soundUri = alarm.soundUri;
@@ -66,6 +72,8 @@
         label = "";
         useSunTime = false;
         sunOffset = 0;
+        sunOffsetHours = 0;
+        sunOffsetMinutes = 0;
         repeatDays = [];
         deleteAfterUse = false;
         soundUri = "";
@@ -83,6 +91,35 @@
             repeatDays = [...repeatDays, day].sort();
         }
     }
+
+    // Generate hour options (-12 to +12)
+    function getHourOptions(): number[] {
+        const options = [];
+        for (let i = -12; i <= 12; i++) {
+            options.push(i);
+        }
+        return options;
+    }
+
+    // Generate minute options (0 to 59)
+    function getMinuteOptions(): number[] {
+        const options = [];
+        for (let i = 0; i <= 59; i++) {
+            options.push(i);
+        }
+        return options;
+    }
+
+    // Update sunOffset when hours or minutes change
+    function updateSunOffset() {
+        if (sunOffsetHours < 0) {
+            sunOffset = sunOffsetHours * 60 - sunOffsetMinutes;
+        } else {
+            sunOffset = sunOffsetHours * 60 + sunOffsetMinutes;
+        }
+    }
+
+    $: (sunOffsetHours, sunOffsetMinutes, updateSunOffset());
 
     function handleSave() {
         const newAlarm: Alarm = {
@@ -202,7 +239,8 @@
                             class:active={!useSunTime}
                             on:click={() => (useSunTime = false)}
                         >
-                            🕐 {t.normalClock}
+                            <Icon name="clock" size={16} />
+                            {t.normalClock}
                         </button>
                         <button
                             class="mode-btn"
@@ -217,52 +255,43 @@
                 </div>
 
                 {#if useSunTime}
-                    <!-- Sun Offset -->
+                    <!-- Sun Offset Time Picker -->
                     <div class="form-group">
-                        <label for="sunOffset">
+                        <label>
                             {t.sunOffset}
                             <span class="sun-time-preview"
                                 >{formatSunTime()}</span
                             >
                         </label>
-                        <div class="offset-control">
-                            <button
-                                class="offset-btn"
-                                on:click={() =>
-                                    (sunOffset = Math.max(
-                                        sunOffset - 15,
-                                        -480,
-                                    ))}
-                            >
-                                −15
-                            </button>
-                            <div class="offset-display">
-                                {#if sunOffset >= 0}
-                                    +{Math.floor(sunOffset / 60)}h {sunOffset %
-                                        60}m
-                                {:else}
-                                    {Math.floor(sunOffset / 60)}h {Math.abs(
-                                        sunOffset % 60,
-                                    )}m
-                                {/if}
+                        <div class="time-picker-container">
+                            <div class="time-picker-column">
+                                <div class="picker-label">Hours</div>
+                                <select
+                                    bind:value={sunOffsetHours}
+                                    class="time-picker-select"
+                                >
+                                    {#each getHourOptions() as hour}
+                                        <option value={hour}>
+                                            {hour >= 0 ? `+${hour}` : hour}
+                                        </option>
+                                    {/each}
+                                </select>
                             </div>
-                            <button
-                                class="offset-btn"
-                                on:click={() =>
-                                    (sunOffset = Math.min(sunOffset + 15, 480))}
-                            >
-                                +15
-                            </button>
+                            <div class="time-picker-separator">:</div>
+                            <div class="time-picker-column">
+                                <div class="picker-label">Minutes</div>
+                                <select
+                                    bind:value={sunOffsetMinutes}
+                                    class="time-picker-select"
+                                >
+                                    {#each getMinuteOptions() as minute}
+                                        <option value={minute}>
+                                            {minute.toString().padStart(2, "0")}
+                                        </option>
+                                    {/each}
+                                </select>
+                            </div>
                         </div>
-                        <input
-                            id="sunOffset"
-                            type="range"
-                            bind:value={sunOffset}
-                            min="-480"
-                            max="480"
-                            step="15"
-                            class="offset-slider"
-                        />
                         <div class="offset-hint">
                             {#if sunOffset >= 0}
                                 {sunOffset} {t.minutesAfterSunrise}
@@ -387,24 +416,33 @@
                 </div>
 
                 <!-- Vibrate -->
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" bind:checked={vibrate} />
-                        <span>
+                <div class="form-group">
+                    <label class="toggle-option-label">
+                        <span class="toggle-option-text">
                             <Icon name="vibrate" size={16} />
                             {t.vibrate}
                         </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" bind:checked={vibrate} />
+                            <span class="toggle-slider"></span>
+                        </label>
                     </label>
                 </div>
 
                 <!-- Gradual Volume -->
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" bind:checked={gradualVolume} />
-                        <span>
+                <div class="form-group">
+                    <label class="toggle-option-label">
+                        <span class="toggle-option-text">
                             <Icon name="trending-up" size={16} />
                             {t.gradualVolume}
                         </span>
+                        <label class="toggle-switch">
+                            <input
+                                type="checkbox"
+                                bind:checked={gradualVolume}
+                            />
+                            <span class="toggle-slider"></span>
+                        </label>
                     </label>
                 </div>
 
@@ -427,13 +465,19 @@
                 {/if}
 
                 <!-- Delete After Use -->
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" bind:checked={deleteAfterUse} />
-                        <span>
+                <div class="form-group">
+                    <label class="toggle-option-label">
+                        <span class="toggle-option-text">
                             <Icon name="trash" size={16} />
                             {t.deleteAfterUse}
                         </span>
+                        <label class="toggle-switch">
+                            <input
+                                type="checkbox"
+                                bind:checked={deleteAfterUse}
+                            />
+                            <span class="toggle-slider"></span>
+                        </label>
                     </label>
                 </div>
             </div>
@@ -523,7 +567,7 @@
         margin-bottom: 1.5rem;
     }
 
-    .form-group label {
+    .form-group label:not(.toggle-option-label) {
         display: block;
         margin-bottom: 0.5rem;
         color: var(--text-primary, #fff);
@@ -560,6 +604,10 @@
     }
 
     .mode-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
         padding: 0.75rem;
         background: #333;
         border: 1px solid #555;
@@ -592,64 +640,72 @@
         margin-left: 0.5rem;
     }
 
-    .offset-control {
+    .time-picker-container {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.75rem;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: #1a1a1a;
+        border-radius: 12px;
+        border: 1px solid #333;
+        margin-bottom: 0.5rem;
     }
 
-    .offset-btn {
-        padding: 0.5rem 1rem;
-        background: #333;
-        border: 1px solid #555;
+    .time-picker-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .picker-label {
+        font-size: 0.85rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
+
+    .time-picker-select {
+        padding: 0.75rem 0.5rem;
+        background: #2a2a2a;
+        border: 2px solid #444;
         border-radius: 10px;
-        color: #fff;
-        cursor: pointer;
-        font-size: 1rem;
+        color: #ff9500;
+        font-size: 1.5rem;
         font-weight: bold;
+        font-family: "SF Mono", "Monaco", "Inconsolata", monospace;
+        cursor: pointer;
+        text-align: center;
+        min-width: 80px;
+        max-height: 120px;
+        overflow-y: auto;
         transition: all 0.2s;
     }
 
-    .offset-btn:hover {
-        background: var(--btn-hover-bg, #1a5490);
-    }
-
-    .offset-display {
-        flex: 1;
-        text-align: center;
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: var(--time-color, #ffd700);
-        font-family: "SF Mono", monospace;
-    }
-
-    .offset-slider {
-        width: 100%;
-        height: 6px;
-        background: var(--slider-bg, #0f3460);
-        border-radius: 3px;
+    .time-picker-select:focus {
         outline: none;
-        -webkit-appearance: none;
+        border-color: #ff9500;
+        box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.1);
     }
 
-    .offset-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        background: var(--slider-thumb, #e94560);
-        cursor: pointer;
-        border-radius: 50%;
+    .time-picker-select:hover {
+        border-color: #666;
     }
 
-    .offset-slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        background: var(--slider-thumb, #e94560);
-        cursor: pointer;
-        border-radius: 50%;
-        border: none;
+    .time-picker-select option {
+        padding: 0.5rem;
+        background: #2a2a2a;
+        color: #ff9500;
+    }
+
+    .time-picker-separator {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #ff9500;
+        margin: 0 0.25rem;
+        padding-top: 1.5rem;
     }
 
     .offset-hint {
@@ -764,34 +820,80 @@
         background: #ffaa33 !important;
     }
 
-    .checkbox-group {
-        margin-bottom: 1rem;
-    }
-
-    .checkbox-label {
-        display: flex;
+    .toggle-option-label {
+        display: flex !important;
         align-items: center;
-        gap: 0.75rem;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100%;
+        padding: 1rem;
+        margin-bottom: 0 !important;
+        background: #2a2a2a;
+        border-radius: 12px;
+        border: 2px solid #333;
         cursor: pointer;
-        padding: 0.75rem;
-        background: #333;
-        border-radius: 10px;
         transition: all 0.2s;
     }
 
-    .checkbox-label:hover {
-        background: #444;
+    .toggle-option-label:hover {
+        border-color: #444;
+        background: #333;
     }
 
-    .checkbox-label input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-    }
-
-    .checkbox-label span {
+    .toggle-option-text {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         font-size: 1rem;
         color: #fff;
+        font-weight: 500;
+        flex: 1;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #444;
+        transition: 0.3s;
+        border-radius: 26px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: #ff9500;
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(24px);
     }
 
     .volume-control {

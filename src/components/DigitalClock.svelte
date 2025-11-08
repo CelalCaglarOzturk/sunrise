@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import type { Translation } from "../types";
 
-    export let t: Translation;
     export let use24Hour: boolean = true;
+    export let useSunBased: boolean = false;
+    export let sunriseTime: Date | null = null;
 
     let currentTime = "";
     let currentDate = "";
@@ -13,16 +13,33 @@
         const now = new Date();
 
         // Format time
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
+        if (useSunBased && sunriseTime) {
+            // Calculate time since sunrise
+            const minutesSinceSunrise =
+                (now.getTime() - sunriseTime.getTime()) / 60000;
 
-        if (use24Hour) {
-            currentTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+            // Handle time before sunrise (show as negative)
+            const isBeforeSunrise = minutesSinceSunrise < 0;
+            const absMinutes = Math.abs(minutesSinceSunrise);
+
+            const sunHours = Math.floor(absMinutes / 60);
+            const sunMinutes = Math.floor(absMinutes % 60);
+            const sunSeconds = Math.floor((absMinutes * 60) % 60);
+
+            const sign = isBeforeSunrise ? "-" : "";
+            currentTime = `${sign}${String(sunHours).padStart(2, "0")}:${String(sunMinutes).padStart(2, "0")}:${String(sunSeconds).padStart(2, "0")}`;
         } else {
-            const displayHours = hours % 12 || 12;
-            const period = hours >= 12 ? "PM" : "AM";
-            currentTime = `${String(displayHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")} ${period}`;
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            if (use24Hour) {
+                currentTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+            } else {
+                const displayHours = hours % 12 || 12;
+                const period = hours >= 12 ? "PM" : "AM";
+                currentTime = `${String(displayHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")} ${period}`;
+            }
         }
 
         // Format date
@@ -47,9 +64,12 @@
     });
 </script>
 
-<div class="digital-clock">
+<div class="digital-clock" class:sun-based={useSunBased}>
     <div class="time">{currentTime}</div>
     <div class="date">{currentDate}</div>
+    {#if useSunBased && sunriseTime}
+        <div class="sun-mode-indicator">☀️ Sun-Based Time</div>
+    {/if}
 </div>
 
 <style>
@@ -79,6 +99,21 @@
         color: #888;
         margin-top: 0.5rem;
         font-weight: 500;
+    }
+
+    .sun-mode-indicator {
+        font-size: 0.9rem;
+        color: #ff9500;
+        margin-top: 0.5rem;
+        padding: 0.3rem 0.8rem;
+        background: rgba(255, 149, 0, 0.1);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 149, 0, 0.3);
+        font-weight: 500;
+    }
+
+    .digital-clock.sun-based {
+        border-color: rgba(255, 149, 0, 0.3);
     }
 
     @media (max-width: 768px) {

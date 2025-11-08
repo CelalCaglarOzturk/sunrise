@@ -315,8 +315,9 @@
                 />
                 <div class="view-content">
                     <DigitalClock
-                        {t}
                         use24Hour={settingsData.use24HourFormat}
+                        useSunBased={settingsData.defaultClockMode === "sun"}
+                        sunriseTime={getCurrentSunrise()}
                     />
                     <AlarmList
                         alarms={sortedAlarms}
