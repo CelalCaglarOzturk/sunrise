@@ -20,6 +20,7 @@ export interface Alarm {
 export interface AppSettings {
   defaultClockMode: "normal" | "sun"; // default clock mode for new alarms
   use24HourFormat: boolean;
+  showSeconds: boolean;
   language: string;
   notificationsEnabled: boolean;
 }
@@ -77,6 +78,7 @@ export interface Translation {
   settings: string;
   defaultClockMode: string;
   use24Hour: string;
+  showSeconds: string;
   language: string;
   locationPermission: string;
   locationPermissionDesc: string;

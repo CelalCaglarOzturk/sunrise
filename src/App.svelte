@@ -261,6 +261,7 @@
                 <div class="view-content">
                     <DigitalClock
                         use24Hour={settingsData.use24HourFormat}
+                        showSeconds={settingsData.showSeconds}
                         useSunBased={settingsData.defaultClockMode === "sun"}
                         sunriseTime={getCurrentSunrise()}
                     />
@@ -362,6 +363,26 @@
                                     24 Hour Format
                                 </button>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>{t.showSeconds}</h3>
+                        <div class="setting-item">
+                            <label class="setting-label">
+                                <span>{t.showSeconds}</span>
+                                <label class="toggle-switch">
+                                    <input
+                                        type="checkbox"
+                                        checked={settingsData.showSeconds}
+                                        on:change={() =>
+                                            settings.update({
+                                                showSeconds: !settingsData.showSeconds,
+                                            })}
+                                    />
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </label>
                         </div>
                     </div>
 

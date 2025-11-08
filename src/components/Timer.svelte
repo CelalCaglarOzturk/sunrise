@@ -348,7 +348,15 @@
 
     {#if showAddTimer}
         <div class="timer-editor">
-            <h3>{t.addTimer}</h3>
+            <div class="timer-editor-header">
+                <h3>{t.addTimer}</h3>
+                <button
+                    class="btn-close-editor"
+                    on:click={() => (showAddTimer = false)}
+                >
+                    <Icon name="x" size={20} />
+                </button>
+            </div>
 
             <div class="form-group">
                 <label for="timer-label">{t.label}</label>
@@ -514,17 +522,15 @@
         </div>
     {/if}
 
-    <button
-        class="btn-add-timer"
-        on:click={() => (showAddTimer = !showAddTimer)}
-    >
-        {#if showAddTimer}
-            <Icon name="x" size={20} />
-        {:else}
+    {#if !showAddTimer}
+        <button
+            class="btn-add-timer"
+            on:click={() => (showAddTimer = true)}
+        >
             <Icon name="plus" size={20} />
-        {/if}
-        {t.addTimer}
-    </button>
+            {t.addTimer}
+        </button>
+    {/if}
 </div>
 
 <style>
@@ -728,6 +734,38 @@
         padding: 1.5rem;
         margin-bottom: 1rem;
         border: 2px solid #333;
+    }
+
+    .timer-editor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .timer-editor-header h3 {
+        margin: 0;
+        color: #ff9500;
+    }
+
+    .btn-close-editor {
+        background: none;
+        border: none;
+        color: #888;
+        cursor: pointer;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-close-editor:hover {
+        background: rgba(255, 149, 0, 0.1);
+        color: #ff9500;
     }
 
     .timer-editor h3 {

@@ -3,6 +3,7 @@
     import { Sun } from "@lucide/svelte";
 
     export let use24Hour: boolean = true;
+    export let showSeconds: boolean = true;
     export let useSunBased: boolean = false;
     export let sunriseTime: Date | null = null;
 
@@ -28,18 +29,30 @@
             const sunSeconds = Math.floor(((absMinutes % 1) * 60));
 
             const sign = isBeforeSunrise ? "-" : "";
-            currentTime = `${sign}${String(sunHours).padStart(2, "0")}:${String(sunMinutes).padStart(2, "0")}:${String(sunSeconds).padStart(2, "0")}`;
+            if (showSeconds) {
+                currentTime = `${sign}${String(sunHours).padStart(2, "0")}:${String(sunMinutes).padStart(2, "0")}:${String(sunSeconds).padStart(2, "0")}`;
+            } else {
+                currentTime = `${sign}${String(sunHours).padStart(2, "0")}:${String(sunMinutes).padStart(2, "0")}`;
+            }
         } else {
             const hours = now.getHours();
             const minutes = now.getMinutes();
             const seconds = now.getSeconds();
 
             if (use24Hour) {
-                currentTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+                if (showSeconds) {
+                    currentTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+                } else {
+                    currentTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+                }
             } else {
                 const displayHours = hours % 12 || 12;
                 const period = hours >= 12 ? "PM" : "AM";
-                currentTime = `${String(displayHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")} ${period}`;
+                if (showSeconds) {
+                    currentTime = `${String(displayHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")} ${period}`;
+                } else {
+                    currentTime = `${String(displayHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
+                }
             }
         }
 

@@ -24,16 +24,16 @@ function createAlarmsStore() {
     update: (id: string, updatedAlarm: Partial<Alarm>) =>
       update((alarms) =>
         alarms.map((alarm) =>
-          alarm.id === id ? { ...alarm, ...updatedAlarm } : alarm,
-        ),
+          alarm.id === id ? { ...alarm, ...updatedAlarm } : alarm
+        )
       ),
     remove: (id: string) =>
       update((alarms) => alarms.filter((alarm) => alarm.id !== id)),
     toggle: (id: string) =>
       update((alarms) =>
         alarms.map((alarm) =>
-          alarm.id === id ? { ...alarm, enabled: !alarm.enabled } : alarm,
-        ),
+          alarm.id === id ? { ...alarm, enabled: !alarm.enabled } : alarm
+        )
       ),
     disableAll: () =>
       update((alarms) => alarms.map((alarm) => ({ ...alarm, enabled: false }))),
@@ -49,6 +49,7 @@ function createSettingsStore() {
   const defaultSettings: AppSettings = {
     defaultClockMode: "normal",
     use24HourFormat: detectSystem24HourFormat(),
+    showSeconds: true,
     language: detectSystemLanguage(),
     notificationsEnabled: true,
   };
@@ -97,8 +98,8 @@ function createTimersStore() {
     update: (id: string, updatedTimer: Partial<Timer>) =>
       update((timers) =>
         timers.map((timer) =>
-          timer.id === id ? { ...timer, ...updatedTimer } : timer,
-        ),
+          timer.id === id ? { ...timer, ...updatedTimer } : timer
+        )
       ),
     remove: (id: string) =>
       update((timers) => timers.filter((timer) => timer.id !== id)),
@@ -158,7 +159,7 @@ export const sortedAlarms = derived(alarms, ($alarms) => {
 
 // Derived store for enabled alarms only
 export const enabledAlarms = derived(alarms, ($alarms) =>
-  $alarms.filter((alarm) => alarm.enabled),
+  $alarms.filter((alarm) => alarm.enabled)
 );
 
 // Derived store for next alarm
@@ -224,7 +225,7 @@ export const nextAlarm = derived(
     }
 
     return nextAlarmData ? { alarm: nextAlarmData, time: nextAlarmTime } : null;
-  },
+  }
 );
 
 // Persistence keys
