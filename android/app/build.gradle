@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "dev.mudrock.gunes"
+    namespace "dev.mudrock.sunrise"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "dev.mudrock.gunes"
+        applicationId "dev.mudrock.sunrise"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

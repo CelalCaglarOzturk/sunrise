@@ -1,4 +1,4 @@
-package dev.mudrock.gunes;
+package dev.mudrock.sunrise;
 
 import com.getcapacitor.BridgeActivity;
 
