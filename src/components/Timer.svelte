@@ -5,6 +5,7 @@
     import { timers as timersStore, settings } from "../stores";
     import { getTranslation } from "../utils/translations";
     import type { Language } from "../types";
+    import Icon from "./Icon.svelte";
 
     export let t: Translation;
 
@@ -171,7 +172,9 @@
 <div class="timer-container">
     {#if timers.length === 0 && !showAddTimer}
         <div class="empty-state">
-            <div class="empty-icon">⏱️</div>
+            <div class="empty-icon">
+                <Icon name="timer" size={64} color="#888" />
+            </div>
             <h3>{t.noTimersYet}</h3>
             <p>{t.createFirstTimer}</p>
         </div>
@@ -190,7 +193,7 @@
                         class="btn-delete-timer"
                         on:click={() => deleteTimer(timer.id)}
                     >
-                        🗑️
+                        <Icon name="trash" size={18} />
                     </button>
                 </div>
 
@@ -216,21 +219,24 @@
                             class="btn-timer btn-start"
                             on:click={() => startTimer(timer.id)}
                         >
-                            ▶️ {t.start}
+                            <Icon name="play" size={16} />
+                            {t.start}
                         </button>
                     {:else if timer.isRunning}
                         <button
                             class="btn-timer btn-pause"
                             on:click={() => pauseTimer(timer.id)}
                         >
-                            ⏸️ {t.pause}
+                            <Icon name="pause" size={16} />
+                            {t.pause}
                         </button>
                     {:else if timer.isPaused}
                         <button
                             class="btn-timer btn-resume"
                             on:click={() => resumeTimer(timer.id)}
                         >
-                            ▶️ {t.resume}
+                            <Icon name="play" size={16} />
+                            {t.resume}
                         </button>
                     {/if}
 
@@ -238,7 +244,8 @@
                         class="btn-timer btn-reset"
                         on:click={() => resetTimer(timer.id)}
                     >
-                        🔄 {t.reset}
+                        <Icon name="rotate-ccw" size={16} />
+                        {t.reset}
                     </button>
                 </div>
 
@@ -340,7 +347,11 @@
         class="btn-add-timer"
         on:click={() => (showAddTimer = !showAddTimer)}
     >
-        {showAddTimer ? "✕" : "➕"}
+        {#if showAddTimer}
+            <Icon name="x" size={20} />
+        {:else}
+            <Icon name="plus" size={20} />
+        {/if}
         {t.addTimer}
     </button>
 </div>

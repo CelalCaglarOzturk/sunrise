@@ -6,6 +6,7 @@
         Stopwatch as StopwatchType,
     } from "../types";
     import { stopwatch as stopwatchStore } from "../stores";
+    import Icon from "./Icon.svelte";
 
     export let t: Translation;
 
@@ -135,24 +136,30 @@
     <div class="stopwatch-controls">
         {#if !isRunning && !isPaused}
             <button class="btn-stopwatch btn-start" on:click={start}>
-                ▶️ {t.start}
+                <Icon name="play" size={20} />
+                {t.start}
             </button>
             <button class="btn-stopwatch btn-lap" disabled style="opacity: 0.3">
-                ⏱️ {t.lap}
+                <Icon name="clock" size={20} />
+                {t.lap}
             </button>
         {:else if isRunning}
             <button class="btn-stopwatch btn-pause" on:click={pause}>
-                ⏸️ {t.pause}
+                <Icon name="pause" size={20} />
+                {t.pause}
             </button>
             <button class="btn-stopwatch btn-lap" on:click={addLap}>
-                ⏱️ {t.lap}
+                <Icon name="clock" size={20} />
+                {t.lap}
             </button>
         {:else if isPaused}
             <button class="btn-stopwatch btn-resume" on:click={start}>
-                ▶️ {t.resume}
+                <Icon name="play" size={20} />
+                {t.resume}
             </button>
             <button class="btn-stopwatch btn-reset" on:click={reset}>
-                🔄 {t.reset}
+                <Icon name="rotate-ccw" size={20} />
+                {t.reset}
             </button>
         {/if}
     </div>
@@ -162,7 +169,8 @@
             <div class="laps-header">
                 <h3>{t.laps} ({laps.length})</h3>
                 <button class="btn-clear-laps" on:click={clearLaps}>
-                    🗑️ {t.clearLaps}
+                    <Icon name="trash" size={18} />
+                    {t.clearLaps}
                 </button>
             </div>
 

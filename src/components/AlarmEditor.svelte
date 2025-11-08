@@ -1,8 +1,9 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import type { Alarm, Translation, Location } from "../types";
-    import { sunCalcService } from "../services/sunCalc";
+    import type { Alarm, Location, Translation } from "../types";
     import { filePickerService } from "../services/filePicker";
+    import { sunCalcService } from "../services/sunCalc";
+    import Icon from "./Icon.svelte";
 
     export let alarm: Alarm | null = null;
     export let t: Translation;
@@ -25,6 +26,7 @@
     let soundUri = "";
     let soundName = "Default";
     let vibrate = true;
+    let volume = 50;
     let gradualVolume = false;
     let gradualDuration = 30;
 
@@ -52,6 +54,7 @@
         soundUri = alarm.soundUri;
         soundName = alarm.soundName;
         vibrate = alarm.vibrate;
+        volume = alarm.volume;
         gradualVolume = alarm.gradualVolume;
         gradualDuration = alarm.gradualDuration;
     } else {
@@ -68,6 +71,7 @@
         soundUri = "";
         soundName = "Default";
         vibrate = true;
+        volume = 50;
         gradualVolume = false;
         gradualDuration = 30;
     }
@@ -93,6 +97,7 @@
             soundUri,
             soundName,
             vibrate,
+            volume,
             gradualVolume,
             gradualDuration,
         };
@@ -171,7 +176,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>{alarm ? t.editAlarm : t.addAlarm}</h2>
-                <button class="btn-close" on:click={handleClose}>✕</button>
+                <button class="btn-close" on:click={handleClose}>
+                    <Icon name="x" size={20} />
+                </button>
             </div>
 
             <div class="modal-body">
@@ -203,7 +210,8 @@
                             on:click={() => (useSunTime = true)}
                             disabled={!location}
                         >
-                            ☀️ {t.sunBasedClock}
+                            <Icon name="sun" size={16} />
+                            {t.sunBasedClock}
                         </button>
                     </div>
                 </div>
@@ -312,52 +320,80 @@
                 <div class="form-group">
                     <label>{t.alarmSound}</label>
                     <button class="sound-select-btn" on:click={selectSound}>
-                        🔔 {soundName}
+                        <Icon name="bell" size={16} />
+                        {soundName}
                     </button>
 
                     {#if showSoundPicker}
                         <div class="sound-picker">
                             <button on:click={() => chooseSound("Default", "")}>
-                                🔔 Default
+                                <Icon name="bell" size={14} />
+                                Default
                             </button>
                             <button
                                 on:click={() =>
                                     chooseSound("Gentle", "gentle.mp3")}
                             >
-                                🔔 Gentle
+                                <Icon name="bell" size={14} />
+                                Gentle
                             </button>
                             <button
                                 on:click={() => chooseSound("Loud", "loud.mp3")}
                             >
-                                🔔 Loud
+                                <Icon name="bell" size={14} />
+                                Loud
                             </button>
                             <button
                                 on:click={() =>
                                     chooseSound("Nature", "nature.mp3")}
                             >
-                                🔔 Nature
+                                <Icon name="bell" size={14} />
+                                Nature
                             </button>
                             <button
                                 on:click={() =>
                                     chooseSound("Digital", "digital.mp3")}
                             >
-                                🔔 Digital
+                                <Icon name="bell" size={14} />
+                                Digital
                             </button>
                             <button
                                 class="btn-browse-files"
                                 on:click={browseSoundFiles}
                             >
-                                📁 {t.browseFiles}
+                                <Icon name="folder" size={14} />
+                                {t.browseFiles}
                             </button>
                         </div>
                     {/if}
+                </div>
+
+                <!-- Volume -->
+                <div class="form-group">
+                    <label>
+                        {t.volume}: {volume}%
+                    </label>
+                    <div class="volume-control">
+                        <Icon name="volume-x" size={20} />
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            bind:value={volume}
+                            class="volume-slider"
+                        />
+                        <Icon name="volume" size={20} />
+                    </div>
                 </div>
 
                 <!-- Vibrate -->
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" bind:checked={vibrate} />
-                        <span>📳 {t.vibrate}</span>
+                        <span>
+                            <Icon name="vibrate" size={16} />
+                            {t.vibrate}
+                        </span>
                     </label>
                 </div>
 
@@ -365,7 +401,10 @@
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" bind:checked={gradualVolume} />
-                        <span>🔊↗️ {t.gradualVolume}</span>
+                        <span>
+                            <Icon name="trending-up" size={16} />
+                            {t.gradualVolume}
+                        </span>
                     </label>
                 </div>
 
@@ -391,7 +430,10 @@
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" bind:checked={deleteAfterUse} />
-                        <span>🗑️ {t.deleteAfterUse}</span>
+                        <span>
+                            <Icon name="trash" size={16} />
+                            {t.deleteAfterUse}
+                        </span>
                     </label>
                 </div>
             </div>
@@ -415,24 +457,26 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.85);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 1000;
         padding: 1rem;
         overflow-y: auto;
+        backdrop-filter: blur(5px);
     }
 
     .modal-content {
-        background: var(--modal-bg, #16213e);
+        background: #1a1a1a;
         border-radius: 20px;
         width: 100%;
         max-width: 500px;
         max-height: 90vh;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        border: 1px solid #333;
     }
 
     .modal-header {
@@ -440,7 +484,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 1.5rem;
-        border-bottom: 2px solid var(--border-color, #0f3460);
+        border-bottom: 1px solid #333;
     }
 
     .modal-header h2 {
@@ -490,10 +534,10 @@
     .form-input {
         width: 100%;
         padding: 0.75rem;
-        background: var(--input-bg, #0f3460);
-        border: 2px solid var(--input-border, #1a5490);
-        border-radius: 12px;
-        color: var(--text-primary, #fff);
+        background: #333;
+        border: 1px solid #555;
+        border-radius: 10px;
+        color: #fff;
         font-size: 1rem;
         transition: all 0.2s;
     }
@@ -517,10 +561,10 @@
 
     .mode-btn {
         padding: 0.75rem;
-        background: var(--btn-bg, #0f3460);
-        border: 2px solid var(--btn-border, #1a5490);
-        border-radius: 12px;
-        color: var(--text-primary, #fff);
+        background: #333;
+        border: 1px solid #555;
+        border-radius: 10px;
+        color: #fff;
         cursor: pointer;
         font-size: 0.95rem;
         transition: all 0.2s;
@@ -557,10 +601,10 @@
 
     .offset-btn {
         padding: 0.5rem 1rem;
-        background: var(--btn-bg, #0f3460);
-        border: 2px solid var(--btn-border, #1a5490);
+        background: #333;
+        border: 1px solid #555;
         border-radius: 10px;
-        color: var(--text-primary, #fff);
+        color: #fff;
         cursor: pointer;
         font-size: 1rem;
         font-weight: bold;
@@ -610,8 +654,8 @@
 
     .offset-hint {
         text-align: center;
-        font-size: 0.85rem;
-        color: var(--text-secondary, #888);
+        font-size: 0.9rem;
+        color: #888;
         margin-top: 0.5rem;
     }
 
@@ -623,11 +667,12 @@
     }
 
     .quick-btn {
+        width: 80px;
         padding: 0.5rem;
-        background: var(--btn-bg, #0f3460);
-        border: 1px solid var(--btn-border, #1a5490);
-        border-radius: 8px;
-        color: var(--text-primary, #fff);
+        background: #333;
+        border: 1px solid #555;
+        border-radius: 10px;
+        color: #fff;
         cursor: pointer;
         font-size: 0.8rem;
         transition: all 0.2s;
@@ -670,11 +715,11 @@
 
     .sound-select-btn {
         width: 100%;
-        padding: 0.75rem;
-        background: var(--btn-bg, #0f3460);
-        border: 2px solid var(--btn-border, #1a5490);
-        border-radius: 12px;
-        color: var(--text-primary, #fff);
+        padding: 0.875rem;
+        background: #333;
+        border: 1px solid #555;
+        border-radius: 10px;
+        color: #fff;
         cursor: pointer;
         font-size: 1rem;
         text-align: left;
@@ -682,7 +727,8 @@
     }
 
     .sound-select-btn:hover {
-        border-color: var(--btn-hover, #e94560);
+        border-color: #ff9500;
+        background: #444;
     }
 
     .sound-picker {
@@ -706,7 +752,7 @@
     }
 
     .sound-picker button:hover {
-        background: var(--picker-btn-hover, #1a5490);
+        background: #333;
     }
 
     .btn-browse-files {
@@ -715,7 +761,7 @@
     }
 
     .btn-browse-files:hover {
-        background: var(--primary-dark, #d32f2f) !important;
+        background: #ffaa33 !important;
     }
 
     .checkbox-group {
@@ -728,13 +774,13 @@
         gap: 0.75rem;
         cursor: pointer;
         padding: 0.75rem;
-        background: var(--checkbox-bg, #0f3460);
-        border-radius: 12px;
+        background: #333;
+        border-radius: 10px;
         transition: all 0.2s;
     }
 
     .checkbox-label:hover {
-        background: var(--checkbox-hover, #1a5490);
+        background: #444;
     }
 
     .checkbox-label input[type="checkbox"] {
@@ -745,35 +791,91 @@
 
     .checkbox-label span {
         font-size: 1rem;
-        color: var(--text-primary, #fff);
+        color: #fff;
+    }
+
+    .volume-control {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem;
+        background: #1a1a1a;
+        border-radius: 10px;
+    }
+
+    .volume-control span {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .volume-slider {
+        flex: 1;
+        height: 6px;
+        background: #333;
+        border-radius: 3px;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        background: #ff9500;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .volume-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+        background: #ffaa33;
+    }
+
+    .volume-slider::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: #ff9500;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .volume-slider::-moz-range-thumb:hover {
+        transform: scale(1.2);
+        background: #ffaa33;
     }
 
     .duration-slider {
         width: 100%;
         height: 6px;
-        background: var(--slider-bg, #0f3460);
+        background: #333;
         border-radius: 3px;
         outline: none;
         -webkit-appearance: none;
+        appearance: none;
     }
 
     .duration-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        background: var(--slider-thumb, #e94560);
-        cursor: pointer;
+        width: 18px;
+        height: 18px;
+        background: #ff9500;
         border-radius: 50%;
+        cursor: pointer;
     }
 
     .duration-slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        background: var(--slider-thumb, #e94560);
-        cursor: pointer;
+        width: 18px;
+        height: 18px;
+        background: #ff9500;
         border-radius: 50%;
         border: none;
+        cursor: pointer;
     }
 
     .modal-footer {

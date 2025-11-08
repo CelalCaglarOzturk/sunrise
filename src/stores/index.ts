@@ -32,6 +32,9 @@ function createAlarmsStore() {
           alarm.id === id ? { ...alarm, enabled: !alarm.enabled } : alarm,
         ),
       ),
+    disableAll: () =>
+      update((alarms) => alarms.map((alarm) => ({ ...alarm, enabled: false }))),
+    deleteAll: () => set([]),
     load: (alarms: Alarm[]) => set(alarms),
   };
 }

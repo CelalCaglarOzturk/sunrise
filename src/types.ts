@@ -12,6 +12,7 @@ export interface Alarm {
   soundUri: string;
   soundName: string;
   vibrate: boolean;
+  volume: number; // 0-100 percentage
   gradualVolume: boolean;
   gradualDuration: number; // seconds for volume increase
 }
@@ -123,6 +124,21 @@ export interface Translation {
   splitTime: string;
   totalTime: string;
   clearLaps: string;
+  volume: string;
+  disableAll: string;
+  deleteAll: string;
+  disableAllAlarms: string;
+  deleteAllAlarms: string;
+  disableAllConfirm: string;
+  deleteAllConfirm: string;
+  batteryOptimization: string;
+  batteryOptimizationDesc: string;
+  systemAlarmAccess: string;
+  systemAlarmAccessDesc: string;
+  about: string;
+  version: string;
+  exportSettings: string;
+  importSettings: string;
 }
 
 export type Language =

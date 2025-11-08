@@ -1,11 +1,12 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import CircularClock from "./components/CircularClock.svelte";
     import AlarmList from "./components/AlarmList.svelte";
     import AlarmEditor from "./components/AlarmEditor.svelte";
     import SunTimesDisplay from "./components/SunTimesDisplay.svelte";
     import Timer from "./components/Timer.svelte";
     import Stopwatch from "./components/Stopwatch.svelte";
+    import BulkActions from "./components/BulkActions.svelte";
+    import Icon from "./components/Icon.svelte";
 
     import {
         alarms,
@@ -27,6 +28,7 @@
 
     let showAlarmEditor = false;
     let editingAlarm: Alarm | null = null;
+    let showBulkActions = false;
     let currentView:
         | "alarms"
         | "sun-times"
@@ -198,38 +200,53 @@
         if (sunTimesData.length === 0) return null;
         return sunTimesData[0].sunrise;
     }
+
+    async function handleDisableAllAlarms() {
+        alarmsData.forEach((alarm) => {
+            if (alarm.enabled) {
+                alarmService.cancelAlarm(alarm.id);
+            }
+        });
+        alarms.disableAll();
+        showBulkActions = false;
+    }
+
+    async function handleDeleteAllAlarms() {
+        alarmsData.forEach((alarm) => {
+            alarmService.cancelAlarm(alarm.id);
+        });
+        alarms.deleteAll();
+        showBulkActions = false;
+    }
 </script>
 
 <main>
     <div class="app-container">
         <!-- Header -->
         <header class="app-header">
-            <h1 class="app-title">☀️ {t.appName}</h1>
+            <h1 class="app-title">{t.appName}</h1>
             <div class="header-actions">
-                <button
-                    class="btn-icon"
-                    on:click={updateLocation}
-                    title="Refresh Location"
-                >
-                    📍
-                </button>
+                {#if currentView === "alarms"}
+                    <button
+                        class="btn-icon"
+                        on:click={() => (showBulkActions = !showBulkActions)}
+                        title="Bulk Actions"
+                    >
+                        <Icon name="more-vertical" size={20} />
+                    </button>
+                {/if}
             </div>
         </header>
-
-        <!-- Clock Display -->
-        <section class="clock-section">
-            <CircularClock
-                alarms={sortedAlarms}
-                {currentTime}
-                use24Hour={settingsData.use24HourFormat}
-                useSunBased={settingsData.defaultClockMode === "sun"}
-                sunriseTime={getCurrentSunrise()}
-            />
-        </section>
 
         <!-- Content Views -->
         <div class="content-container">
             {#if currentView === "alarms"}
+                <BulkActions
+                    visible={showBulkActions}
+                    {t}
+                    onDisableAll={handleDisableAllAlarms}
+                    onDeleteAll={handleDeleteAllAlarms}
+                />
                 <div class="view-content">
                     <AlarmList
                         alarms={sortedAlarms}
@@ -241,7 +258,8 @@
                     />
 
                     <button class="btn-add-alarm" on:click={handleAddAlarm}>
-                        ➕ {t.addAlarm}
+                        <Icon name="plus" size={20} />
+                        {t.addAlarm}
                     </button>
                 </div>
             {:else if currentView === "sun-times"}
@@ -254,7 +272,9 @@
                         />
                     {:else}
                         <div class="empty-state">
-                            <div class="empty-icon">📍</div>
+                            <div class="empty-icon">
+                                <Icon name="map-pin" size={64} color="#888" />
+                            </div>
                             <h3>{t.locationPermission}</h3>
                             <p>{t.locationPermissionDesc}</p>
                             <button
@@ -272,9 +292,12 @@
                         <h3>{t.defaultClockMode}</h3>
                         <div class="setting-item">
                             <label class="setting-label">
-                                <span
-                                    >🕐 {t.normalClock} / ☀️ {t.sunBasedClock}</span
-                                >
+                                <span>
+                                    <Icon name="clock" size={16} />
+                                    {t.normalClock} /
+                                    <Icon name="sun" size={16} />
+                                    {t.sunBasedClock}
+                                </span>
                                 <label class="toggle-switch">
                                     <input
                                         type="checkbox"
@@ -359,20 +382,7 @@
                 class:active={currentView === "alarms"}
                 on:click={() => (currentView = "alarms")}
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path
-                        d="M10.3 21a1.94 1.94 0 0 0 3.4 0"
-                    /></svg
-                >
+                <Icon name="bell" size={24} />
                 <span>Alarms</span>
             </button>
             <button
@@ -380,69 +390,15 @@
                 class:active={currentView === "sun-times"}
                 on:click={() => (currentView = "sun-times")}
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path
-                        d="M12 20v2"
-                    /><path d="m4.93 4.93 1.41 1.41" /><path
-                        d="m17.66 17.66 1.41 1.41"
-                    /><path d="M2 12h2" /><path d="M20 12h2" /><path
-                        d="m6.34 17.66-1.41 1.41"
-                    /><path d="m19.07 4.93-1.41 1.41" /></svg
-                >
+                <Icon name="sun" size={24} />
                 <span>Sun</span>
-            </button>
-            <button
-                class="nav-btn"
-                class:active={currentView === "settings"}
-                on:click={() => (currentView = "settings")}
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path
-                        d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
-                    /><circle cx="12" cy="12" r="3" /></svg
-                >
-                <span>Settings</span>
             </button>
             <button
                 class="nav-btn"
                 class:active={currentView === "timer"}
                 on:click={() => (currentView = "timer")}
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><line x1="10" x2="14" y1="2" y2="2" /><line
-                        x1="12"
-                        x2="15"
-                        y1="14"
-                        y2="11"
-                    /><circle cx="12" cy="14" r="8" /></svg
-                >
+                <Icon name="timer" size={24} />
                 <span>Timer</span>
             </button>
             <button
@@ -450,21 +406,16 @@
                 class:active={currentView === "stopwatch"}
                 on:click={() => (currentView = "stopwatch")}
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><circle cx="12" cy="12" r="10" /><polyline
-                        points="12 6 12 12 16 14"
-                    /></svg
-                >
+                <Icon name="clock" size={24} />
                 <span>Watch</span>
+            </button>
+            <button
+                class="nav-btn"
+                class:active={currentView === "settings"}
+                on:click={() => (currentView = "settings")}
+            >
+                <Icon name="settings" size={24} />
+                <span>Settings</span>
             </button>
         </nav>
     </div>
@@ -492,7 +443,7 @@
         font-family:
             -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
             Ubuntu, Cantarell, sans-serif;
-        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        background: #000;
         color: #fff;
         min-height: 100vh;
         overflow-x: hidden;
@@ -500,7 +451,7 @@
 
     main {
         min-height: 100vh;
-        padding-bottom: 6rem;
+        padding-bottom: 5rem;
     }
 
     .app-container {
@@ -513,15 +464,13 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 0;
-        margin-bottom: 1rem;
+        padding: 1.5rem 1rem 1rem;
     }
 
     .app-title {
         font-size: 2rem;
-        font-weight: bold;
-        color: #e94560;
-        text-shadow: 0 2px 10px rgba(233, 69, 96, 0.3);
+        font-weight: 700;
+        color: #fff;
     }
 
     .header-actions {
@@ -533,7 +482,7 @@
         width: 44px;
         height: 44px;
         border: none;
-        background: rgba(15, 52, 96, 0.8);
+        background: #1a1a1a;
         border-radius: 12px;
         cursor: pointer;
         font-size: 1.5rem;
@@ -541,16 +490,11 @@
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
-        backdrop-filter: blur(10px);
     }
 
     .btn-icon:hover {
-        background: rgba(233, 69, 96, 0.8);
+        background: #ff9500;
         transform: scale(1.05);
-    }
-
-    .clock-section {
-        margin-bottom: 2rem;
     }
 
     .bottom-nav {
@@ -560,9 +504,8 @@
         right: 0;
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        background: rgba(15, 20, 40, 0.95);
-        backdrop-filter: blur(10px);
-        border-top: 2px solid rgba(233, 69, 96, 0.3);
+        background: #1a1a1a;
+        border-top: 1px solid #333;
         padding: 0.5rem;
         gap: 0.25rem;
         z-index: 1000;
@@ -574,10 +517,10 @@
         align-items: center;
         justify-content: center;
         padding: 0.5rem;
-        background: transparent;
-        border: 2px solid rgba(233, 69, 96, 0.3);
-        border-radius: 4px;
-        color: rgba(255, 255, 255, 0.7);
+        background: #1a1a1a;
+        border: none;
+        border-radius: 15px;
+        color: #888;
         cursor: pointer;
         font-size: 0.7rem;
         font-weight: 500;
@@ -587,15 +530,13 @@
     }
 
     .nav-btn:hover {
-        background: rgba(233, 69, 96, 0.1);
+        background: #2a2a2a;
         color: #fff;
-        border-color: rgba(233, 69, 96, 0.5);
     }
 
     .nav-btn.active {
-        background: rgba(233, 69, 96, 0.2);
-        border-color: #e94560;
-        color: #e94560;
+        background: #ff9500;
+        color: #000;
         font-weight: bold;
     }
 
@@ -604,18 +545,14 @@
     }
 
     .nav-btn span {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         text-align: center;
-        line-height: 1.1;
+        line-height: 1.2;
         max-width: 100%;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
     }
 
     .content-container {
-        min-height: 300px;
-        padding-bottom: 80px;
+        min-height: calc(100vh - 200px);
     }
 
     .view-content {
@@ -637,22 +574,24 @@
         width: 100%;
         max-width: 600px;
         margin: 1rem auto;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
         padding: 1rem;
-        background: linear-gradient(135deg, #e94560, #d32f2f);
+        background: #ff9500;
         border: none;
-        border-radius: 16px;
-        color: white;
+        border-radius: 15px;
+        color: #000;
         font-size: 1.1rem;
-        font-weight: bold;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        transition: all 0.2s ease;
     }
 
     .btn-add-alarm:hover {
+        background: #ffaa33;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
     }
 
     .btn-add-alarm:active {
@@ -670,15 +609,13 @@
     }
 
     .empty-icon {
-        font-size: 4rem;
         margin-bottom: 1rem;
-        opacity: 0.5;
     }
 
     .empty-state h3 {
         margin: 0.5rem 0;
         font-size: 1.5rem;
-        color: #e94560;
+        color: #fff;
     }
 
     .empty-state p {
@@ -688,10 +625,10 @@
 
     .btn-primary {
         padding: 0.875rem 2rem;
-        background: #e94560;
+        background: #ff9500;
         border: none;
-        border-radius: 12px;
-        color: white;
+        border-radius: 10px;
+        color: #000;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
@@ -699,7 +636,7 @@
     }
 
     .btn-primary:hover {
-        background: #d32f2f;
+        background: #ffaa33;
         transform: translateY(-2px);
     }
 
@@ -711,16 +648,17 @@
 
     .settings-section {
         margin-bottom: 2rem;
-        background: rgba(26, 26, 46, 0.8);
+        background: #1a1a1a;
         padding: 1.5rem;
-        border-radius: 16px;
-        border: 2px solid rgba(15, 52, 96, 0.5);
+        border-radius: 15px;
+        border: 1px solid #333;
     }
 
     .settings-section h3 {
-        color: #e94560;
+        color: #ff9500;
         margin-bottom: 1rem;
         font-size: 1.2rem;
+        font-weight: 600;
     }
 
     .setting-item {
@@ -736,14 +674,14 @@
         justify-content: space-between;
         align-items: center;
         padding: 0.75rem;
-        background: rgba(15, 52, 96, 0.5);
-        border-radius: 12px;
+        background: #333;
+        border-radius: 10px;
         cursor: pointer;
         transition: all 0.2s;
     }
 
     .setting-label:hover {
-        background: rgba(15, 52, 96, 0.7);
+        background: #444;
     }
 
     .toggle-switch {
@@ -766,9 +704,9 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: #2a2a3e;
-        transition: 0.3s;
-        border-radius: 28px;
+        background-color: #333;
+        transition: 0.4s;
+        border-radius: 34px;
     }
 
     .toggle-slider:before {
@@ -779,33 +717,33 @@
         left: 4px;
         bottom: 4px;
         background-color: white;
-        transition: 0.3s;
+        transition: 0.4s;
         border-radius: 50%;
     }
 
     input:checked + .toggle-slider {
-        background-color: #e94560;
+        background-color: #ff9500;
     }
 
     input:checked + .toggle-slider:before {
-        transform: translateX(22px);
+        transform: translateX(26px);
     }
 
     .language-select {
         width: 100%;
         padding: 0.75rem;
-        background: rgba(15, 52, 96, 0.5);
-        border: 2px solid rgba(26, 84, 144, 0.5);
-        border-radius: 12px;
+        background: #333;
+        border: 1px solid #555;
+        border-radius: 10px;
         color: #fff;
         font-size: 1rem;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
     }
 
     .language-select:focus {
         outline: none;
-        border-color: #e94560;
+        border-color: #ff9500;
     }
 
     .language-select option {
@@ -815,20 +753,20 @@
 
     .btn-secondary {
         width: 100%;
-        padding: 0.875rem;
-        background: rgba(15, 52, 96, 0.8);
-        border: 2px solid rgba(26, 84, 144, 0.5);
-        border-radius: 12px;
-        color: white;
+        padding: 0.75rem;
+        background: #1a1a1a;
+        border: 1px solid #ff9500;
+        border-radius: 10px;
+        color: #ff9500;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
     }
 
     .btn-secondary:hover {
-        background: rgba(26, 84, 144, 0.8);
-        border-color: #e94560;
+        background: #ff9500;
+        color: #000;
     }
 
     @media (max-width: 768px) {
