@@ -441,11 +441,11 @@
         padding: 0.25rem 0.5rem;
         border-radius: 8px;
         transition: all 0.2s;
-        color: #ff3b30;
+        color: #d97706;
     }
 
     .btn-delete-timer:hover {
-        background: #ff3b30;
+        background: #d97706;
         color: #fff;
     }
 

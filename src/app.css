@@ -1,104 +1,104 @@
 :root {
     /* Color Palette */
-    --primary: #e94560;
-    --primary-dark: #d32f2f;
-    --secondary: #0f3460;
-    --secondary-light: #1a5490;
-    --accent: #ffd700;
-    --accent-orange: #ff8c00;
+    --primary: #ff9500;
+    --primary-dark: #e68600;
+    --secondary: #1a1a1a;
+    --secondary-light: #333;
+    --accent: #ff9500;
+    --accent-orange: #ffaa33;
 
     /* Background Colors */
-    --bg-primary: #0f0c29;
-    --bg-secondary: #16213e;
-    --bg-tertiary: #1a1a2e;
-    --bg-modal: #16213e;
+    --bg-primary: #000000;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #1a1a1a;
+    --bg-modal: #1a1a1a;
 
     /* Text Colors */
     --text-primary: #ffffff;
     --text-secondary: #888888;
-    --text-accent: #e94560;
-    --time-color: #e94560;
-    --sun-label-color: #ffd700;
+    --text-accent: #ff9500;
+    --time-color: #ff9500;
+    --sun-label-color: #ff9500;
 
     /* UI Colors */
-    --border-color: #0f3460;
-    --divider-color: #0f3460;
-    --hover-bg: rgba(233, 69, 96, 0.1);
+    --border-color: #333;
+    --divider-color: #333;
+    --hover-bg: rgba(255, 149, 0, 0.1);
 
     /* Clock Colors */
-    --clock-face-bg: #1a1a2e;
-    --clock-border: #0f3460;
-    --marker-color: #16213e;
-    --marker-major-color: #0f3460;
-    --hour-hand-color: #e94560;
-    --minute-hand-color: #e94560;
-    --second-hand-color: #ff6b9d;
-    --center-dot-color: #e94560;
+    --clock-face-bg: #1a1a1a;
+    --clock-border: #333;
+    --marker-color: #333;
+    --marker-major-color: #555;
+    --hour-hand-color: #ff9500;
+    --minute-hand-color: #ff9500;
+    --second-hand-color: #ffaa33;
+    --center-dot-color: #ff9500;
 
     /* Alarm Colors */
-    --alarm-marker-bg: #ffd700;
-    --alarm-marker-border: #ff8c00;
-    --alarm-inner-color: #ff8c00;
-    --alarm-bg: #1a1a2e;
-    --alarm-border: #0f3460;
-    --alarm-border-hover: #e94560;
-    --alarm-border-disabled: #2a2a3e;
+    --alarm-marker-bg: #ff9500;
+    --alarm-marker-border: #ffaa33;
+    --alarm-inner-color: #ffaa33;
+    --alarm-bg: #1a1a1a;
+    --alarm-border: #333;
+    --alarm-border-hover: #ff9500;
+    --alarm-border-disabled: #2a2a2a;
 
     /* Toggle Colors */
-    --toggle-off: #2a2a3e;
-    --toggle-on: #e94560;
+    --toggle-off: #333;
+    --toggle-on: #ff9500;
 
     /* Button Colors */
-    --btn-bg: #0f3460;
-    --btn-border: #1a5490;
-    --btn-hover: #e94560;
-    --btn-hover-bg: #1a5490;
-    --btn-edit-hover: #1a5490;
-    --btn-delete-hover: #d32f2f;
-    --btn-cancel-bg: #2a2a3e;
-    --btn-cancel-hover: #3a3a4e;
-    --btn-save-bg: #e94560;
-    --btn-save-hover: #d63850;
-    --btn-active-bg: #e94560;
-    --btn-active-border: #e94560;
+    --btn-bg: #333;
+    --btn-border: #555;
+    --btn-hover: #ff9500;
+    --btn-hover-bg: #444;
+    --btn-edit-hover: #444;
+    --btn-delete-hover: #d97706;
+    --btn-cancel-bg: #2a2a2a;
+    --btn-cancel-hover: #3a3a3a;
+    --btn-save-bg: #ff9500;
+    --btn-save-hover: #e68600;
+    --btn-active-bg: #ff9500;
+    --btn-active-border: #ff9500;
 
     /* Badge Colors */
-    --badge-bg: rgba(233, 69, 96, 0.1);
-    --badge-color: #e94560;
+    --badge-bg: rgba(255, 149, 0, 0.1);
+    --badge-color: #ff9500;
 
     /* Input Colors */
-    --input-bg: #0f3460;
-    --input-border: #1a5490;
-    --input-focus: #e94560;
+    --input-bg: #333;
+    --input-border: #555;
+    --input-focus: #ff9500;
 
     /* Day Selection Colors */
-    --day-bg: #0f3460;
-    --day-border: #1a5490;
-    --day-hover: #e94560;
-    --day-selected-bg: #e94560;
-    --day-selected-border: #e94560;
+    --day-bg: #333;
+    --day-border: #555;
+    --day-hover: #ff9500;
+    --day-selected-bg: #ff9500;
+    --day-selected-border: #ff9500;
 
     /* Slider Colors */
-    --slider-bg: #0f3460;
-    --slider-thumb: #e94560;
+    --slider-bg: #333;
+    --slider-thumb: #ff9500;
 
     /* Sun Times Colors */
-    --sun-item-bg: #1a1a2e;
-    --sun-item-border: #0f3460;
-    --sun-item-hover: #ffd700;
-    --today-border: #ffd700;
-    --today-bg: rgba(255, 215, 0, 0.05);
-    --time-block-bg: #0f3460;
+    --sun-item-bg: #1a1a1a;
+    --sun-item-border: #333;
+    --sun-item-hover: #ff9500;
+    --today-border: #ff9500;
+    --today-bg: rgba(255, 149, 0, 0.05);
+    --time-block-bg: #333;
 
     /* Checkbox Colors */
-    --checkbox-bg: #0f3460;
-    --checkbox-hover: #1a5490;
+    --checkbox-bg: #333;
+    --checkbox-hover: #444;
 
     /* Picker Colors */
-    --picker-bg: #0a2540;
-    --picker-btn-bg: #0f3460;
-    --picker-btn-border: #1a5490;
-    --picker-btn-hover: #1a5490;
+    --picker-bg: #0a0a0a;
+    --picker-btn-bg: #333;
+    --picker-btn-border: #555;
+    --picker-btn-hover: #444;
 }
 
 * {
@@ -115,7 +115,7 @@ body {
         sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    background: #000;
     color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
@@ -160,12 +160,12 @@ textarea {
 /* Selection */
 ::selection {
     background: var(--primary);
-    color: white;
+    color: #000;
 }
 
 ::-moz-selection {
     background: var(--primary);
-    color: white;
+    color: #000;
 }
 
 /* Focus visible for accessibility */

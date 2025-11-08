@@ -26,7 +26,6 @@
     let currentTime = new Date();
     let timeInterval: number;
     let locationWatchId: string | null = null;
-    let navBarHeight = 0;
 
     let showAlarmEditor = false;
     let editingAlarm: Alarm | null = null;
@@ -48,31 +47,6 @@
     const unsubSettings = settings.subscribe((value) => (settingsData = value));
     const unsubLocation = location.subscribe((value) => (locationData = value));
     const unsubSunTimes = sunTimes.subscribe((value) => (sunTimesData = value));
-
-    // Detect Android navigation bar height
-    function detectNavBarHeight() {
-        if (typeof window !== "undefined") {
-            // Calculate the difference between window height and visual viewport height
-            const windowHeight = window.innerHeight;
-            const visualHeight = window.visualViewport?.height || windowHeight;
-            const detectedHeight = windowHeight - visualHeight;
-
-            // If we detect a navigation bar OR if we're on Android and detection failed,
-            // use detected height or fallback to typical Android 3-button nav height (72px)
-            if (detectedHeight > 0) {
-                navBarHeight = detectedHeight;
-            } else if (
-                typeof navigator !== "undefined" &&
-                /Android/i.test(navigator.userAgent)
-            ) {
-                // Fallback for Android devices where visualViewport doesn't work
-                // Typical Android 3-button navigation is 48dp which is ~72px on most devices
-                navBarHeight = 72;
-            } else {
-                navBarHeight = 0;
-            }
-        }
-    }
 
     // Reactive derived translation
     $: t = getTranslation(settingsData.language as Language);
@@ -100,20 +74,6 @@
 
         // Initialize alarm listeners
         alarmService.initializeListeners(handleAlarmTriggered);
-
-        // Detect navigation bar height
-        detectNavBarHeight();
-
-        // Update on resize (keyboard, orientation change, etc.)
-        if (typeof window !== "undefined") {
-            window.addEventListener("resize", detectNavBarHeight);
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener(
-                    "resize",
-                    detectNavBarHeight,
-                );
-            }
-        }
     });
 
     onDestroy(() => {
@@ -124,17 +84,6 @@
         unsubSettings();
         unsubLocation();
         unsubSunTimes();
-
-        // Clean up resize listeners
-        if (typeof window !== "undefined") {
-            window.removeEventListener("resize", detectNavBarHeight);
-            if (window.visualViewport) {
-                window.visualViewport.removeEventListener(
-                    "resize",
-                    detectNavBarHeight,
-                );
-            }
-        }
     });
 
     async function requestPermissions() {
@@ -335,7 +284,7 @@
     }
 </script>
 
-<main style="padding-bottom: {navBarHeight + 96}px;">
+<main style="padding-bottom: 96px;">
     <div class="app-container">
         <!-- Header -->
         <header class="app-header">
@@ -436,7 +385,11 @@
                         <h3>{t.use24Hour}</h3>
                         <div class="setting-item">
                             <label class="setting-label">
-                                <span>24-hour format</span>
+                                <span
+                                    >{settingsData.use24HourFormat
+                                        ? "24 Hour Format"
+                                        : "12 Hour Format"}</span
+                                >
                                 <label class="toggle-switch">
                                     <input
                                         type="checkbox"
@@ -519,7 +472,7 @@
         </div>
 
         <!-- Bottom Navigation -->
-        <nav class="bottom-nav" style="bottom: {navBarHeight}px;">
+        <nav class="bottom-nav">
             <button
                 class="nav-btn"
                 class:active={currentView === "alarms"}
@@ -648,8 +601,8 @@
         right: 0;
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        background: #1a1a1a;
-        border-top: 1px solid #333;
+        background: #000;
+        border-top: 2px solid #ff9500;
         padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
         gap: 0.25rem;
         z-index: 1000;
@@ -696,8 +649,8 @@
     }
 
     .content-container {
-        min-height: calc(100vh - 200px);
-        padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+        min-height: calc(100vh - 160px);
+        padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
     }
 
     .view-content {

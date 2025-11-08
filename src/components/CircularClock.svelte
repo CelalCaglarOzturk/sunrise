@@ -22,7 +22,9 @@
     $: hourAngle =
         useSunBased && sunriseTime
             ? ((hours * 60 + minutes) / 1440) * 360 - 90
-            : (hours % 12) * 30 + minutes * 0.5 - 90;
+            : use24Hour
+              ? ((hours * 60 + minutes) / 1440) * 360 - 90
+              : (hours % 12) * 30 + minutes * 0.5 - 90;
 
     // Calculate minute hand angle (6 degrees per minute)
     $: minuteAngle = minutes * 6 - 90;
@@ -33,12 +35,14 @@
     // Calculate hour markers
     function getHourMarkers() {
         const markers = [];
-        const count = useSunBased ? 24 : 12;
+        const count = useSunBased || use24Hour ? 24 : 12;
         for (let i = 0; i < count; i++) {
             const angle = (i * (360 / count) - 90) * (Math.PI / 180);
             const outerRadius = radius - 5;
             const innerRadius =
-                i % (useSunBased ? 6 : 3) === 0 ? radius - 15 : radius - 10;
+                i % (useSunBased || use24Hour ? 6 : 3) === 0
+                    ? radius - 15
+                    : radius - 10;
 
             const x1 = centerX + Math.cos(angle) * innerRadius;
             const y1 = centerY + Math.sin(angle) * innerRadius;
@@ -50,7 +54,7 @@
                 y1,
                 x2,
                 y2,
-                major: i % (useSunBased ? 6 : 3) === 0,
+                major: i % (useSunBased || use24Hour ? 6 : 3) === 0,
             });
         }
         return markers;
@@ -75,8 +79,11 @@
                 } else {
                     // Normal alarm
                     const [h, m] = alarm.time.split(":").map(Number);
-                    const totalMinutes = (h % 12) * 60 + m;
-                    angle = (totalMinutes / 720) * 360 - 90;
+                    const totalMinutes = use24Hour
+                        ? h * 60 + m
+                        : (h % 12) * 60 + m;
+                    const divisor = use24Hour ? 1440 : 720;
+                    angle = (totalMinutes / divisor) * 360 - 90;
                 }
 
                 const rad = angle * (Math.PI / 180);
@@ -204,46 +211,46 @@
     }
 
     .clock-face {
-        fill: var(--clock-face-bg, #1a1a2e);
-        stroke: var(--clock-border, #0f3460);
+        fill: var(--clock-face-bg, #1a1a1a);
+        stroke: var(--clock-border, #333);
         stroke-width: 3;
     }
 
     .hour-marker {
-        stroke: var(--marker-color, #16213e);
+        stroke: var(--marker-color, #333);
         stroke-width: 2;
     }
 
     .hour-marker.major {
-        stroke: var(--marker-major-color, #0f3460);
+        stroke: var(--marker-major-color, #555);
         stroke-width: 3;
     }
 
     .hour-hand {
-        stroke: var(--hour-hand-color, #e94560);
+        stroke: var(--hour-hand-color, #ff9500);
         stroke-width: 6;
         stroke-linecap: round;
     }
 
     .minute-hand {
-        stroke: var(--minute-hand-color, #e94560);
+        stroke: var(--minute-hand-color, #ff9500);
         stroke-width: 4;
         stroke-linecap: round;
     }
 
     .second-hand {
-        stroke: var(--second-hand-color, #ff6b9d);
+        stroke: var(--second-hand-color, #ffaa33);
         stroke-width: 2;
         stroke-linecap: round;
     }
 
     .center-dot {
-        fill: var(--center-dot-color, #e94560);
+        fill: var(--center-dot-color, #ff9500);
     }
 
     .alarm-marker {
-        fill: var(--alarm-marker-bg, #ffd700);
-        stroke: var(--alarm-marker-border, #ff8c00);
+        fill: var(--alarm-marker-bg, #ff9500);
+        stroke: var(--alarm-marker-border, #ffaa33);
         stroke-width: 2;
         cursor: pointer;
         transition: all 0.2s ease;
@@ -254,26 +261,26 @@
     }
 
     .alarm-marker-inner {
-        fill: var(--alarm-inner-color, #ff8c00);
+        fill: var(--alarm-inner-color, #ffaa33);
         pointer-events: none;
     }
 
     .time-display {
         font-size: 2.5rem;
         font-weight: bold;
-        color: var(--time-color, #e94560);
+        color: var(--time-color, #ff9500);
         font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", monospace;
-        text-shadow: 0 2px 10px rgba(233, 69, 96, 0.3);
+        text-shadow: 0 2px 10px rgba(255, 149, 0, 0.3);
     }
 
     .sun-mode-label {
         font-size: 0.9rem;
-        color: var(--sun-label-color, #ffd700);
+        color: var(--sun-label-color, #ff9500);
         font-weight: 500;
         padding: 0.3rem 0.8rem;
-        background: rgba(255, 215, 0, 0.1);
+        background: rgba(255, 149, 0, 0.1);
         border-radius: 12px;
-        border: 1px solid rgba(255, 215, 0, 0.3);
+        border: 1px solid rgba(255, 149, 0, 0.3);
     }
 
     @media (max-width: 768px) {
