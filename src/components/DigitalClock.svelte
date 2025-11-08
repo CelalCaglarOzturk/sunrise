@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
+    import { Sun } from "@lucide/svelte";
 
     export let use24Hour: boolean = true;
     export let useSunBased: boolean = false;
@@ -68,7 +69,10 @@
     <div class="time">{currentTime}</div>
     <div class="date">{currentDate}</div>
     {#if useSunBased && sunriseTime}
-        <div class="sun-mode-indicator">☀️ Sun-Based Time</div>
+        <div class="sun-mode-indicator">
+            <Sun size={16} />
+            Sun-Based Time
+        </div>
     {/if}
 </div>
 
@@ -102,6 +106,9 @@
     }
 
     .sun-mode-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         font-size: 0.9rem;
         color: #ff9500;
         margin-top: 0.5rem;

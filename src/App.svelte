@@ -292,7 +292,7 @@
             <div class="header-actions">
                 {#if currentView === "alarms"}
                     <button
-                        class="btn-icon"
+                        class="btn-icon btn-icon-orange"
                         on:click={() => (showBulkActions = !showBulkActions)}
                         title="Bulk Actions"
                     >
@@ -340,6 +340,7 @@
                             sunTimes={sunTimesData}
                             {t}
                             use24Hour={settingsData.use24HourFormat}
+                            language={settingsData.language}
                         />
                     {:else}
                         <div class="empty-state">
@@ -593,6 +594,14 @@
     .btn-icon:hover {
         background: #ff9500;
         transform: scale(1.05);
+    }
+
+    .btn-icon-orange {
+        color: #ff9500;
+    }
+
+    .btn-icon-orange:hover {
+        color: #fff;
     }
 
     .bottom-nav {

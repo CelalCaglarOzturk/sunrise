@@ -6,6 +6,7 @@
     import { getTranslation } from "../utils/translations";
     import type { Language } from "../types";
     import Icon from "./Icon.svelte";
+    import { Bell, Vibrate } from "@lucide/svelte";
 
     export let t: Translation;
 
@@ -312,14 +313,21 @@
             <div class="form-group">
                 <label>{t.alarmSound}</label>
                 <button class="sound-select-btn" on:click={selectSound}>
-                    🔔 {newTimerSoundName}
+                    <Bell size={16} />
+                    {newTimerSoundName}
                 </button>
             </div>
 
-            <div class="form-group checkbox-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" bind:checked={newTimerVibrate} />
-                    <span>📳 {t.vibrate}</span>
+            <div class="form-group">
+                <label class="toggle-option-label">
+                    <span class="toggle-option-text">
+                        <Vibrate size={16} />
+                        {t.vibrate}
+                    </span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" bind:checked={newTimerVibrate} />
+                        <span class="toggle-slider"></span>
+                    </label>
                 </label>
             </div>
 
@@ -648,34 +656,80 @@
         border-color: #ff9500;
     }
 
-    .checkbox-group {
-        margin-bottom: 1rem;
-    }
-
-    .checkbox-label {
-        display: flex;
+    .toggle-option-label {
+        display: flex !important;
         align-items: center;
-        gap: 0.75rem;
-        cursor: pointer;
-        padding: 0.75rem;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100%;
+        padding: 1rem;
+        margin-bottom: 0 !important;
         background: #2a2a2a;
         border-radius: 12px;
+        border: 2px solid #333;
+        cursor: pointer;
         transition: all 0.2s;
     }
 
-    .checkbox-label:hover {
+    .toggle-option-label:hover {
+        border-color: #444;
         background: #333;
     }
 
-    .checkbox-label input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-    }
-
-    .checkbox-label span {
+    .toggle-option-text {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
         font-size: 1rem;
         color: #fff;
+        font-weight: 500;
+        flex: 1;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #444;
+        transition: 0.3s;
+        border-radius: 26px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: #ff9500;
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(24px);
     }
 
     .timer-editor-actions {

@@ -3,6 +3,7 @@
     import type { Translation } from "../types";
     import { sunCalcService } from "../services/sunCalc";
     import Icon from "./Icon.svelte";
+    import { Sun } from "@lucide/svelte";
 
     export let alarms: Alarm[] = [];
     export let t: Translation;
@@ -21,7 +22,7 @@
             if (hours > 0) text += `${hours}h `;
             if (minutes > 0) text += `${minutes}m`;
 
-            return alarm.sunOffset >= 0 ? `☀️ +${text}` : `☀️ -${text}`;
+            return alarm.sunOffset >= 0 ? `+${text}` : `-${text}`;
         }
 
         if (use24Hour) {
@@ -117,6 +118,9 @@
 
                     <div class="alarm-info" on:click={() => handleEdit(alarm)}>
                         <div class="alarm-time">
+                            {#if alarm.useSunTime}
+                                <Sun size={16} class="sun-icon" />
+                            {/if}
                             {formatAlarmTime(alarm)}
                         </div>
 
@@ -295,11 +299,19 @@
     }
 
     .alarm-time {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         font-size: 2rem;
         font-weight: 700;
         color: #fff;
         font-family: "SF Mono", "Monaco", "Inconsolata", monospace;
         margin-bottom: 0.25rem;
+    }
+
+    .alarm-time :global(.sun-icon) {
+        color: #ff9500;
+        flex-shrink: 0;
     }
 
     .alarm-label {

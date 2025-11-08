@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import type { Alarm } from "../types";
     import { sunCalcService } from "../services/sunCalc";
+    import { Sun } from "@lucide/svelte";
 
     export let alarms: Alarm[] = [];
     export let currentTime: Date = new Date();
@@ -215,7 +216,10 @@
     </div>
 
     {#if useSunBased && sunriseTime}
-        <div class="sun-mode-label">☀️ Sun-Based Time</div>
+        <div class="sun-mode-label">
+            <Sun size={16} />
+            Sun-Based Time
+        </div>
     {/if}
 </div>
 
@@ -297,6 +301,9 @@
     }
 
     .sun-mode-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         font-size: 0.9rem;
         color: var(--sun-label-color, #ff9500);
         font-weight: 500;

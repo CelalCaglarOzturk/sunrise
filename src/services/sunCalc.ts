@@ -1,5 +1,5 @@
-import * as SunCalc from 'suncalc';
-import type { SunTimes, Location } from '../types';
+import * as SunCalc from "suncalc";
+import type { SunTimes, Location } from "../types";
 
 export class SunCalcService {
   private static instance: SunCalcService;
@@ -54,7 +54,7 @@ export class SunCalcService {
   convertSunTimeToActualTime(
     sunOffset: number,
     location: Location,
-    date: Date = new Date()
+    date: Date = new Date(),
   ): Date {
     const times = SunCalc.getTimes(date, location.latitude, location.longitude);
     const actualTime = new Date(times.sunrise);
@@ -73,10 +73,10 @@ export class SunCalcService {
   convertActualTimeToSunOffset(
     time: string,
     location: Location,
-    date: Date = new Date()
+    date: Date = new Date(),
   ): number {
     const times = SunCalc.getTimes(date, location.latitude, location.longitude);
-    const [hours, minutes] = time.split(':').map(Number);
+    const [hours, minutes] = time.split(":").map(Number);
 
     const actualTime = new Date(date);
     actualTime.setHours(hours, minutes, 0, 0);
@@ -95,15 +95,15 @@ export class SunCalcService {
    */
   formatTime(date: Date, use24Hour: boolean = true): string {
     if (use24Hour) {
-      return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
+      return date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
         hour12: false,
       });
     } else {
-      return date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
         hour12: true,
       });
     }
@@ -154,17 +154,17 @@ export class SunCalcService {
   /**
    * Get day name
    */
-  getDayName(date: Date, locale: string = 'en-US'): string {
-    return date.toLocaleDateString(locale, { weekday: 'long' });
+  getDayName(date: Date, locale: string = "en-US"): string {
+    return date.toLocaleDateString(locale, { weekday: "long" });
   }
 
   /**
    * Get formatted date
    */
-  getFormattedDate(date: Date, locale: string = 'en-US'): string {
+  getFormattedDate(date: Date, locale: string = "en-US"): string {
     return date.toLocaleDateString(locale, {
-      month: 'short',
-      day: 'numeric',
+      month: "short",
+      day: "numeric",
     });
   }
 }

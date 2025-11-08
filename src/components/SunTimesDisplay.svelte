@@ -6,6 +6,7 @@
     export let sunTimes: SunTimes[] = [];
     export let t: Translation;
     export let use24Hour: boolean = true;
+    export let language: string = "en";
 
     function formatTime(date: Date): string {
         return sunCalcService.formatTime(date, use24Hour);
@@ -18,11 +19,11 @@
         if (sunCalcService.isTomorrow(date)) {
             return t.tomorrow;
         }
-        return sunCalcService.getDayName(date);
+        return sunCalcService.getDayName(date, language);
     }
 
     function getFormattedDate(date: Date): string {
-        return sunCalcService.getFormattedDate(date);
+        return sunCalcService.getFormattedDate(date, language);
     }
 </script>
 
