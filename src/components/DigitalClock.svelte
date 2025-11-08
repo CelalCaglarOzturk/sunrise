@@ -25,7 +25,7 @@
 
             const sunHours = Math.floor(absMinutes / 60);
             const sunMinutes = Math.floor(absMinutes % 60);
-            const sunSeconds = Math.floor((absMinutes * 60) % 60);
+            const sunSeconds = Math.floor(((absMinutes % 1) * 60));
 
             const sign = isBeforeSunrise ? "-" : "";
             currentTime = `${sign}${String(sunHours).padStart(2, "0")}:${String(sunMinutes).padStart(2, "0")}:${String(sunSeconds).padStart(2, "0")}`;

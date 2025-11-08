@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { SunTimes, Translation } from "../types";
     import { sunCalcService } from "../services/sunCalc";
-    import { Sunrise, Sunset } from "@lucide/svelte";
+    import { Sunrise, Sunset, Clock } from "@lucide/svelte";
 
     export let sunTimes: SunTimes[] = [];
     export let t: Translation;
@@ -10,6 +10,13 @@
 
     function formatTime(date: Date): string {
         return sunCalcService.formatTime(date, use24Hour);
+    }
+
+    function getDaylightDuration(sunrise: Date, sunset: Date): string {
+        const durationMs = sunset.getTime() - sunrise.getTime();
+        const hours = Math.floor(durationMs / (1000 * 60 * 60));
+        const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+        return `${hours}h ${minutes}m`;
     }
 
     function getDayLabel(date: Date): string {
@@ -68,6 +75,11 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="daylight-duration">
+                    <Clock size={16} />
+                    <span>Daylight: {getDaylightDuration(sunTime.sunrise, sunTime.sunset)}</span>
                 </div>
             </div>
         {/each}
@@ -182,6 +194,21 @@
         font-weight: bold;
         color: #ff9500;
         font-family: "SF Mono", "Monaco", "Inconsolata", monospace;
+    }
+
+    .daylight-duration {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        padding: 0.5rem;
+        background: #2a2a2a;
+        border-radius: 8px;
+        color: #ff9500;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1px solid rgba(255, 149, 0, 0.3);
     }
 
     @media (max-width: 768px) {

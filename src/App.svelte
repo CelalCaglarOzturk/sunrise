@@ -703,6 +703,8 @@
         padding: 1rem;
         max-width: 600px;
         margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .settings-section {
@@ -711,6 +713,8 @@
         padding: 1.5rem;
         border-radius: 15px;
         border: 1px solid #333;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .settings-section h3 {
@@ -794,6 +798,8 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 0.5rem;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .format-btn {
@@ -812,6 +818,9 @@
         transition: all 0.2s;
         white-space: nowrap;
         -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .format-btn:hover {
@@ -879,11 +888,33 @@
         cursor: pointer;
         transition: all 0.3s ease;
         -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
     }
 
     .btn-secondary:hover {
         background: #ff9500;
         color: #000;
+    }
+
+    @media (max-width: 768px) {
+        .settings-view {
+            padding: 0.5rem;
+        }
+
+        .settings-section {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .format-btn {
+            font-size: 0.85rem;
+            padding: 0.6rem 0.4rem;
+            gap: 0.25rem;
+        }
+
+        .settings-section h3 {
+            font-size: 1rem;
+        }
     }
 
     @media (max-width: 768px) {

@@ -619,6 +619,7 @@
         justify-content: center;
         z-index: 1000;
         padding: 1rem;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
         overflow-y: auto;
         backdrop-filter: blur(5px);
     }
@@ -628,11 +629,12 @@
         border-radius: 20px;
         width: 100%;
         max-width: 500px;
-        max-height: 90vh;
+        max-height: calc(90vh - 2rem);
         display: flex;
         flex-direction: column;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
         border: 1px solid #333;
+        margin: auto;
     }
 
     .modal-header {
@@ -674,6 +676,7 @@
         padding: 1.5rem;
         overflow-y: auto;
         flex: 1;
+        min-height: 0;
     }
 
     .form-group {
@@ -883,10 +886,12 @@
         grid-template-columns: repeat(4, 1fr);
         gap: 0.5rem;
         margin-bottom: 0.75rem;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .quick-btn {
-        width: 80px;
+        width: 100%;
         padding: 0.5rem;
         background: #333;
         border: 1px solid #555;
@@ -896,6 +901,7 @@
         font-size: 0.8rem;
         transition: all 0.2s;
         -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
     }
 
     .quick-btn:hover {
@@ -1194,8 +1200,14 @@
     }
 
     @media (max-width: 768px) {
+        .modal-backdrop {
+            padding: 0.5rem;
+            padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+        }
+
         .modal-content {
-            max-height: 95vh;
+            max-height: calc(95vh - 1rem);
+            max-width: 100%;
         }
 
         .modal-header h2 {
@@ -1208,12 +1220,60 @@
             padding: 1rem;
         }
 
-        .days-selector {
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .quick-select {
+            grid-template-columns: repeat(2, 1fr);
             gap: 0.4rem;
         }
 
-        .day-btn {
+        .quick-btn {
             font-size: 0.75rem;
+            padding: 0.4rem;
+        }
+
+        .mode-toggle {
+            gap: 0.4rem;
+        }
+
+        .mode-btn {
+            font-size: 0.85rem;
+            padding: 0.6rem;
+            gap: 0.3rem;
+        }
+
+        .days-selector {
+            gap: 0.3rem;
+        }
+
+        .day-btn {
+            font-size: 0.7rem;
+        }
+
+        .modal-footer {
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .quick-select {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .time {
+            font-size: 1.5rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.1rem;
         }
     }
 </style>
