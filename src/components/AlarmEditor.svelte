@@ -35,6 +35,12 @@
     // UI state
     let showSoundPicker = false;
 
+    // Wheel picker refs
+    let hoursWheelRef: HTMLDivElement;
+    let minutesWheelRef: HTMLDivElement;
+    let isScrollingHours = false;
+    let isScrollingMinutes = false;
+
     const dayNames = [
         { key: "sunday", value: 0 },
         { key: "monday", value: 1 },
@@ -120,6 +126,64 @@
     }
 
     $: (sunOffsetHours, sunOffsetMinutes, updateSunOffset());
+
+    // Scroll wheel picker to center item
+    function scrollToValue(
+        container: HTMLDivElement,
+        value: number,
+        options: number[],
+    ) {
+        if (!container) return;
+        const index = options.indexOf(value);
+        if (index === -1) return;
+        const itemHeight = 40; // Height of each item
+        const scrollPosition = index * itemHeight;
+        container.scrollTo({
+            top: scrollPosition,
+            behavior: "smooth",
+        });
+    }
+
+    // Handle wheel scroll snap
+    let scrollTimeout: number;
+    function handleWheelScroll(
+        container: HTMLDivElement,
+        options: number[],
+        setter: (value: number) => void,
+    ) {
+        if (!container) return;
+
+        clearTimeout(scrollTimeout);
+
+        scrollTimeout = window.setTimeout(() => {
+            const itemHeight = 40;
+            const scrollTop = container.scrollTop;
+            const index = Math.round(scrollTop / itemHeight);
+            const clampedIndex = Math.max(
+                0,
+                Math.min(index, options.length - 1),
+            );
+
+            // Snap to position
+            container.scrollTo({
+                top: clampedIndex * itemHeight,
+                behavior: "smooth",
+            });
+            setter(options[clampedIndex]);
+        }, 100);
+    }
+
+    // Initialize wheel positions when opening
+    $: if (isOpen && hoursWheelRef && minutesWheelRef) {
+        setTimeout(() => {
+            scrollToValue(hoursWheelRef, sunOffsetHours, getHourOptions());
+            scrollToValue(
+                minutesWheelRef,
+                sunOffsetMinutes,
+                getMinuteOptions(),
+            );
+        }, 50);
+    }
 
     function handleSave() {
         const newAlarm: Alarm = {
@@ -266,30 +330,76 @@
                         <div class="time-picker-container">
                             <div class="time-picker-column">
                                 <div class="picker-label">Hours</div>
-                                <select
-                                    bind:value={sunOffsetHours}
-                                    class="time-picker-select"
-                                >
-                                    {#each getHourOptions() as hour}
-                                        <option value={hour}>
-                                            {hour >= 0 ? `+${hour}` : hour}
-                                        </option>
-                                    {/each}
-                                </select>
+                                <div class="wheel-picker-wrapper">
+                                    <div class="wheel-picker-overlay"></div>
+                                    <div class="wheel-picker-selection"></div>
+                                    <div
+                                        class="wheel-picker"
+                                        bind:this={hoursWheelRef}
+                                        on:scroll={() =>
+                                            handleWheelScroll(
+                                                hoursWheelRef,
+                                                getHourOptions(),
+                                                (v) => (sunOffsetHours = v),
+                                            )}
+                                    >
+                                        {#each getHourOptions() as hour}
+                                            <div
+                                                class="wheel-item"
+                                                class:selected={sunOffsetHours ===
+                                                    hour}
+                                                on:click={() => {
+                                                    sunOffsetHours = hour;
+                                                    scrollToValue(
+                                                        hoursWheelRef,
+                                                        hour,
+                                                        getHourOptions(),
+                                                    );
+                                                }}
+                                            >
+                                                {hour >= 0 ? `+${hour}` : hour}
+                                            </div>
+                                        {/each}
+                                    </div>
+                                </div>
                             </div>
                             <div class="time-picker-separator">:</div>
                             <div class="time-picker-column">
                                 <div class="picker-label">Minutes</div>
-                                <select
-                                    bind:value={sunOffsetMinutes}
-                                    class="time-picker-select"
-                                >
-                                    {#each getMinuteOptions() as minute}
-                                        <option value={minute}>
-                                            {minute.toString().padStart(2, "0")}
-                                        </option>
-                                    {/each}
-                                </select>
+                                <div class="wheel-picker-wrapper">
+                                    <div class="wheel-picker-overlay"></div>
+                                    <div class="wheel-picker-selection"></div>
+                                    <div
+                                        class="wheel-picker"
+                                        bind:this={minutesWheelRef}
+                                        on:scroll={() =>
+                                            handleWheelScroll(
+                                                minutesWheelRef,
+                                                getMinuteOptions(),
+                                                (v) => (sunOffsetMinutes = v),
+                                            )}
+                                    >
+                                        {#each getMinuteOptions() as minute}
+                                            <div
+                                                class="wheel-item"
+                                                class:selected={sunOffsetMinutes ===
+                                                    minute}
+                                                on:click={() => {
+                                                    sunOffsetMinutes = minute;
+                                                    scrollToValue(
+                                                        minutesWheelRef,
+                                                        minute,
+                                                        getMinuteOptions(),
+                                                    );
+                                                }}
+                                            >
+                                                {minute
+                                                    .toString()
+                                                    .padStart(2, "0")}
+                                            </div>
+                                        {/each}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="offset-hint">
@@ -667,37 +777,85 @@
         font-weight: 500;
     }
 
-    .time-picker-select {
-        padding: 0.75rem 0.5rem;
-        background: #2a2a2a;
-        border: 2px solid #444;
-        border-radius: 10px;
-        color: #ff9500;
-        font-size: 1.5rem;
+    .wheel-picker-wrapper {
+        position: relative;
+        width: 90px;
+        height: 160px;
+        overflow: hidden;
+        border-radius: 12px;
+        background: #1a1a1a;
+        border: 2px solid #333;
+    }
+
+    .wheel-picker-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            to bottom,
+            rgba(26, 26, 26, 0.95) 0%,
+            transparent 30%,
+            transparent 70%,
+            rgba(26, 26, 26, 0.95) 100%
+        );
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .wheel-picker-selection {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 40px;
+        transform: translateY(-50%);
+        border-top: 2px solid #ff9500;
+        border-bottom: 2px solid #ff9500;
+        background: rgba(255, 149, 0, 0.05);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .wheel-picker {
+        height: 100%;
+        overflow-y: scroll;
+        scroll-snap-type: y mandatory;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        padding: 60px 0;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .wheel-picker::-webkit-scrollbar {
+        display: none;
+    }
+
+    .wheel-item {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
         font-weight: bold;
         font-family: "SF Mono", "Monaco", "Inconsolata", monospace;
+        color: #555;
         cursor: pointer;
-        text-align: center;
-        min-width: 80px;
-        max-height: 120px;
-        overflow-y: auto;
-        transition: all 0.2s;
+        scroll-snap-align: center;
+        transition: all 0.3s ease;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
     }
 
-    .time-picker-select:focus {
-        outline: none;
-        border-color: #ff9500;
-        box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.1);
+    .wheel-item:hover {
+        color: #777;
     }
 
-    .time-picker-select:hover {
-        border-color: #666;
-    }
-
-    .time-picker-select option {
-        padding: 0.5rem;
-        background: #2a2a2a;
+    .wheel-item.selected {
         color: #ff9500;
+        font-size: 1.75rem;
+        text-shadow: 0 0 10px rgba(255, 149, 0, 0.3);
     }
 
     .time-picker-separator {
