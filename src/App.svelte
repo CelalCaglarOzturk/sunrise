@@ -59,7 +59,7 @@
 
     onMount(async () => {
         // Load saved data
-        loadFromStorage();
+        await loadFromStorage();
         saveToStorage();
 
         // Start clock

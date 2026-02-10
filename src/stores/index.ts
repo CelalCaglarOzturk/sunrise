@@ -12,6 +12,7 @@ import {
   detectSystemLanguage,
   detectSystem24HourFormat,
 } from "../utils/translations";
+import { dbService } from "../services/database";
 
 // Alarms store
 function createAlarmsStore() {
@@ -228,72 +229,77 @@ export const nextAlarm = derived(
   }
 );
 
-// Persistence keys
-const STORAGE_KEYS = {
-  ALARMS: "sun_clock_alarms",
-  SETTINGS: "sun_clock_settings",
-  LOCATION: "sun_clock_location",
-  TIMERS: "sun_clock_timers",
-  STOPWATCH: "sun_clock_stopwatch",
-};
-
-// Load from localStorage
-export function loadFromStorage() {
-  if (typeof window === "undefined") return;
-
+// Load from SQLite
+export async function loadFromStorage(): Promise<void> {
   try {
-    const savedAlarms = localStorage.getItem(STORAGE_KEYS.ALARMS);
-    if (savedAlarms) {
-      alarms.load(JSON.parse(savedAlarms));
+    // Initialize database
+    await dbService.initialize();
+
+    // Load from SQLite
+    const [savedAlarms, savedSettings, savedLocation, savedTimers, savedStopwatch] = await Promise.all([
+      dbService.getAlarms(),
+      dbService.getSettings(),
+      dbService.getLocation(),
+      dbService.getTimers(),
+      dbService.getStopwatch(),
+    ]);
+
+    if (savedAlarms.length > 0) {
+      alarms.load(savedAlarms);
     }
 
-    const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     if (savedSettings) {
-      settings.set(JSON.parse(savedSettings));
+      settings.set(savedSettings);
     }
 
-    const savedLocation = localStorage.getItem(STORAGE_KEYS.LOCATION);
     if (savedLocation) {
-      location.set(JSON.parse(savedLocation));
+      location.set(savedLocation);
     }
 
-    const savedTimers = localStorage.getItem(STORAGE_KEYS.TIMERS);
-    if (savedTimers) {
-      timers.load(JSON.parse(savedTimers));
+    if (savedTimers.length > 0) {
+      timers.load(savedTimers);
     }
 
-    const savedStopwatch = localStorage.getItem(STORAGE_KEYS.STOPWATCH);
     if (savedStopwatch) {
-      stopwatch.set(JSON.parse(savedStopwatch));
+      stopwatch.set(savedStopwatch);
     }
   } catch (error) {
     console.error("Error loading from storage:", error);
   }
 }
 
-// Save to localStorage
-export function saveToStorage() {
-  if (typeof window === "undefined") return;
-
-  alarms.subscribe((value) => {
-    localStorage.setItem(STORAGE_KEYS.ALARMS, JSON.stringify(value));
+// Save to SQLite
+export function saveToStorage(): void {
+  // Subscribe to alarms
+  alarms.subscribe(($alarms) => {
+    // Delete all and re-insert
+    dbService.deleteAllAlarms().then(() => {
+      $alarms.forEach((alarm) => dbService.saveAlarm(alarm));
+    });
   });
 
-  settings.subscribe((value) => {
-    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(value));
+  // Subscribe to settings
+  settings.subscribe(($settings) => {
+    dbService.saveSettings($settings);
   });
 
-  location.subscribe((value) => {
-    if (value) {
-      localStorage.setItem(STORAGE_KEYS.LOCATION, JSON.stringify(value));
+  // Subscribe to location
+  location.subscribe(($location) => {
+    if ($location) {
+      dbService.saveLocation($location);
     }
   });
 
-  timers.subscribe((value) => {
-    localStorage.setItem(STORAGE_KEYS.TIMERS, JSON.stringify(value));
+  // Subscribe to timers
+  timers.subscribe(($timers) => {
+    // Delete all and re-insert
+    dbService.deleteAllTimers().then(() => {
+      $timers.forEach((timer) => dbService.saveTimer(timer));
+    });
   });
 
-  stopwatch.subscribe((value) => {
-    localStorage.setItem(STORAGE_KEYS.STOPWATCH, JSON.stringify(value));
+  // Subscribe to stopwatch
+  stopwatch.subscribe(($stopwatch) => {
+    dbService.saveStopwatch($stopwatch);
   });
 }
