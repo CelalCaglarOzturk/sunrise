@@ -35,11 +35,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         putExtra("VIBRATE", alarm.vibrate)
                     }
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(serviceIntent)
-                    } else {
-                        context.startService(serviceIntent)
-                    }
+                    context.startForegroundService(serviceIntent)
 
                     // Reschedule or Delete
                     if (alarm.deleteAfterUse) {

@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat
 import dev.mudrock.gunes.AlarmActivity
 import dev.mudrock.gunes.R
 import kotlinx.coroutines.*
+import androidx.core.net.toUri
 
 class AlarmService : Service() {
 
@@ -57,10 +58,8 @@ class AlarmService : Service() {
         val channelId = "alarm_service_channel"
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "Alarm Service", NotificationManager.IMPORTANCE_HIGH)
-            notificationManager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(channelId, "Alarm Service", NotificationManager.IMPORTANCE_HIGH)
+        notificationManager.createNotificationChannel(channel)
 
         val intent = Intent(this, AlarmActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -88,7 +87,7 @@ class AlarmService : Service() {
     ) {
         // Sound
         try {
-            val uri = if (!soundUriString.isNullOrEmpty()) Uri.parse(soundUriString) else RingtoneManager.getDefaultUri(
+            val uri = if (!soundUriString.isNullOrEmpty()) soundUriString.toUri() else RingtoneManager.getDefaultUri(
                 RingtoneManager.TYPE_ALARM
             )
             mediaPlayer = MediaPlayer().apply {
@@ -128,12 +127,7 @@ class AlarmService : Service() {
             }
 
             val pattern = longArrayOf(0, 1000, 1000)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator?.vibrate(VibrationEffect.createWaveform(pattern, 0))
-            } else {
-                @Suppress("DEPRECATION")
-                vibrator?.vibrate(pattern, 0)
-            }
+            vibrator?.vibrate(VibrationEffect.createWaveform(pattern, 0))
         }
     }
 
