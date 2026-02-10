@@ -578,24 +578,24 @@
   }
 
   .btn-primary:hover {
-    background: #ffaa33;
+    background: var(--color-primary-hover);
     transform: translateY(-2px);
   }
 
   .btn-secondary {
-    background: #1a1a1a;
-    color: #fff;
-    border: 1px solid #333;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
   }
 
   .btn-secondary:hover {
-    background: #2a2a2a;
-    border-color: #ff9500;
+    background: var(--color-bg-tertiary);
+    border-color: var(--color-primary);
   }
 
   .btn-settings {
     background: transparent;
-    color: #888;
+    color: var(--color-text-secondary);
     padding: 0.875rem;
   }
 
@@ -746,7 +746,7 @@
   }
 
   .modal-footer .btn-primary:hover {
-    background: #ffaa33;
+    background: var(--color-primary-hover);
   }
 
   .form-group {

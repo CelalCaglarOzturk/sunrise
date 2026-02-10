@@ -138,7 +138,7 @@
   }
 
   .btn-danger:hover:not(:disabled) {
-    background: #dc2626;
+    background: var(--color-bg-tertiary);
   }
 
   /* Full width */

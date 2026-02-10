@@ -406,7 +406,7 @@ textarea {
 }
 
 .btn-danger:hover {
-    background: #dc2626;
+    background: var(--color-bg-tertiary);
 }
 
 /* Toggle Switch Pattern */

@@ -1109,7 +1109,7 @@
     }
 
     .btn-alert:hover {
-        background: #ff8555;
+        background: var(--color-primary-hover);
         transform: translateY(-2px);
     }
 

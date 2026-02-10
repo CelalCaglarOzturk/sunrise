@@ -255,7 +255,7 @@
 
     .lap-item.slowest {
         border-color: var(--color-border);
-        background: rgba(102, 102, 102, 0.05);
+        background: var(--color-bg-tertiary);
     }
 
     .lap-number {
