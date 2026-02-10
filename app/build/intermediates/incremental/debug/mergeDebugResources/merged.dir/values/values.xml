@@ -266,6 +266,7 @@
     <item name="compose_view_saveable_id_tag" type="id"/>
     <item name="consume_window_insets_tag" type="id"/>
     <item name="fragment_container_view_tag" type="id"/>
+    <item name="hide_graphics_layer_in_inspector_tag" type="id"/>
     <item name="hide_in_inspector_tag" type="id"/>
     <item name="home" type="id"/>
     <item name="inspection_slot_table_set" type="id"/>
@@ -308,6 +309,7 @@
     <integer name="config_tooltipAnimTime">150</integer>
     <integer name="default_icon_animation_duration">10000</integer>
     <integer name="google_play_services_version">12451000</integer>
+    <integer name="m3c_window_layout_in_display_cutout_mode">1</integer>
     <integer name="status_bar_notification_info_maxnum">999</integer>
     <string name="abc_action_bar_home_description">Navigate home</string>
     <string name="abc_action_bar_up_description">Navigate up</string>
@@ -434,6 +436,7 @@
     <string name="m3c_dialog">"Dialog"</string>
     <string name="m3c_dropdown_menu_collapsed">Collapsed</string>
     <string name="m3c_dropdown_menu_expanded">Expanded</string>
+    <string name="m3c_dropdown_menu_toggle">Toggle dropdown menu</string>
     <string name="m3c_search_bar_search">Search</string>
     <string name="m3c_snackbar_dismiss">Dismiss</string>
     <string name="m3c_suggestions_available">Suggestions below</string>
@@ -457,8 +460,6 @@
     <string name="no_alarms_yet">No alarms yet</string>
     <string name="normal_clock">Normal Clock</string>
     <string name="not_selected">Not selected</string>
-    <string name="off">Off</string>
-    <string name="on">On</string>
     <string name="pause">Pause</string>
     <string name="permissions">Permissions</string>
     <string name="range_end">"Range end"</string>
@@ -472,6 +473,9 @@
     <string name="show_seconds">Show Seconds</string>
     <string name="snooze">Snooze</string>
     <string name="start">Start</string>
+    <string name="state_empty">Empty</string>
+    <string name="state_off">Off</string>
+    <string name="state_on">On</string>
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="stopwatch">Stopwatch</string>
     <string name="sun_based_clock">Sun-Based Clock</string>
@@ -1600,6 +1604,19 @@
     </style>
     <style name="DialogWindowTheme">
         <item name="android:windowClipToOutline">false</item>
+    </style>
+    <style name="EdgeToEdgeFloatingDialogTheme" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="android:windowLayoutInDisplayCutoutMode" ns2:targetApi="27">@integer/m3c_window_layout_in_display_cutout_mode</item>
+        <item name="android:windowClipToOutline">false</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowElevation">0dp</item>
+    </style>
+    <style name="EdgeToEdgeFloatingDialogWindowTheme">
+        <item name="android:dialogTheme">@style/EdgeToEdgeFloatingDialogTheme</item>
     </style>
     <style name="FloatingDialogTheme">
         <item name="android:windowIsFloating">false</item>
@@ -2811,6 +2828,8 @@
         
         <attr format="string" name="fontProviderQuery"/>
         
+        <attr format="string" name="fontProviderFallbackQuery"/>
+        
         <attr format="reference" name="fontProviderCerts"/>
         
         <attr name="fontProviderFetchStrategy">
@@ -2821,7 +2840,7 @@
               default typeface will be used instead. -->
             <enum name="blocking" value="0"/>
             <!-- The async font fetch works as follows.
-              First, check the local cache, then if the requeted font is not cached, trigger a
+              First, check the local cache, then if the requested font is not cached, trigger a
               request the font and continue with layout inflation. Once the font fetch succeeds, the
               target text view will be refreshed with the downloaded font data. The
               fontProviderFetchTimeout will be ignored if async loading is specified. -->

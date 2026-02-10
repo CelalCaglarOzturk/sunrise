@@ -1,11 +1,34 @@
-*.iml
-.idea/
-.vscode/
+# built application files
+*.apk
+*.ap_
+
+# Mac files
 .DS_Store
-*.log
-.kotlin/
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# Ignore gradle files
 .gradle/
-local.properties
 build/
+**/build/
+**/intermediates/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Android Studio/IDEA
+*.iml
+.idea
+.kotlin/
+
+*.log
 *.hprof
 android/
