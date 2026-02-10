@@ -10,6 +10,8 @@ const config: CapacitorConfig = {
   android: {
     webContentsDebuggingEnabled: true,
     allowMixedContent: false,
+    // Enable edge-to-edge display to handle 3-button navigation properly
+    adjustMarginsForEdgeToEdge: "auto",
   },
   plugins: {
     LocalNotifications: {
@@ -25,6 +27,11 @@ const config: CapacitorConfig = {
     StatusBar: {
       style: "DARK",
       backgroundColor: "#000000",
+    },
+    // SafeArea plugin configuration for Android navigation bar handling
+    SafeArea: {
+      statusBarStyle: "DARK",
+      navigationBarStyle: "DARK",
     },
   },
 };

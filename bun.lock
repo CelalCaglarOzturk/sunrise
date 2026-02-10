@@ -5,6 +5,7 @@
     "": {
       "name": "gunes",
       "dependencies": {
+        "@capacitor-community/safe-area": "7.0.0",
         "@capacitor-community/sqlite": "6.0.0",
         "@capacitor/android": "^7.4.5",
         "@capacitor/app": "^6.0.3",
@@ -37,6 +38,8 @@
     "@babel/code-frame": ["@babel/code-frame@7.27.1", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.27.1", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg=="],
 
     "@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.28.5", "", {}, "sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q=="],
+
+    "@capacitor-community/safe-area": ["@capacitor-community/safe-area@7.0.0", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-+bze1ChJasYBvLtgp2mFeAHxiOmXqHvb1adtO0MbobZ/5WCrTsOi6ebECJkUpao4MJ4mqCBOus0jOXJXwx3YgA=="],
 
     "@capacitor-community/sqlite": ["@capacitor-community/sqlite@6.0.0", "", { "dependencies": { "jeep-sqlite": "^2.7.2" }, "peerDependencies": { "@capacitor/core": "^6.0.0" } }, "sha512-Pm0orp17nkLzqQb7hGD9A1UCt5jbgxthHBSRxxcPOxiI+/6aTSBwa1Eshy+k9d8Arz/H77ISTdoH/HPi0ez3sQ=="],
 

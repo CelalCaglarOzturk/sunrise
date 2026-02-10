@@ -818,7 +818,7 @@
         grid-template-columns: repeat(6, 1fr);
         background: var(--color-bg-primary);
         border-top: 2px solid var(--color-primary);
-        padding: var(--space-2) var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+        padding: var(--space-2) var(--space-2) calc(var(--space-2) + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
         gap: var(--space-1);
         z-index: var(--z-sticky);
     }
@@ -862,7 +862,7 @@
 
     .content-container {
         min-height: calc(100vh - 160px);
-        padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+        padding-bottom: calc(96px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
     }
 
     .view-content {
