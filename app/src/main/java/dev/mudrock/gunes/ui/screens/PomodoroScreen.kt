@@ -14,7 +14,7 @@ import kotlinx.coroutines.delay
 import dev.mudrock.gunes.ui.MainViewModel
 
 @Composable
-fun PomodoroScreen(viewModel: MainViewModel) {
+fun PomodoroScreen() {
     var timerType by remember { mutableStateOf("Work") } // Work, Short Break, Long Break
     var timeLeft by remember { mutableIntStateOf(25 * 60) }
     var isRunning by remember { mutableStateOf(false) }

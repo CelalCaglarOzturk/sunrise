@@ -81,7 +81,7 @@ object SunCalc {
         return J0 + (ht + lw) / (2 * PI) + n
     }
 
-    fun getTimes(date: Date, lat: Double, lng: Double, height: Double = 0.0): SunTimes {
+    fun getTimes(date: Date, lat: Double, lng: Double): SunTimes {
         val lw = -lng * RAD
         val phi = lat * RAD
         val d = toDays(date.time)

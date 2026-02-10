@@ -17,7 +17,7 @@ import kotlinx.coroutines.delay
 import dev.mudrock.gunes.ui.MainViewModel
 
 @Composable
-fun StopwatchScreen(viewModel: MainViewModel) {
+fun StopwatchScreen() {
     var timeMillis by remember { mutableLongStateOf(0L) }
     var isRunning by remember { mutableStateOf(false) }
     var laps by remember { mutableStateOf(listOf<Long>()) }
@@ -82,7 +82,7 @@ fun StopwatchScreen(viewModel: MainViewModel) {
                     Text("Lap $lapNum")
                     Text(formatMillis(lapTime))
                 }
-                Divider()
+                HorizontalDivider()
             }
         }
     }

@@ -42,9 +42,6 @@ private val LightColorScheme = DarkColorScheme
 
 @Composable
 fun SunriseTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is disabled to enforce brand colors
-    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = DarkColorScheme

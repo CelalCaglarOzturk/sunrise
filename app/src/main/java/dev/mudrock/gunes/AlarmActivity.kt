@@ -30,7 +30,6 @@ class AlarmActivity : ComponentActivity() {
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
 
-        val alarmId = intent.getStringExtra("ALARM_ID") ?: ""
         val alarmLabel = intent.getStringExtra("ALARM_LABEL") ?: "Alarm"
 
         setContent {

@@ -14,7 +14,7 @@ import kotlinx.coroutines.delay
 import dev.mudrock.gunes.ui.MainViewModel
 
 @Composable
-fun TimerScreen(viewModel: MainViewModel) {
+fun TimerScreen() {
     // Simple Timer Implementation
     var timeSeconds by remember { mutableIntStateOf(0) }
     var isRunning by remember { mutableStateOf(false) }

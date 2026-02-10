@@ -155,7 +155,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
             )
         }
 
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
         // Backup
         Button(onClick = { exportLauncher.launch("sunrise_backup.json") }, modifier = Modifier.fillMaxWidth()) {
@@ -170,7 +170,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
             Text(stringResource(R.string.import_settings))
         }
 
-        Divider(modifier = Modifier.padding(vertical = 16.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
         // About
         Text(

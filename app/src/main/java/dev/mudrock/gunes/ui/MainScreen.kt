@@ -71,16 +71,16 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
                 AlarmListScreen(viewModel = viewModel)
             }
             composable(Screen.Timer.route) {
-                TimerScreen(viewModel = viewModel)
+                TimerScreen()
             }
             composable(Screen.Stopwatch.route) {
-                StopwatchScreen(viewModel = viewModel)
+                StopwatchScreen()
             }
             composable(Screen.Sun.route) {
                 SunTimesScreen(viewModel = viewModel)
             }
             composable(Screen.Pomodoro.route) {
-                PomodoroScreen(viewModel = viewModel)
+                PomodoroScreen()
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(viewModel = viewModel)
