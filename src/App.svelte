@@ -8,7 +8,19 @@
     import Pomodoro from "./components/Pomodoro.svelte";
     import BulkActions from "./components/BulkActions.svelte";
     import DigitalClock from "./components/DigitalClock.svelte";
-    import Icon from "./components/Icon.svelte";
+    import { 
+        MoreVertical, 
+        Plus, 
+        MapPin, 
+        Clock, 
+        Sun, 
+        Timer as TimerIcon, 
+        Brain, 
+        Settings, 
+        Download, 
+        Upload,
+        Bell
+    } from "@lucide/svelte";
 
     import {
         alarms,
@@ -408,7 +420,7 @@
                         on:click={() => (showBulkActions = !showBulkActions)}
                         title="Bulk Actions"
                     >
-                        <Icon name="more-vertical" size={20} />
+                        <MoreVertical size={20} aria-hidden="true" />
                     </button>
                 {/if}
             </div>
@@ -442,7 +454,7 @@
                     />
 
                     <button class="btn-add-alarm" on:click={handleAddAlarm}>
-                        <Icon name="plus" size={20} />
+                        <Plus size={20} aria-hidden="true" />
                         {t.addAlarm}
                     </button>
                 </div>
@@ -458,7 +470,7 @@
                     {:else}
                         <div class="empty-state">
                             <div class="empty-icon">
-                                <Icon name="map-pin" size={64} color="#888" />
+                                <MapPin size={64} color="#888" aria-hidden="true" />
                             </div>
                             <h3>{t.locationPermission}</h3>
                             <p>{t.locationPermissionDesc}</p>
@@ -486,7 +498,7 @@
                                             defaultClockMode: "normal",
                                         })}
                                 >
-                                    <Icon name="clock" size={16} />
+                                    <Clock size={16} aria-hidden="true" />
                                     {t.normalClock}
                                 </button>
                                 <button
@@ -498,7 +510,7 @@
                                             defaultClockMode: "sun",
                                         })}
                                 >
-                                    <Icon name="sun" size={16} />
+                                    <Sun size={16} aria-hidden="true" />
                                     {t.sunBasedClock}
                                 </button>
                             </div>
@@ -625,14 +637,14 @@
                                 class="btn-secondary"
                                 on:click={handleExportSettings}
                             >
-                                <Icon name="download" size={16} />
+                                <Download size={16} aria-hidden="true" />
                                 {t.exportSettings}
                             </button>
                             <button
                                 class="btn-secondary"
                                 on:click={handleImportSettings}
                             >
-                                <Icon name="upload" size={16} />
+                                <Upload size={16} aria-hidden="true" />
                                 {t.importSettings}
                             </button>
                         </div>
@@ -668,7 +680,7 @@
                 class:active={currentView === "alarms"}
                 on:click={() => (currentView = "alarms")}
             >
-                <Icon name="bell" size={24} />
+                <Bell size={24} aria-hidden="true" />
                 <span>Alarms</span>
             </button>
             <button
@@ -676,7 +688,7 @@
                 class:active={currentView === "sun-times"}
                 on:click={() => (currentView = "sun-times")}
             >
-                <Icon name="sun" size={24} />
+                <Sun size={24} aria-hidden="true" />
                 <span>Sun</span>
             </button>
             <button
@@ -684,7 +696,7 @@
                 class:active={currentView === "timer"}
                 on:click={() => (currentView = "timer")}
             >
-                <Icon name="timer" size={24} />
+                <TimerIcon size={24} aria-hidden="true" />
                 <span>Timer</span>
             </button>
             <button
@@ -692,7 +704,7 @@
                 class:active={currentView === "stopwatch"}
                 on:click={() => (currentView = "stopwatch")}
             >
-                <Icon name="clock" size={24} />
+                <Clock size={24} aria-hidden="true" />
                 <span>Watch</span>
             </button>
             <button
@@ -700,7 +712,7 @@
                 class:active={currentView === "pomodoro"}
                 on:click={() => (currentView = "pomodoro")}
             >
-                <Icon name="brain" size={24} />
+                <Brain size={24} aria-hidden="true" />
                 <span>Focus</span>
             </button>
             <button
@@ -708,7 +720,7 @@
                 class:active={currentView === "settings"}
                 on:click={() => (currentView = "settings")}
             >
-                <Icon name="settings" size={24} />
+                <Settings size={24} aria-hidden="true" />
                 <span>Settings</span>
             </button>
         </nav>

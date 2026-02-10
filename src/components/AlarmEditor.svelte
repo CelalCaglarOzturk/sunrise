@@ -3,7 +3,8 @@
     import type { Alarm, Location, Translation } from "../types";
     import { filePickerService } from "../services/filePicker";
     import { sunCalcService } from "../services/sunCalc";
-    import Icon from "./Icon.svelte";
+    import { Toggle } from "./ui";
+    import { Volume2, VolumeX, Bell, Vibrate, TrendingUp, Trash2, Folder, X, Check, Sun, Clock } from "@lucide/svelte";
 
     export let alarm: Alarm | null = null;
     export let t: Translation;
@@ -278,7 +279,7 @@
             <div class="modal-header">
                 <h2>{alarm ? t.editAlarm : t.addAlarm}</h2>
                 <button class="btn-close" on:click={handleClose}>
-                    <Icon name="x" size={20} />
+                    <X size={20} aria-hidden="true" />
                 </button>
             </div>
 
@@ -303,7 +304,7 @@
                             class:active={!useSunTime}
                             on:click={() => (useSunTime = false)}
                         >
-                            <Icon name="clock" size={16} />
+                            <Clock size={16} aria-hidden="true" />
                             {t.normalClock}
                         </button>
                         <button
@@ -312,7 +313,7 @@
                             on:click={() => (useSunTime = true)}
                             disabled={!location}
                         >
-                            <Icon name="sun" size={16} />
+                            <Sun size={16} aria-hidden="true" />
                             {t.sunBasedClock}
                         </button>
                     </div>
@@ -459,48 +460,48 @@
                 <div class="form-group">
                     <label>{t.alarmSound}</label>
                     <button class="sound-select-btn" on:click={selectSound}>
-                        <Icon name="bell" size={16} />
+                        <Bell size={16} aria-hidden="true" />
                         {soundName}
                     </button>
 
                     {#if showSoundPicker}
                         <div class="sound-picker">
                             <button on:click={() => chooseSound("Default", "")}>
-                                <Icon name="bell" size={14} />
+                                <Bell size={14} aria-hidden="true" />
                                 Default
                             </button>
                             <button
                                 on:click={() =>
                                     chooseSound("Gentle", "gentle.mp3")}
                             >
-                                <Icon name="bell" size={14} />
+                                <Bell size={14} aria-hidden="true" />
                                 Gentle
                             </button>
                             <button
                                 on:click={() => chooseSound("Loud", "loud.mp3")}
                             >
-                                <Icon name="bell" size={14} />
+                                <Bell size={14} aria-hidden="true" />
                                 Loud
                             </button>
                             <button
                                 on:click={() =>
                                     chooseSound("Nature", "nature.mp3")}
                             >
-                                <Icon name="bell" size={14} />
+                                <Bell size={14} aria-hidden="true" />
                                 Nature
                             </button>
                             <button
                                 on:click={() =>
                                     chooseSound("Digital", "digital.mp3")}
                             >
-                                <Icon name="bell" size={14} />
+                                <Bell size={14} aria-hidden="true" />
                                 Digital
                             </button>
                             <button
                                 class="btn-browse-files"
                                 on:click={browseSoundFiles}
                             >
-                                <Icon name="folder" size={14} />
+                                <Folder size={14} aria-hidden="true" />
                                 {t.browseFiles}
                             </button>
                         </div>
@@ -508,7 +509,7 @@
 
                     {#if soundUri && (soundUri.startsWith('file://') || soundUri.startsWith('content://'))}
                         <div class="sound-warning">
-                            <Icon name="bell" size={14} />
+                            <Bell size={14} aria-hidden="true" />
                             <span>Note: Custom sounds from storage will be played by the app, not by the system notification.</span>
                         </div>
                     {/if}
@@ -520,7 +521,7 @@
                         {t.volume}: {volume}%
                     </label>
                     <div class="volume-control">
-                        <Icon name="volume-x" size={20} />
+                        <VolumeX size={20} />
                         <input
                             type="range"
                             min="0"
