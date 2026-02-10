@@ -1,16 +1,20 @@
 <script lang="ts">
     import type { Translation, Alarm } from "../types";
     import Icon from "./Icon.svelte";
+    import { Button } from "./ui";
 
-    export let visible: boolean = false;
-    export let alarms: Alarm[] = [];
-    export let t: Translation;
-    export let onDisableAll: () => void;
-    export let onEnableAll: () => void;
-    export let onDeleteAll: () => void;
+    interface Props {
+        visible: boolean;
+        alarms: Alarm[];
+        t: Translation;
+        onDisableAll: () => void;
+        onEnableAll: () => void;
+        onDeleteAll: () => void;
+    }
 
-    $: allDisabled =
-        alarms.length > 0 && alarms.every((alarm) => !alarm.enabled);
+    let { visible, alarms, t, onDisableAll, onEnableAll, onDeleteAll }: Props = $props();
+
+    let allDisabled = $derived(alarms.length > 0 && alarms.every((alarm) => !alarm.enabled));
 
     function handleDisableAll() {
         if (confirm(t.disableAllConfirm)) {
@@ -32,28 +36,28 @@
 {#if visible}
     <div class="bulk-actions">
         {#if allDisabled}
-            <button class="bulk-btn enable-btn" on:click={handleEnableAll}>
+            <Button variant="primary" onclick={handleEnableAll}>
                 <Icon name="chevron-down" size={20} />
                 {t.enableAll || "Enable All"}
-            </button>
+            </Button>
         {:else}
-            <button class="bulk-btn disable-btn" on:click={handleDisableAll}>
+            <Button variant="secondary" onclick={handleDisableAll}>
                 <Icon name="chevron-up" size={20} />
                 {t.disableAll}
-            </button>
+            </Button>
         {/if}
-        <button class="bulk-btn delete-btn" on:click={handleDeleteAll}>
+        <Button variant="danger" onclick={handleDeleteAll}>
             <Icon name="trash" size={20} />
             {t.deleteAll}
-        </button>
+        </Button>
     </div>
 {/if}
 
 <style>
     .bulk-actions {
         display: flex;
-        gap: 0.5rem;
-        padding: 0 1rem 1rem;
+        gap: var(--space-2);
+        padding: 0 var(--space-4) var(--space-4);
         animation: slideDown 0.3s ease;
     }
 
@@ -68,64 +72,9 @@
         }
     }
 
-    .bulk-btn {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.75rem;
-        border: none;
-        border-radius: 10px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .disable-btn {
-        background: #333;
-        color: #fff;
-    }
-
-    .disable-btn:hover {
-        background: #444;
-        transform: translateY(-2px);
-    }
-
-    .enable-btn {
-        background: #ff9500;
-        color: #fff;
-    }
-
-    .enable-btn:hover {
-        background: #e68600;
-        transform: translateY(-2px);
-    }
-
-    .delete-btn {
-        background: #ef4444;
-        color: #fff;
-    }
-
-    .delete-btn:hover {
-        background: #dc2626;
-        transform: translateY(-2px);
-    }
-
-    .bulk-btn:active {
-        transform: translateY(0);
-    }
-
     @media (max-width: 768px) {
         .bulk-actions {
-            padding: 0 0.5rem 0.75rem;
-        }
-
-        .bulk-btn {
-            padding: 0.6rem;
-            font-size: 0.85rem;
+            padding: 0 var(--space-2) var(--space-3);
         }
     }
 </style>

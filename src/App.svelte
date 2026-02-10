@@ -230,9 +230,7 @@
         showAlarmEditor = true;
     }
 
-    async function handleSaveAlarm(event: CustomEvent<Alarm>) {
-        const alarm = event.detail;
-
+    async function handleSaveAlarm(alarm: Alarm) {
         if (editingAlarm) {
             alarms.update(alarm.id, alarm);
         } else {
@@ -733,8 +731,8 @@
         use24Hour={settingsData.use24HourFormat}
         location={locationData}
         isOpen={showAlarmEditor}
-        on:save={handleSaveAlarm}
-        on:close={handleCloseEditor}
+        onsave={handleSaveAlarm}
+        onclose={handleCloseEditor}
     />
 </main>
 
@@ -746,11 +744,9 @@
     }
 
     :global(body) {
-        font-family:
-            -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-            Ubuntu, Cantarell, sans-serif;
-        background: #000;
-        color: #fff;
+        font-family: var(--font-sans);
+        background: var(--color-bg-primary);
+        color: var(--color-text-primary);
         min-height: 100vh;
         overflow-x: hidden;
     }
@@ -763,50 +759,50 @@
     .app-container {
         max-width: 800px;
         margin: 0 auto;
-        padding: 1rem;
-        padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+        padding: var(--space-4);
+        padding-top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
     }
 
     .app-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1.5rem 1rem 1rem;
+        padding: var(--space-6) var(--space-4) var(--space-4);
     }
 
     .app-title {
-        font-size: 2rem;
+        font-size: var(--text-3xl);
         font-weight: 700;
-        color: #fff;
+        color: var(--color-text-primary);
     }
 
     .header-actions {
         display: flex;
-        gap: 0.5rem;
+        gap: var(--space-2);
     }
 
     .btn-icon {
         width: 44px;
         height: 44px;
         border: none;
-        background: #1a1a1a;
-        border-radius: 12px;
+        background: var(--color-bg-secondary);
+        border-radius: var(--radius-md);
         cursor: pointer;
         font-size: 1.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s ease;
+        transition: all var(--duration-normal) var(--ease-default);
         -webkit-tap-highlight-color: transparent;
     }
 
     .btn-icon:hover {
-        background: #ff9500;
+        background: var(--color-primary);
         transform: scale(1.05);
     }
 
     .btn-icon-orange {
-        color: #ff9500;
+        color: var(--color-primary);
     }
 
     .btn-icon-orange:hover {
@@ -820,11 +816,11 @@
         right: 0;
         display: grid;
         grid-template-columns: repeat(6, 1fr);
-        background: #000;
-        border-top: 2px solid #ff9500;
-        padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
-        gap: 0.25rem;
-        z-index: 1000;
+        background: var(--color-bg-primary);
+        border-top: 2px solid var(--color-primary);
+        padding: var(--space-2) var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+        gap: var(--space-1);
+        z-index: var(--z-sticky);
     }
 
     .nav-btn {
@@ -832,27 +828,27 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 0.5rem;
-        background: #1a1a1a;
+        padding: var(--space-2);
+        background: var(--color-bg-secondary);
         border: none;
-        border-radius: 15px;
-        color: #888;
+        border-radius: var(--radius-md);
+        color: var(--color-text-secondary);
         cursor: pointer;
-        font-size: 0.7rem;
+        font-size: var(--text-xs);
         font-weight: 500;
-        transition: all 0.2s ease;
-        gap: 0.25rem;
+        transition: all var(--duration-normal) var(--ease-default);
+        gap: var(--space-1);
         min-height: 64px;
         -webkit-tap-highlight-color: transparent;
     }
 
     .nav-btn:hover {
-        background: #2a2a2a;
-        color: #fff;
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-primary);
     }
 
     .nav-btn.active {
-        background: #ff9500;
+        background: var(--color-primary);
         color: #000;
         font-weight: bold;
     }
@@ -862,7 +858,7 @@
     }
 
     .nav-btn span {
-        font-size: 0.7rem;
+        font-size: var(--text-xs);
         text-align: center;
         line-height: 1.2;
         max-width: 100%;
@@ -874,42 +870,31 @@
     }
 
     .view-content {
-        animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        animation: fadeIn var(--duration-normal) var(--ease-default);
     }
 
     .btn-add-alarm {
         width: 100%;
         max-width: 600px;
-        margin: 1rem auto 2rem;
+        margin: var(--space-4) auto var(--space-8);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        padding: 1rem;
-        background: #ff9500;
+        gap: var(--space-2);
+        padding: var(--space-4);
+        background: var(--color-primary);
         border: none;
-        border-radius: 15px;
+        border-radius: var(--radius-md);
         color: #000;
-        font-size: 1.1rem;
+        font-size: var(--text-lg);
         font-weight: 700;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--duration-normal) var(--ease-default);
         -webkit-tap-highlight-color: transparent;
     }
 
     .btn-add-alarm:hover {
-        background: #ffaa33;
+        background: var(--color-primary-hover);
         transform: translateY(-2px);
     }
 
@@ -922,46 +907,46 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 3rem 1rem;
+        padding: 3rem var(--space-4);
         text-align: center;
-        color: #888;
+        color: var(--color-text-secondary);
     }
 
     .empty-icon {
-        margin-bottom: 1rem;
+        margin-bottom: var(--space-4);
     }
 
     .empty-state h3 {
-        margin: 0.5rem 0;
-        font-size: 1.5rem;
-        color: #fff;
+        margin: var(--space-2) 0;
+        font-size: var(--text-2xl);
+        color: var(--color-text-primary);
     }
 
     .empty-state p {
-        margin: 0.25rem 0 1.5rem;
-        font-size: 1rem;
+        margin: var(--space-1) 0 var(--space-6);
+        font-size: var(--text-base);
     }
 
     .btn-primary {
-        padding: 0.875rem 2rem;
-        background: #ff9500;
+        padding: var(--space-3) var(--space-8);
+        background: var(--color-primary);
         border: none;
-        border-radius: 10px;
+        border-radius: var(--radius-md);
         color: #000;
-        font-size: 1rem;
+        font-size: var(--text-base);
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all var(--duration-normal);
         -webkit-tap-highlight-color: transparent;
     }
 
     .btn-primary:hover {
-        background: #ffaa33;
+        background: var(--color-primary-hover);
         transform: translateY(-2px);
     }
 
     .settings-view {
-        padding: 1rem;
+        padding: var(--space-4);
         max-width: 600px;
         margin: 0 auto;
         width: 100%;
@@ -969,96 +954,34 @@
     }
 
     .settings-section {
-        margin-bottom: 2rem;
-        background: #1a1a1a;
-        padding: 1.5rem;
-        border-radius: 15px;
-        border: 1px solid #333;
+        margin-bottom: var(--space-8);
+        background: var(--color-bg-secondary);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-border);
         width: 100%;
         box-sizing: border-box;
     }
 
     .settings-section h3 {
-        color: #ff9500;
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
+        color: var(--color-primary);
+        margin-bottom: var(--space-4);
+        font-size: var(--text-xl);
         font-weight: 600;
     }
 
     .setting-item {
-        margin-bottom: 1rem;
+        margin-bottom: var(--space-4);
     }
 
     .setting-item:last-child {
         margin-bottom: 0;
     }
 
-    .setting-label {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        background: #333;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.2s;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .setting-label:hover {
-        background: #444;
-    }
-
-    .toggle-switch {
-        position: relative;
-        display: inline-block;
-        width: 50px;
-        height: 28px;
-    }
-
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #333;
-        transition: 0.4s;
-        border-radius: 34px;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 20px;
-        width: 20px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: 0.4s;
-        border-radius: 50%;
-    }
-
-    input:checked + .toggle-slider {
-        background-color: #ff9500;
-    }
-
-    input:checked + .toggle-slider:before {
-        transform: translateX(22px);
-    }
-
     .time-format-toggle {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
+        gap: var(--space-2);
         width: 100%;
         box-sizing: border-box;
     }
@@ -1067,16 +990,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        padding: 0.75rem;
+        gap: var(--space-2);
+        padding: var(--space-3);
         min-height: 48px;
-        background: #333;
-        border: 1px solid #555;
-        border-radius: 10px;
-        color: #fff;
+        background: var(--color-bg-elevated);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        color: var(--color-text-primary);
         cursor: pointer;
-        font-size: 0.95rem;
-        transition: all 0.2s;
+        font-size: var(--text-base);
+        transition: all var(--duration-normal);
         white-space: nowrap;
         -webkit-tap-highlight-color: transparent;
         box-sizing: border-box;
@@ -1085,81 +1008,81 @@
     }
 
     .format-btn:hover {
-        border-color: #ff9500;
+        border-color: var(--color-primary);
     }
 
     .format-btn.active {
-        background: #ff9500;
-        border-color: #ff9500;
+        background: var(--color-primary);
+        border-color: var(--color-primary);
         font-weight: bold;
     }
 
     .about-content {
-        padding: 1rem;
-        background: #2a2a2a;
-        border-radius: 12px;
-        border: 2px solid #333;
+        padding: var(--space-4);
+        background: var(--color-bg-tertiary);
+        border-radius: var(--radius-md);
+        border: 2px solid var(--color-border);
         text-align: center;
     }
 
     .app-name-full {
-        font-size: 1.25rem;
+        font-size: var(--text-xl);
         font-weight: bold;
-        color: #ff9500;
-        margin-bottom: 0.5rem;
+        color: var(--color-primary);
+        margin-bottom: var(--space-2);
     }
 
     .app-version {
-        font-size: 0.9rem;
-        color: #888;
+        font-size: var(--text-sm);
+        color: var(--color-text-secondary);
     }
 
     .language-select {
         width: 100%;
-        padding: 0.75rem;
-        background: #333;
-        border: 1px solid #555;
-        border-radius: 10px;
-        color: #fff;
-        font-size: 1rem;
+        padding: var(--space-3);
+        background: var(--color-bg-elevated);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        color: var(--color-text-primary);
+        font-size: var(--text-base);
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--duration-normal) var(--ease-default);
         -webkit-tap-highlight-color: transparent;
     }
 
     .language-select:focus {
         outline: none;
-        border-color: #ff9500;
+        border-color: var(--color-primary);
     }
 
     .language-select option {
-        background: #16213e;
-        color: #fff;
+        background: var(--color-bg-secondary);
+        color: var(--color-text-primary);
     }
 
     .btn-secondary {
         width: 100%;
-        padding: 0.75rem;
-        background: #1a1a1a;
-        border: 1px solid #ff9500;
-        border-radius: 10px;
-        color: #ff9500;
-        font-size: 1rem;
+        padding: var(--space-3);
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-primary);
+        border-radius: var(--radius-md);
+        color: var(--color-primary);
+        font-size: var(--text-base);
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all var(--duration-normal) var(--ease-default);
         -webkit-tap-highlight-color: transparent;
         box-sizing: border-box;
     }
 
     .btn-secondary:hover {
-        background: #ff9500;
+        background: var(--color-primary);
         color: #000;
     }
 
     /* Alert Section Styles */
     .alert-section {
-        background: linear-gradient(135deg, #2a1f1a 0%, #1a1a1a 100%);
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, var(--color-bg-secondary) 100%);
         border: 2px solid #ff6b35;
     }
 
@@ -1168,23 +1091,23 @@
     }
 
     .alert-description {
-        color: #ccc;
-        font-size: 0.9rem;
-        margin: 0.5rem 0 1rem 0;
+        color: var(--color-text-secondary);
+        font-size: var(--text-sm);
+        margin: var(--space-2) 0 var(--space-4) 0;
         line-height: 1.4;
     }
 
     .btn-alert {
         width: 100%;
-        padding: 0.875rem;
+        padding: var(--space-3);
         background: #ff6b35;
         border: none;
-        border-radius: 10px;
+        border-radius: var(--radius-md);
         color: #fff;
-        font-size: 1rem;
+        font-size: var(--text-base);
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all var(--duration-normal) var(--ease-default);
         -webkit-tap-highlight-color: transparent;
         box-sizing: border-box;
     }
@@ -1198,57 +1121,51 @@
     .export-import-buttons {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
+        gap: var(--space-3);
     }
 
     .export-import-buttons .btn-secondary {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
+        gap: var(--space-2);
     }
 
     @media (max-width: 768px) {
         .settings-view {
-            padding: 0.5rem;
+            padding: var(--space-2);
         }
 
         .settings-section {
-            padding: 1rem;
-            margin-bottom: 1rem;
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
         }
 
         .format-btn {
-            font-size: 0.85rem;
-            padding: 0.6rem 0.4rem;
-            gap: 0.25rem;
+            font-size: var(--text-sm);
+            padding: var(--space-2) var(--space-1);
+            gap: var(--space-1);
         }
 
         .settings-section h3 {
-            font-size: 1rem;
+            font-size: var(--text-base);
         }
-    }
 
-    @media (max-width: 768px) {
         .app-container {
-            padding: 0.5rem;
+            padding: var(--space-2);
         }
 
         .app-title {
-            font-size: 1.5rem;
-        }
-
-        .settings-section {
-            padding: 1rem;
+            font-size: var(--text-2xl);
         }
 
         .nav-btn {
             min-height: 56px;
-            padding: 0.4rem;
+            padding: var(--space-1);
         }
 
         .nav-btn span {
-            font-size: 0.6rem;
+            font-size: var(--text-xs);
         }
     }
 </style>

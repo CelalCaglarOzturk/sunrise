@@ -2,25 +2,29 @@
     import { onMount, onDestroy } from "svelte";
     import { Sun } from "@lucide/svelte";
 
-    export let use24Hour: boolean = true;
-    export let showSeconds: boolean = true;
-    export let useSunBased: boolean = false;
-    export let sunriseTime: Date | null = null;
+    interface Props {
+        use24Hour?: boolean;
+        showSeconds?: boolean;
+        useSunBased?: boolean;
+        sunriseTime?: Date | null;
+    }
 
-    let currentTime = "";
-    let currentDate = "";
+    let { 
+        use24Hour = true, 
+        showSeconds = true, 
+        useSunBased = false, 
+        sunriseTime = null 
+    }: Props = $props();
+
+    let currentTime = $state("");
+    let currentDate = $state("");
     let intervalId: number | null = null;
 
     function updateTime() {
         const now = new Date();
 
-        // Format time
         if (useSunBased && sunriseTime) {
-            // Calculate time since sunrise
-            const minutesSinceSunrise =
-                (now.getTime() - sunriseTime.getTime()) / 60000;
-
-            // Handle time before sunrise (show as negative)
+            const minutesSinceSunrise = (now.getTime() - sunriseTime.getTime()) / 60000;
             const isBeforeSunrise = minutesSinceSunrise < 0;
             const absMinutes = Math.abs(minutesSinceSunrise);
 
@@ -56,7 +60,6 @@
             }
         }
 
-        // Format date
         const options: Intl.DateTimeFormatOptions = {
             weekday: "long",
             year: "numeric",
@@ -95,39 +98,39 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 2rem 1rem;
-        background: #1a1a1a;
-        border-radius: 16px;
-        margin: 0 1rem 1rem;
-        border: 2px solid #333;
+        padding: var(--space-8) var(--space-4);
+        background: var(--color-bg-secondary);
+        border-radius: var(--radius-lg);
+        margin: 0 var(--space-4) var(--space-4);
+        border: 2px solid var(--color-border);
     }
 
     .time {
         font-size: 3.5rem;
         font-weight: bold;
-        color: #fff;
-        font-family: "SF Mono", "Monaco", "Inconsolata", monospace;
+        color: var(--color-text-primary);
+        font-family: var(--font-mono);
         letter-spacing: 0.05em;
         text-shadow: 0 2px 10px rgba(255, 149, 0, 0.3);
     }
 
     .date {
-        font-size: 1.1rem;
-        color: #888;
-        margin-top: 0.5rem;
+        font-size: var(--text-lg);
+        color: var(--color-text-secondary);
+        margin-top: var(--space-2);
         font-weight: 500;
     }
 
     .sun-mode-indicator {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-        color: #ff9500;
-        margin-top: 0.5rem;
-        padding: 0.3rem 0.8rem;
-        background: rgba(255, 149, 0, 0.1);
-        border-radius: 12px;
+        gap: var(--space-2);
+        font-size: var(--text-sm);
+        color: var(--color-primary);
+        margin-top: var(--space-2);
+        padding: var(--space-1) var(--space-3);
+        background: var(--color-primary-light);
+        border-radius: var(--radius-md);
         border: 1px solid rgba(255, 149, 0, 0.3);
         font-weight: 500;
     }
@@ -138,8 +141,8 @@
 
     @media (max-width: 768px) {
         .digital-clock {
-            padding: 1.5rem 1rem;
-            margin: 0 0.5rem 0.75rem;
+            padding: var(--space-6) var(--space-4);
+            margin: 0 var(--space-2) var(--space-3);
         }
 
         .time {
@@ -147,7 +150,7 @@
         }
 
         .date {
-            font-size: 0.95rem;
+            font-size: var(--text-base);
         }
     }
 </style>

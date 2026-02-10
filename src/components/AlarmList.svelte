@@ -4,13 +4,25 @@
     import { sunCalcService } from "../services/sunCalc";
     import Icon from "./Icon.svelte";
     import { Sun } from "@lucide/svelte";
+    import { Toggle } from "./ui";
 
-    export let alarms: Alarm[] = [];
-    export let t: Translation;
-    export let use24Hour: boolean = true;
-    export let onEdit: (alarm: Alarm) => void;
-    export let onDelete: (id: string) => void;
-    export let onToggle: (id: string) => void;
+    interface Props {
+        alarms: Alarm[];
+        t: Translation;
+        use24Hour?: boolean;
+        onEdit: (alarm: Alarm) => void;
+        onDelete: (id: string) => void;
+        onToggle: (id: string) => void;
+    }
+
+    let { 
+        alarms = [], 
+        t, 
+        use24Hour = true, 
+        onEdit, 
+        onDelete, 
+        onToggle 
+    }: Props = $props();
 
     function formatAlarmTime(alarm: Alarm): string {
         if (alarm.useSunTime) {
@@ -106,17 +118,13 @@
             <div class="alarm-item" class:disabled={!alarm.enabled}>
                 <div class="alarm-main">
                     <div class="alarm-toggle">
-                        <label class="toggle-switch">
-                            <input
-                                type="checkbox"
-                                checked={alarm.enabled}
-                                on:change={() => handleToggle(alarm)}
-                            />
-                            <span class="toggle-slider"></span>
-                        </label>
+                        <Toggle 
+                            checked={alarm.enabled} 
+                            onchange={() => handleToggle(alarm)} 
+                        />
                     </div>
 
-                    <div class="alarm-info" on:click={() => handleEdit(alarm)}>
+                    <div class="alarm-info" onclick={() => handleEdit(alarm)} role="button" tabindex="0">
                         <div class="alarm-time">
                             {#if alarm.useSunTime}
                                 <Sun size={16} class="sun-icon" />
@@ -159,15 +167,17 @@
                     <div class="alarm-actions">
                         <button
                             class="btn-icon btn-edit"
-                            on:click={() => handleEdit(alarm)}
+                            onclick={() => handleEdit(alarm)}
                             title={t.editAlarm}
+                            type="button"
                         >
                             <Icon name="edit" size={18} />
                         </button>
                         <button
                             class="btn-icon btn-delete"
-                            on:click={() => handleDelete(alarm)}
+                            onclick={() => handleDelete(alarm)}
                             title={t.deleteAlarm}
+                            type="button"
                         >
                             <Icon name="trash" size={18} />
                         </button>
@@ -182,8 +192,8 @@
     .alarm-list {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        padding: 1rem;
+        gap: var(--space-3);
+        padding: var(--space-4);
         max-width: 600px;
         margin: 0 auto;
         width: 100%;
@@ -194,103 +204,57 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 3rem 1rem;
+        padding: 3rem var(--space-4);
         text-align: center;
-        color: var(--text-secondary, #888);
+        color: var(--color-text-secondary);
     }
 
     .empty-icon {
         font-size: 4rem;
-        margin-bottom: 1rem;
+        margin-bottom: var(--space-4);
         opacity: 0.5;
     }
 
     .empty-state h3 {
-        margin: 0.5rem 0;
-        font-size: 1.5rem;
-        color: #fff;
+        margin: var(--space-2) 0;
+        font-size: var(--text-2xl);
+        color: var(--color-text-primary);
     }
 
     .empty-state p {
-        margin: 0.25rem 0;
-        font-size: 1rem;
+        margin: var(--space-1) 0;
+        font-size: var(--text-base);
     }
 
     .alarm-item {
-        background: #1a1a1a;
-        border-radius: 15px;
-        padding: 1rem;
-        border: 1px solid #333;
-        transition: all 0.2s ease;
+        background: var(--color-bg-secondary);
+        border-radius: var(--radius-md);
+        padding: var(--space-4);
+        border: 1px solid var(--color-border);
+        transition: all var(--duration-normal) var(--ease-default);
     }
 
     .alarm-item:hover {
-        border-color: #ff9500;
+        border-color: var(--color-primary);
     }
 
     .alarm-item.disabled {
         opacity: 0.5;
-        border-color: #333;
+        border-color: var(--color-border);
     }
 
     .alarm-item.disabled:hover {
-        border-color: #333;
+        border-color: var(--color-border);
     }
 
     .alarm-main {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: var(--space-4);
     }
 
     .alarm-toggle {
         flex-shrink: 0;
-    }
-
-    .toggle-switch {
-        position: relative;
-        display: inline-block;
-        width: 50px;
-        height: 28px;
-    }
-
-    .toggle-switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #333;
-        transition: 0.4s;
-        border-radius: 34px;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 20px;
-        width: 20px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: 0.3s;
-        border-radius: 50%;
-    }
-
-    input:checked + .toggle-slider {
-        background-color: #ff9500;
-    }
-
-    input:checked + .toggle-slider:before {
-        transform: translateX(22px);
     }
 
     .alarm-info {
@@ -303,23 +267,24 @@
     .alarm-time {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 2rem;
+        gap: var(--space-2);
+        font-size: var(--text-4xl);
         font-weight: 700;
-        color: #fff;
-        font-family: "SF Mono", "Monaco", "Inconsolata", monospace;
-        margin-bottom: 0.25rem;
+        color: var(--color-text-primary);
+        font-family: var(--font-mono);
+        letter-spacing: 0.05em;
+        margin-bottom: var(--space-1);
     }
 
     .alarm-time :global(.sun-icon) {
-        color: #ff9500;
+        color: var(--color-primary);
         flex-shrink: 0;
     }
 
     .alarm-label {
-        font-size: 1rem;
-        color: #fff;
-        margin-bottom: 0.5rem;
+        font-size: var(--text-base);
+        color: var(--color-text-primary);
+        margin-bottom: var(--space-2);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -328,29 +293,29 @@
     .alarm-meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        font-size: 0.85rem;
-        color: #888;
+        gap: var(--space-2);
+        font-size: var(--text-sm);
+        color: var(--color-text-secondary);
     }
 
     .alarm-repeat {
-        color: #888;
+        color: var(--color-text-secondary);
     }
 
     .alarm-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.25rem;
-        padding: 0.15rem 0.5rem;
-        background: rgba(255, 149, 0, 0.1);
-        border-radius: 8px;
-        font-size: 0.75rem;
-        color: #ff9500;
+        gap: var(--space-1);
+        padding: 0.15rem var(--space-2);
+        background: var(--color-primary-light);
+        border-radius: var(--radius-sm);
+        font-size: var(--text-xs);
+        color: var(--color-primary);
     }
 
     .alarm-actions {
         display: flex;
-        gap: 0.5rem;
+        gap: var(--space-2);
         flex-shrink: 0;
     }
 
@@ -358,15 +323,16 @@
         width: 40px;
         height: 40px;
         border: none;
-        background: #333;
-        border-radius: 10px;
+        background: var(--color-bg-elevated);
+        border-radius: var(--radius-md);
         cursor: pointer;
         font-size: 1.2rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s ease;
+        transition: all var(--duration-normal) var(--ease-default);
         -webkit-tap-highlight-color: transparent;
+        color: var(--color-text-primary);
     }
 
     .btn-icon:hover {
@@ -378,33 +344,34 @@
     }
 
     .btn-edit:hover {
-        background: #444;
+        background: var(--color-bg-tertiary);
+        color: var(--color-primary);
     }
 
     .btn-delete {
-        color: #ef4444;
+        color: var(--color-error);
     }
 
     .btn-delete:hover {
-        background: #ef4444;
+        background: var(--color-error);
         color: #fff;
     }
 
     @media (max-width: 768px) {
         .alarm-list {
-            padding: 0.5rem;
+            padding: var(--space-2);
         }
 
         .alarm-item {
-            padding: 0.75rem;
+            padding: var(--space-3);
         }
 
         .alarm-time {
-            font-size: 1.5rem;
+            font-size: var(--text-2xl);
         }
 
         .alarm-main {
-            gap: 0.75rem;
+            gap: var(--space-3);
         }
 
         .btn-icon {

@@ -3,10 +3,19 @@
     import { sunCalcService } from "../services/sunCalc";
     import { Sunrise, Sunset, Clock } from "@lucide/svelte";
 
-    export let sunTimes: SunTimes[] = [];
-    export let t: Translation;
-    export let use24Hour: boolean = true;
-    export let language: string = "en";
+    interface Props {
+        sunTimes: SunTimes[];
+        t: Translation;
+        use24Hour?: boolean;
+        language?: string;
+    }
+
+    let { 
+        sunTimes = [], 
+        t, 
+        use24Hour = true, 
+        language = "en" 
+    }: Props = $props();
 
     function formatTime(date: Date): string {
         return sunCalcService.formatTime(date, use24Hour);
@@ -35,44 +44,34 @@
 </script>
 
 <div class="sun-times-display">
-    <h3 class="sun-times-title">
-        {t.upcomingSunTimes}
-    </h3>
+    <h3 class="sun-times-title">{t.upcomingSunTimes}</h3>
 
     <div class="sun-times-list">
         {#each sunTimes as sunTime, index}
             <div class="sun-time-item" class:today={index === 0}>
                 <div class="day-info">
-                    <div class="day-label">
-                        {getDayLabel(sunTime.date)}
-                    </div>
-                    <div class="date-label">
-                        {getFormattedDate(sunTime.date)}
-                    </div>
+                    <div class="day-label">{getDayLabel(sunTime.date)}</div>
+                    <div class="date-label">{getFormattedDate(sunTime.date)}</div>
                 </div>
 
                 <div class="times">
                     <div class="time-block sunrise">
                         <div class="time-icon">
-                            <Sunrise size={32} color="#ff9500" />
+                            <Sunrise size={32} />
                         </div>
                         <div class="time-info">
                             <div class="time-label">{t.sunrise}</div>
-                            <div class="time-value">
-                                {formatTime(sunTime.sunrise)}
-                            </div>
+                            <div class="time-value">{formatTime(sunTime.sunrise)}</div>
                         </div>
                     </div>
 
                     <div class="time-block sunset">
                         <div class="time-icon">
-                            <Sunset size={32} color="#ff9500" />
+                            <Sunset size={32} />
                         </div>
                         <div class="time-info">
                             <div class="time-label">{t.sunset}</div>
-                            <div class="time-value">
-                                {formatTime(sunTime.sunset)}
-                            </div>
+                            <div class="time-value">{formatTime(sunTime.sunset)}</div>
                         </div>
                     </div>
                 </div>
@@ -88,84 +87,77 @@
 
 <style>
     .sun-times-display {
-        padding: 1rem;
+        padding: var(--space-4);
         max-width: 600px;
         margin: 0 auto;
         width: 100%;
     }
 
     .sun-times-title {
-        font-size: 1.5rem;
+        font-size: var(--text-2xl);
         font-weight: bold;
-        color: #ff9500;
-        margin-bottom: 1rem;
+        color: var(--color-primary);
+        margin-bottom: var(--space-4);
         text-align: center;
     }
 
     .sun-times-list {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: var(--space-3);
     }
 
     .sun-time-item {
-        background: #1a1a1a;
-        border-radius: 16px;
-        padding: 1rem;
-        border: 2px solid #333;
-        transition: all 0.3s ease;
+        background: var(--color-bg-secondary);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        border: 2px solid var(--color-border);
+        transition: all var(--duration-normal) var(--ease-default);
     }
 
     .sun-time-item:hover {
-        border-color: #ff9500;
+        border-color: var(--color-primary);
         box-shadow: 0 4px 12px rgba(255, 149, 0, 0.2);
     }
 
     .sun-time-item.today {
-        border-color: #ff9500;
-        background: rgba(255, 149, 0, 0.05);
+        border-color: var(--color-primary);
+        background: var(--color-primary-light);
     }
 
     .day-info {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid #333;
+        margin-bottom: var(--space-3);
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--color-border);
     }
 
     .day-label {
-        font-size: 1.1rem;
+        font-size: var(--text-lg);
         font-weight: bold;
-        color: #fff;
+        color: var(--color-text-primary);
     }
 
     .date-label {
-        font-size: 0.9rem;
-        color: #888;
+        font-size: var(--text-base);
+        color: var(--color-text-secondary);
     }
 
     .times {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+        gap: var(--space-4);
     }
 
     .time-block {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem;
-        background: #2a2a2a;
-        border-radius: 12px;
-    }
-
-    .time-block.sunrise {
-        border: 1px solid rgba(255, 149, 0, 0.3);
-    }
-
-    .time-block.sunset {
+        gap: var(--space-3);
+        padding: var(--space-2);
+        background: var(--color-bg-tertiary);
+        border-radius: var(--radius-md);
         border: 1px solid rgba(255, 149, 0, 0.3);
     }
 
@@ -174,65 +166,66 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        color: var(--color-primary);
     }
 
     .time-info {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: var(--space-1);
     }
 
     .time-label {
-        font-size: 0.75rem;
-        color: #888;
+        font-size: var(--text-xs);
+        color: var(--color-text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
     .time-value {
-        font-size: 1.25rem;
+        font-size: var(--text-xl);
         font-weight: bold;
-        color: #ff9500;
-        font-family: "SF Mono", "Monaco", "Inconsolata", monospace;
+        color: var(--color-primary);
+        font-family: var(--font-mono);
     }
 
     .daylight-duration {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        margin-top: 0.75rem;
-        padding: 0.5rem;
-        background: #2a2a2a;
-        border-radius: 8px;
-        color: #ff9500;
-        font-size: 0.9rem;
+        gap: var(--space-2);
+        margin-top: var(--space-3);
+        padding: var(--space-2);
+        background: var(--color-bg-tertiary);
+        border-radius: var(--radius-md);
+        color: var(--color-primary);
+        font-size: var(--text-base);
         font-weight: 600;
         border: 1px solid rgba(255, 149, 0, 0.3);
     }
 
     @media (max-width: 768px) {
         .sun-times-display {
-            padding: 0.5rem;
+            padding: var(--space-2);
         }
 
         .sun-times-title {
-            font-size: 1.25rem;
+            font-size: var(--text-xl);
         }
 
         .times {
-            gap: 0.5rem;
+            gap: var(--space-2);
         }
 
         .time-block {
             flex-direction: column;
             text-align: center;
-            gap: 0.5rem;
-            padding: 0.75rem 0.5rem;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-2);
         }
 
         .time-value {
-            font-size: 1rem;
+            font-size: var(--text-base);
         }
     }
 </style>
