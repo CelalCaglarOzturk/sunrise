@@ -1,7 +1,67 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='utf-8' ?>
 <resources>
-    <string name="app_name">Sunrise</string>
-    <string name="title_activity_main">dev.mudrock.sunrise</string>
-    <string name="package_name">dev.mudrock.sunrise</string>
-    <string name="custom_url_scheme">dev.mudrock.sunrise</string>
+    <string name="app_name">Sun Clock</string>
+    <string name="title_activity_main">Sun Clock</string>
+
+    <!-- Navigation -->
+    <string name="alarms">Alarms</string>
+    <string name="timer">Timer</string>
+    <string name="stopwatch">Stopwatch</string>
+    <string name="sun_times">Sun</string>
+    <string name="focus">Focus</string>
+    <string name="settings">Settings</string>
+
+    <!-- Alarms -->
+    <string name="add_alarm">Add Alarm</string>
+    <string name="edit_alarm">Edit Alarm</string>
+    <string name="delete_alarm">Delete Alarm</string>
+    <string name="no_alarms_yet">No alarms yet</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="minutes_after_sunrise">minutes after sunrise</string>
+    <string name="minutes_before_sunrise">minutes before sunrise</string>
+    <string name="alarm_ringing">Alarm is ringing</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="snooze">Snooze</string>
+
+    <!-- Bulk Actions -->
+    <string name="delete_all">Delete All</string>
+    <string name="disable_all">Disable All</string>
+    <string name="enable_all">Enable All</string>
+    <string name="bulk_actions">Bulk Actions</string>
+
+    <!-- Settings -->
+    <string name="default_clock_mode">Default Clock Mode</string>
+    <string name="normal_clock">Normal Clock</string>
+    <string name="sun_based_clock">Sun-Based Clock</string>
+    <string name="use_24_hour_format">Use 24-Hour Format</string>
+    <string name="show_seconds">Show Seconds</string>
+    <string name="language">Language</string>
+    <string name="permissions">Permissions</string>
+    <string name="grant_permission">Grant Permission</string>
+
+    <string name="battery_optimization">Battery Optimization</string>
+    <string
+        name="battery_optimization_desc"
+    >Disable battery optimization for reliable alarms</string>
+    <string name="system_alarm_access">System Alarm Access</string>
+    <string
+        name="system_alarm_access_desc"
+    >Required for reliable alarms</string>
+
+    <string name="export_settings">Export Settings</string>
+    <string name="import_settings">Import Settings</string>
+    <string name="about">About</string>
+    <string name="version">Version</string>
+
+    <!-- Timer & Stopwatch -->
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="reset">Reset</string>
+    <string name="lap">Lap</string>
+
+    <!-- Pomodoro -->
+    <string name="work">Work</string>
+    <string name="short_break">Short Break</string>
+    <string name="long_break">Long Break</string>
 </resources>

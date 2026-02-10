@@ -19,4 +19,7 @@ interface AlarmDao {
 
     @Query("DELETE FROM alarms WHERE id = :id")
     suspend fun deleteAlarmById(id: String)
+
+    @Query("DELETE FROM alarms")
+    suspend fun deleteAll()
 }

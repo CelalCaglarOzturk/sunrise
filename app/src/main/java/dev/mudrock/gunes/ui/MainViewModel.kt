@@ -12,6 +12,7 @@ import dev.mudrock.gunes.service.AlarmScheduler
 import dev.mudrock.gunes.service.LocationManager
 import dev.mudrock.gunes.util.SunCalc
 import dev.mudrock.gunes.util.SunTimes
+import dev.mudrock.gunes.data.BackupRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -22,7 +23,8 @@ class MainViewModel @Inject constructor(
     private val alarmDao: AlarmDao,
     private val settingsRepository: SettingsRepository,
     private val locationManager: LocationManager,
-    private val alarmScheduler: AlarmScheduler
+    private val alarmScheduler: AlarmScheduler,
+    private val backupRepository: BackupRepository
 ) : ViewModel() {
 
     val alarms = alarmDao.getAllAlarms().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -88,6 +90,60 @@ class MainViewModel @Inject constructor(
     fun updateSettings(transform: (AppSettings) -> AppSettings) {
         viewModelScope.launch {
             settingsRepository.updateSettings(transform)
+        }
+    }
+
+    fun backupSettings(outputStream: java.io.OutputStream) {
+        viewModelScope.launch {
+            try {
+                val json = backupRepository.createBackupJson()
+                outputStream.use { it.write(json.toByteArray()) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun restoreSettings(inputStream: java.io.InputStream) {
+        viewModelScope.launch {
+            try {
+                val json = inputStream.bufferedReader().use { it.readText() }
+                backupRepository.restoreBackup(json)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun deleteAllAlarms() {
+        viewModelScope.launch {
+            val all = alarms.value
+            all.forEach { alarmScheduler.cancelAlarm(it) }
+            alarmDao.deleteAll()
+        }
+    }
+
+    fun disableAllAlarms() {
+        viewModelScope.launch {
+            val all = alarms.value
+            all.forEach {
+                if (it.enabled) {
+                    val disabled = it.copy(enabled = false)
+                    alarmDao.insertAlarm(disabled)
+                    alarmScheduler.cancelAlarm(disabled)
+                }
+            }
+        }
+    }
+
+    fun enableAllAlarms() {
+        viewModelScope.launch {
+            val all = alarms.value
+            all.forEach {
+                val enabled = it.copy(enabled = true)
+                alarmDao.insertAlarm(enabled)
+                alarmScheduler.scheduleAlarm(enabled)
+            }
         }
     }
 }
