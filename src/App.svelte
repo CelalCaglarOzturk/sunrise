@@ -5,6 +5,7 @@
     import SunTimesDisplay from "./components/SunTimesDisplay.svelte";
     import Timer from "./components/Timer.svelte";
     import Stopwatch from "./components/Stopwatch.svelte";
+    import Pomodoro from "./components/Pomodoro.svelte";
     import BulkActions from "./components/BulkActions.svelte";
     import DigitalClock from "./components/DigitalClock.svelte";
     import Icon from "./components/Icon.svelte";
@@ -36,7 +37,8 @@
         | "sun-times"
         | "settings"
         | "timer"
-        | "stopwatch" = "alarms";
+        | "stopwatch"
+        | "pomodoro" = "alarms";
 
     let alarmsData: Alarm[] = [];
     let settingsData: any;
@@ -512,6 +514,10 @@
                 <div class="view-content">
                     <Stopwatch {t} />
                 </div>
+            {:else if currentView === "pomodoro"}
+                <div class="view-content">
+                    <Pomodoro {t} />
+                </div>
             {/if}
         </div>
 
@@ -548,6 +554,14 @@
             >
                 <Icon name="clock" size={24} />
                 <span>Watch</span>
+            </button>
+            <button
+                class="nav-btn"
+                class:active={currentView === "pomodoro"}
+                on:click={() => (currentView = "pomodoro")}
+            >
+                <Icon name="brain" size={24} />
+                <span>Focus</span>
             </button>
             <button
                 class="nav-btn"
@@ -653,7 +667,7 @@
         left: 0;
         right: 0;
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         background: #000;
         border-top: 2px solid #ff9500;
         padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));

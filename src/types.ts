@@ -142,6 +142,20 @@ export interface Translation {
   version: string;
   exportSettings: string;
   importSettings: string;
+  pomodoro: string;
+  work: string;
+  break: string;
+  shortBreak: string;
+  longBreak: string;
+  pomodoroComplete: string;
+  sessionsCompleted: string;
+  pomodoroSettings: string;
+  workDuration: string;
+  shortBreakDuration: string;
+  longBreakDuration: string;
+  sessionsBeforeLongBreak: string;
+  autoStartBreaks: string;
+  autoStartWork: string;
 }
 
 export type Language =
@@ -181,4 +195,28 @@ export interface Stopwatch {
   isPaused: boolean;
   elapsedTime: number; // milliseconds
   laps: Lap[];
+}
+
+export interface PomodoroSession {
+  id: string;
+  startTime: number;
+  endTime: number;
+  duration: number; // seconds
+  completed: boolean;
+  type: "work" | "shortBreak" | "longBreak";
+}
+
+export interface Pomodoro {
+  isRunning: boolean;
+  isPaused: boolean;
+  remainingTime: number; // seconds
+  currentPhase: "work" | "shortBreak" | "longBreak";
+  workDuration: number; // seconds (default: 25 min = 1500)
+  shortBreakDuration: number; // seconds (default: 5 min = 300)
+  longBreakDuration: number; // seconds (default: 15 min = 900)
+  workSessionsBeforeLongBreak: number; // default: 4
+  currentSessionCount: number;
+  sessions: PomodoroSession[];
+  autoStartBreaks: boolean;
+  autoStartWork: boolean;
 }

@@ -7,6 +7,7 @@ import type {
   Language,
   Timer,
   Stopwatch,
+  Pomodoro,
 } from "../types";
 import {
   detectSystemLanguage,
@@ -138,6 +139,45 @@ function createStopwatchStore() {
   };
 }
 
+// Pomodoro store
+function createPomodoroStore() {
+  const defaultPomodoro: Pomodoro = {
+    isRunning: false,
+    isPaused: false,
+    remainingTime: 1500, // 25 minutes
+    currentPhase: "work",
+    workDuration: 1500, // 25 minutes
+    shortBreakDuration: 300, // 5 minutes
+    longBreakDuration: 900, // 15 minutes
+    workSessionsBeforeLongBreak: 4,
+    currentSessionCount: 0,
+    sessions: [],
+    autoStartBreaks: false,
+    autoStartWork: false,
+  };
+
+  const { subscribe, set, update } = writable<Pomodoro>(defaultPomodoro);
+
+  return {
+    subscribe,
+    set,
+    update: (data: Partial<Pomodoro>) =>
+      update((current) => ({ ...current, ...data })),
+    reset: () => set(defaultPomodoro),
+    addSession: (session: any) =>
+      update((current) => ({
+        ...current,
+        sessions: [session, ...current.sessions],
+      })),
+    clearSessions: () =>
+      update((current) => ({
+        ...current,
+        sessions: [],
+        currentSessionCount: 0,
+      })),
+  };
+}
+
 // Create store instances
 export const alarms = createAlarmsStore();
 export const settings = createSettingsStore();
@@ -145,6 +185,7 @@ export const location = createLocationStore();
 export const sunTimes = createSunTimesStore();
 export const timers = createTimersStore();
 export const stopwatch = createStopwatchStore();
+export const pomodoro = createPomodoroStore();
 
 // Derived store for sorted alarms (enabled first, then by time)
 export const sortedAlarms = derived(alarms, ($alarms) => {
@@ -236,12 +277,13 @@ export async function loadFromStorage(): Promise<void> {
     await dbService.initialize();
 
     // Load from SQLite
-    const [savedAlarms, savedSettings, savedLocation, savedTimers, savedStopwatch] = await Promise.all([
+    const [savedAlarms, savedSettings, savedLocation, savedTimers, savedStopwatch, savedPomodoro] = await Promise.all([
       dbService.getAlarms(),
       dbService.getSettings(),
       dbService.getLocation(),
       dbService.getTimers(),
       dbService.getStopwatch(),
+      dbService.getPomodoro(),
     ]);
 
     if (savedAlarms.length > 0) {
@@ -262,6 +304,10 @@ export async function loadFromStorage(): Promise<void> {
 
     if (savedStopwatch) {
       stopwatch.set(savedStopwatch);
+    }
+
+    if (savedPomodoro) {
+      pomodoro.set(savedPomodoro);
     }
   } catch (error) {
     console.error("Error loading from storage:", error);
@@ -301,5 +347,10 @@ export function saveToStorage(): void {
   // Subscribe to stopwatch
   stopwatch.subscribe(($stopwatch) => {
     dbService.saveStopwatch($stopwatch);
+  });
+
+  // Subscribe to pomodoro
+  pomodoro.subscribe(($pomodoro) => {
+    dbService.savePomodoro($pomodoro);
   });
 }

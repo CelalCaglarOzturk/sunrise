@@ -1,5 +1,5 @@
 import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from "@capacitor-community/sqlite";
-import type { Alarm, AppSettings, Location, Timer, Stopwatch } from "../types";
+import type { Alarm, AppSettings, Location, Timer, Stopwatch, Pomodoro, PomodoroSession } from "../types";
 
 const DB_NAME = "sun_clock_db";
 
@@ -126,6 +126,41 @@ class DatabaseService {
     // Insert default stopwatch if not exists
     await this.db.execute(`
       INSERT OR IGNORE INTO stopwatch (id) VALUES (1)
+    `);
+
+    // Create pomodoro table
+    await this.db.execute(`
+      CREATE TABLE IF NOT EXISTS pomodoro (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        isRunning INTEGER DEFAULT 0,
+        isPaused INTEGER DEFAULT 0,
+        remainingTime INTEGER DEFAULT 1500,
+        currentPhase TEXT DEFAULT 'work',
+        workDuration INTEGER DEFAULT 1500,
+        shortBreakDuration INTEGER DEFAULT 300,
+        longBreakDuration INTEGER DEFAULT 900,
+        workSessionsBeforeLongBreak INTEGER DEFAULT 4,
+        currentSessionCount INTEGER DEFAULT 0,
+        autoStartBreaks INTEGER DEFAULT 0,
+        autoStartWork INTEGER DEFAULT 0
+      )
+    `);
+
+    // Create pomodoro_sessions table
+    await this.db.execute(`
+      CREATE TABLE IF NOT EXISTS pomodoro_sessions (
+        id TEXT PRIMARY KEY,
+        startTime INTEGER NOT NULL,
+        endTime INTEGER,
+        duration INTEGER,
+        completed INTEGER DEFAULT 0,
+        type TEXT DEFAULT 'work'
+      )
+    `);
+
+    // Insert default pomodoro if not exists
+    await this.db.execute(`
+      INSERT OR IGNORE INTO pomodoro (id) VALUES (1)
     `);
   }
 
@@ -398,6 +433,95 @@ class DatabaseService {
       );
     } catch (error) {
       console.error("Error saving stopwatch:", error);
+    }
+  }
+
+  // Pomodoro
+  async getPomodoro(): Promise<Pomodoro | null> {
+    if (!this.db || !this.isInitialized) return null;
+
+    try {
+      const result = await this.db.query("SELECT * FROM pomodoro WHERE id = 1");
+      const sessionsResult = await this.db.query("SELECT * FROM pomodoro_sessions ORDER BY startTime DESC");
+      
+      if (result.values && result.values.length > 0) {
+        const row = result.values[0];
+        const sessions: PomodoroSession[] = sessionsResult.values?.map((s: any) => ({
+          id: s.id,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          duration: s.duration,
+          completed: Boolean(s.completed),
+          type: s.type as "work" | "shortBreak" | "longBreak",
+        })) || [];
+        
+        return {
+          isRunning: Boolean(row.isRunning),
+          isPaused: Boolean(row.isPaused),
+          remainingTime: row.remainingTime,
+          currentPhase: row.currentPhase as "work" | "shortBreak" | "longBreak",
+          workDuration: row.workDuration,
+          shortBreakDuration: row.shortBreakDuration,
+          longBreakDuration: row.longBreakDuration,
+          workSessionsBeforeLongBreak: row.workSessionsBeforeLongBreak,
+          currentSessionCount: row.currentSessionCount,
+          sessions,
+          autoStartBreaks: Boolean(row.autoStartBreaks),
+          autoStartWork: Boolean(row.autoStartWork),
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error("Error getting pomodoro:", error);
+      return null;
+    }
+  }
+
+  async savePomodoro(pomodoro: Pomodoro): Promise<void> {
+    if (!this.db || !this.isInitialized) return;
+
+    try {
+      await this.db.run(
+        `INSERT OR REPLACE INTO pomodoro 
+        (id, isRunning, isPaused, remainingTime, currentPhase, workDuration, 
+         shortBreakDuration, longBreakDuration, workSessionsBeforeLongBreak, 
+         currentSessionCount, autoStartBreaks, autoStartWork) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          1,
+          pomodoro.isRunning ? 1 : 0,
+          pomodoro.isPaused ? 1 : 0,
+          pomodoro.remainingTime,
+          pomodoro.currentPhase,
+          pomodoro.workDuration,
+          pomodoro.shortBreakDuration,
+          pomodoro.longBreakDuration,
+          pomodoro.workSessionsBeforeLongBreak,
+          pomodoro.currentSessionCount,
+          pomodoro.autoStartBreaks ? 1 : 0,
+          pomodoro.autoStartWork ? 1 : 0,
+        ]
+      );
+
+      // Save sessions
+      await this.db.run("DELETE FROM pomodoro_sessions");
+      for (const session of pomodoro.sessions) {
+        await this.db.run(
+          `INSERT INTO pomodoro_sessions 
+          (id, startTime, endTime, duration, completed, type) 
+          VALUES (?, ?, ?, ?, ?, ?)`,
+          [
+            session.id,
+            session.startTime,
+            session.endTime,
+            session.duration,
+            session.completed ? 1 : 0,
+            session.type,
+          ]
+        );
+      }
+    } catch (error) {
+      console.error("Error saving pomodoro:", error);
     }
   }
 
