@@ -44,7 +44,7 @@ class AlarmService : Service() {
 
         // Launch Activity
         val activityIntent = Intent(this, AlarmActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION
+            this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION
             putExtra("ALARM_ID", alarmId)
             putExtra("ALARM_LABEL", label)
         }

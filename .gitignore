@@ -1,10 +1,11 @@
 *.iml
-/.idea
+.idea/
+.vscode/
+.DS_Store
 *.log
 .kotlin/
 .gradle/
 local.properties
-
 build/
-
-java_*.hprof
+*.hprof
+android/
