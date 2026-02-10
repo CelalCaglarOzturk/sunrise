@@ -6,7 +6,7 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="26"
-9        android:targetSdkVersion="35" />
+9        android:targetSdkVersion="36" />
 10
 11    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 11-->/home/caglar/Desktop/sunrise/app/src/main/AndroidManifest.xml:7:5-77
@@ -389,13 +389,13 @@
 202        </receiver>
 203
 204        <service
-204-->[androidx.room:room-runtime-android:2.7.0-alpha01] /home/caglar/.gradle/caches/9.1.0/transforms/81c4ff29952f3fe09c54eef9e56a2135/transformed/room-runtime-release/AndroidManifest.xml:24:9-28:63
+204-->[androidx.room:room-runtime:2.6.1] /home/caglar/.gradle/caches/9.1.0/transforms/ec53baca011c8be5a665ee2f431a2e9d/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
 205            android:name="androidx.room.MultiInstanceInvalidationService"
-205-->[androidx.room:room-runtime-android:2.7.0-alpha01] /home/caglar/.gradle/caches/9.1.0/transforms/81c4ff29952f3fe09c54eef9e56a2135/transformed/room-runtime-release/AndroidManifest.xml:25:13-74
+205-->[androidx.room:room-runtime:2.6.1] /home/caglar/.gradle/caches/9.1.0/transforms/ec53baca011c8be5a665ee2f431a2e9d/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
 206            android:directBootAware="true"
-206-->[androidx.room:room-runtime-android:2.7.0-alpha01] /home/caglar/.gradle/caches/9.1.0/transforms/81c4ff29952f3fe09c54eef9e56a2135/transformed/room-runtime-release/AndroidManifest.xml:26:13-43
+206-->[androidx.room:room-runtime:2.6.1] /home/caglar/.gradle/caches/9.1.0/transforms/ec53baca011c8be5a665ee2f431a2e9d/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
 207            android:exported="false" />
-207-->[androidx.room:room-runtime-android:2.7.0-alpha01] /home/caglar/.gradle/caches/9.1.0/transforms/81c4ff29952f3fe09c54eef9e56a2135/transformed/room-runtime-release/AndroidManifest.xml:27:13-37
+207-->[androidx.room:room-runtime:2.6.1] /home/caglar/.gradle/caches/9.1.0/transforms/ec53baca011c8be5a665ee2f431a2e9d/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
 208
 209        <receiver
 209-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/caglar/.gradle/caches/9.1.0/transforms/fc7d98f64ec10a2fc851e404ff74e734/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
