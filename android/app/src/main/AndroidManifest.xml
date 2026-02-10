@@ -60,4 +60,7 @@
     <!-- Storage permissions for accessing audio files -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <!-- Battery optimization permission for reliable alarms -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 </manifest>

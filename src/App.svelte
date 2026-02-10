@@ -22,6 +22,9 @@
     import { filePickerService } from "./services/filePicker";
     import { sunCalcService } from "./services/sunCalc";
     import { alarmService } from "./services/alarm";
+    import { batteryOptimizationService } from "./services/batteryOptimization";
+    import { systemAlarmService } from "./services/systemAlarm";
+    import { settingsImportExportService } from "./services/settingsImportExport";
     import { getTranslation } from "./utils/translations";
     import type { Alarm, Language } from "./types";
 
@@ -44,6 +47,12 @@
     let settingsData: any;
     let locationData: any;
     let sunTimesData: any[] = [];
+
+    // Permission and optimization states
+    let showBatteryOptimizationAlert = false;
+    let showSystemAlarmAlert = false;
+    let hasBatteryOptimization = false;
+    let hasSystemAlarmAccess = false;
 
     // Subscribe to stores
     const unsubAlarms = alarms.subscribe((value) => (alarmsData = value));
@@ -77,7 +86,89 @@
 
         // Initialize alarm listeners
         alarmService.initializeListeners(handleAlarmTriggered);
+
+        // Check battery optimization and system alarm access
+        await checkSystemStatus();
     });
+
+    async function checkSystemStatus() {
+        try {
+            // Check battery optimization
+            hasBatteryOptimization = await batteryOptimizationService.isBatteryOptimizationEnabled();
+            showBatteryOptimizationAlert = hasBatteryOptimization;
+
+            // Check system alarm access
+            hasSystemAlarmAccess = await systemAlarmService.checkSystemAlarmAccess();
+            showSystemAlarmAlert = !hasSystemAlarmAccess;
+        } catch (error) {
+            console.error("Error checking system status:", error);
+        }
+    }
+
+    async function handleBatteryOptimization() {
+        await batteryOptimizationService.openBatteryOptimizationSettings();
+        // Recheck after returning
+        setTimeout(async () => {
+            hasBatteryOptimization = await batteryOptimizationService.isBatteryOptimizationEnabled();
+            showBatteryOptimizationAlert = hasBatteryOptimization;
+        }, 1000);
+    }
+
+    async function handleSystemAlarmAccess() {
+        const granted = await systemAlarmService.requestSystemAlarmAccess();
+        hasSystemAlarmAccess = granted;
+        showSystemAlarmAlert = !granted;
+    }
+
+    async function handleExportSettings() {
+        const fileName = await settingsImportExportService.exportSettings();
+        if (fileName) {
+            // Show success message or notification
+            console.log("Settings exported to:", fileName);
+        }
+    }
+
+    async function handleImportSettings() {
+        try {
+            // For web, use file picker
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = ".json";
+            input.onchange = async (e: Event) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        const content = event.target?.result as string;
+                        // Save to temp file and import
+                        const tempFileName = "temp_import.json";
+                        const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
+                        await Filesystem.writeFile({
+                            path: tempFileName,
+                            data: content,
+                            directory: Directory.Documents,
+                            encoding: Encoding.UTF8,
+                        });
+                        const success = await settingsImportExportService.importSettings(tempFileName);
+                        if (success) {
+                            // Reload data
+                            await loadFromStorage();
+                            console.log("Settings imported successfully");
+                        }
+                        // Clean up temp file
+                        await Filesystem.deleteFile({
+                            path: tempFileName,
+                            directory: Directory.Documents,
+                        });
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        } catch (error) {
+            console.error("Error importing settings:", error);
+        }
+    }
 
     onDestroy(() => {
         if (timeInterval) clearInterval(timeInterval);
@@ -496,6 +587,55 @@
                         >
                             {t.grantPermission}
                         </button>
+                    </div>
+
+                    <!-- Battery Optimization Alert -->
+                    {#if showBatteryOptimizationAlert}
+                        <div class="settings-section alert-section">
+                            <h3>{t.batteryOptimization}</h3>
+                            <p class="alert-description">{t.batteryOptimizationDesc}</p>
+                            <button
+                                class="btn-alert"
+                                on:click={handleBatteryOptimization}
+                            >
+                                {t.grantPermission}
+                            </button>
+                        </div>
+                    {/if}
+
+                    <!-- System Alarm Access Alert -->
+                    {#if showSystemAlarmAlert}
+                        <div class="settings-section alert-section">
+                            <h3>{t.systemAlarmAccess}</h3>
+                            <p class="alert-description">{t.systemAlarmAccessDesc}</p>
+                            <button
+                                class="btn-alert"
+                                on:click={handleSystemAlarmAccess}
+                            >
+                                {t.grantPermission}
+                            </button>
+                        </div>
+                    {/if}
+
+                    <!-- Export/Import Settings -->
+                    <div class="settings-section">
+                        <h3>{t.exportSettings} / {t.importSettings}</h3>
+                        <div class="export-import-buttons">
+                            <button
+                                class="btn-secondary"
+                                on:click={handleExportSettings}
+                            >
+                                <Icon name="download" size={16} />
+                                {t.exportSettings}
+                            </button>
+                            <button
+                                class="btn-secondary"
+                                on:click={handleImportSettings}
+                            >
+                                <Icon name="upload" size={16} />
+                                {t.importSettings}
+                            </button>
+                        </div>
                     </div>
 
                     <div class="settings-section">
@@ -1003,6 +1143,57 @@
     .btn-secondary:hover {
         background: #ff9500;
         color: #000;
+    }
+
+    /* Alert Section Styles */
+    .alert-section {
+        background: linear-gradient(135deg, #2a1f1a 0%, #1a1a1a 100%);
+        border: 2px solid #ff6b35;
+    }
+
+    .alert-section h3 {
+        color: #ff6b35;
+    }
+
+    .alert-description {
+        color: #ccc;
+        font-size: 0.9rem;
+        margin: 0.5rem 0 1rem 0;
+        line-height: 1.4;
+    }
+
+    .btn-alert {
+        width: 100%;
+        padding: 0.875rem;
+        background: #ff6b35;
+        border: none;
+        border-radius: 10px;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+    }
+
+    .btn-alert:hover {
+        background: #ff8555;
+        transform: translateY(-2px);
+    }
+
+    /* Export/Import Buttons */
+    .export-import-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .export-import-buttons .btn-secondary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
     @media (max-width: 768px) {
