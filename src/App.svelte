@@ -683,14 +683,6 @@
             </button>
             <button
                 class="nav-btn"
-                class:active={currentView === "sun-times"}
-                on:click={() => (currentView = "sun-times")}
-            >
-                <Sun size={24} aria-hidden="true" />
-                <span>Sun</span>
-            </button>
-            <button
-                class="nav-btn"
                 class:active={currentView === "timer"}
                 on:click={() => (currentView = "timer")}
             >
@@ -703,7 +695,15 @@
                 on:click={() => (currentView = "stopwatch")}
             >
                 <Clock size={24} aria-hidden="true" />
-                <span>Watch</span>
+                <span>Stopwatch</span>
+            </button>
+            <button
+                class="nav-btn"
+                class:active={currentView === "sun-times"}
+                on:click={() => (currentView = "sun-times")}
+            >
+                <Sun size={24} aria-hidden="true" />
+                <span>Sun</span>
             </button>
             <button
                 class="nav-btn"
@@ -851,10 +851,6 @@
         background: var(--color-primary);
         color: #000;
         font-weight: bold;
-    }
-
-    .nav-btn svg {
-        flex-shrink: 0;
     }
 
     .nav-btn span {
@@ -1082,12 +1078,12 @@
 
     /* Alert Section Styles */
     .alert-section {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, var(--color-bg-secondary) 100%);
-        border: 2px solid #ff6b35;
+        background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg-secondary) 100%);
+        border: 2px solid var(--color-primary);
     }
 
     .alert-section h3 {
-        color: #ff6b35;
+        color: var(--color-primary);
     }
 
     .alert-description {
@@ -1100,10 +1096,10 @@
     .btn-alert {
         width: 100%;
         padding: var(--space-3);
-        background: #ff6b35;
+        background: var(--color-primary);
         border: none;
         border-radius: var(--radius-md);
-        color: #fff;
+        color: #000;
         font-size: var(--text-base);
         font-weight: 600;
         cursor: pointer;
