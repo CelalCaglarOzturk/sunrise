@@ -548,7 +548,7 @@
                         <div class="setting-item">
                             <label class="setting-label">
                                 <span>{t.showSeconds}</span>
-                                <label class="toggle-switch">
+                                <label class="toggle">
                                     <input
                                         type="checkbox"
                                         checked={settingsData.showSeconds}
