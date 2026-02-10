@@ -4,23 +4,19 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import dagger.hilt.android.AndroidEntryPoint
 import dev.mudrock.gunes.data.AlarmDao
+import dev.mudrock.gunes.SunriseApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class AlarmReceiver : BroadcastReceiver() {
 
-    @Inject
-    lateinit var alarmScheduler: AlarmScheduler
-
-    @Inject
-    lateinit var alarmDao: AlarmDao
-
     override fun onReceive(context: Context, intent: Intent) {
+        val app = context.applicationContext as SunriseApp
+        val alarmDao = app.container.alarmDao
+        val alarmScheduler = app.container.alarmScheduler
+
         val alarmId = intent.getStringExtra("ALARM_ID") ?: return
         val pendingResult = goAsync()
 

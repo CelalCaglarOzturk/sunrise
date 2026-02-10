@@ -1,17 +1,16 @@
 package dev.mudrock.gunes.data
 
+import android.content.Context
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
-import javax.inject.Singleton
 
 data class BackupData(
     val alarms: List<Alarm>,
     val settings: AppSettings
 )
 
-@Singleton
-class BackupRepository @Inject constructor(
+class BackupRepository(
+    private val context: Context,
     private val alarmDao: AlarmDao,
     private val settingsRepository: SettingsRepository,
     private val gson: Gson

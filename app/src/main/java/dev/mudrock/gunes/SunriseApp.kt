@@ -1,7 +1,13 @@
 package dev.mudrock.gunes
 
 import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
+import dev.mudrock.gunes.data.AppContainer
 
-@HiltAndroidApp
-class SunriseApp : Application()
+class SunriseApp : Application() {
+    lateinit var container: AppContainer
+
+    override fun onCreate() {
+        super.onCreate()
+        container = AppContainer(this)
+    }
+}

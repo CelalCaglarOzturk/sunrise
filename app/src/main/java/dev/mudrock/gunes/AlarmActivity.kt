@@ -13,9 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.mudrock.gunes.service.AlarmService
 import dev.mudrock.gunes.ui.theme.SunriseTheme
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class AlarmActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

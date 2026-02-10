@@ -3,7 +3,6 @@ package dev.mudrock.gunes.ui
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.mudrock.gunes.data.Alarm
 import dev.mudrock.gunes.data.AlarmDao
 import dev.mudrock.gunes.data.AppSettings
@@ -16,10 +15,8 @@ import dev.mudrock.gunes.data.BackupRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Date
-import javax.inject.Inject
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
+class MainViewModel(
     private val alarmDao: AlarmDao,
     private val settingsRepository: SettingsRepository,
     private val locationManager: LocationManager,

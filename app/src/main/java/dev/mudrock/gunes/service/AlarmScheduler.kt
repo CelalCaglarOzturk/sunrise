@@ -7,19 +7,15 @@ import android.content.Intent
 import dev.mudrock.gunes.data.Alarm
 import dev.mudrock.gunes.util.SunCalc
 import dev.mudrock.gunes.util.SunTimes
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Calendar
 import java.util.Date
-import javax.inject.Inject
-import javax.inject.Singleton
 import android.location.Location as AndroidLocation
 
-@Singleton
-class AlarmScheduler @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val locationManager: LocationManager
+class AlarmScheduler(
+    private val context: Context
 ) {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    private val locationManager = LocationManager(context)
 
     suspend fun scheduleAlarm(alarm: Alarm) {
         if (!alarm.enabled) {
