@@ -15,9 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import dev.mudrock.gunes.R
 import dev.mudrock.gunes.ui.MainViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(viewModel: MainViewModel) {
     val settings by viewModel.settings.collectAsState()
@@ -112,6 +111,62 @@ fun SettingsScreen(viewModel: MainViewModel) {
                 checked = settings.showSeconds,
                 onCheckedChange = { viewModel.updateSettings { s -> s.copy(showSeconds = it) } }
             )
+        }
+
+        // Language Selection
+        SettingsSection(title = stringResource(R.string.language)) {
+            val languages = listOf(
+                "en" to R.string.lang_english,
+                "tr" to R.string.lang_turkish,
+                "es" to R.string.lang_spanish,
+                "de" to R.string.lang_german,
+                "fr" to R.string.lang_french,
+                "it" to R.string.lang_italian,
+                "pt" to R.string.lang_portuguese,
+                "ru" to R.string.lang_russian,
+                "ja" to R.string.lang_japanese,
+                "zh" to R.string.lang_chinese,
+                "ar" to R.string.lang_arabic
+            )
+
+            var expanded by remember { mutableStateOf(false) }
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = it }
+            ) {
+                OutlinedTextField(
+                    value = stringResource(
+                        languages.find { it.first == settings.language }?.second ?: R.string.lang_english
+                    ),
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    languages.forEach { (code, nameRes) ->
+                        DropdownMenuItem(
+                            text = { Text(stringResource(nameRes)) },
+                            onClick = {
+                                viewModel.updateSettings { s -> s.copy(language = code) }
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
         }
 
         SettingsSection(title = stringResource(R.string.permissions)) {

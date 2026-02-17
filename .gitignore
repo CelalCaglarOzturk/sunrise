@@ -28,9 +28,9 @@ local.properties
 *.iml
 .idea
 .kotlin/
-
 *.log
 *.hprof
 android/
 
+# custom
 **/sunrise (capacitor)

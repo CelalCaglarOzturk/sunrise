@@ -145,6 +145,7 @@ fun AlarmListScreen(viewModel: MainViewModel) {
     if (showEditor) {
         AlarmEditorScreen(
             alarm = editingAlarm,
+            viewModel = viewModel,
             onSave = { alarm ->
                 if (editingAlarm == null) {
                     viewModel.addAlarm(alarm)

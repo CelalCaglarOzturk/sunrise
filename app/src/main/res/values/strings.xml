@@ -23,6 +23,38 @@
     <string name="dismiss">Dismiss</string>
     <string name="snooze">Snooze</string>
 
+    <!-- Alarm Editor -->
+    <string name="label">Label</string>
+    <string name="time">Time</string>
+    <string name="normal_clock">Normal Clock</string>
+    <string name="sun_based_clock">Sun-Based Clock</string>
+    <string name="sun_offset">Sun Offset</string>
+    <string name="hours">Hours</string>
+    <string name="minutes">Minutes</string>
+    <string name="repeat">Repeat</string>
+    <string name="sunday">Sun</string>
+    <string name="monday">Mon</string>
+    <string name="tuesday">Tue</string>
+    <string name="wednesday">Wed</string>
+    <string name="thursday">Thu</string>
+    <string name="friday">Fri</string>
+    <string name="saturday">Sat</string>
+    <string name="weekdays">Weekdays</string>
+    <string name="weekends">Weekends</string>
+    <string name="daily">Daily</string>
+    <string name="once">Once</string>
+    <string name="alarm_sound">Alarm Sound</string>
+    <string name="select_sound">Select Sound</string>
+    <string name="browse_files">Browse Files</string>
+    <string name="volume">Volume</string>
+    <string name="vibrate">Vibrate</string>
+    <string name="gradual_volume">Gradual Volume</string>
+    <string name="gradual_duration">Gradual Duration</string>
+    <string name="seconds">seconds</string>
+    <string name="delete_after_use">Delete after use</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+
     <!-- Bulk Actions -->
     <string name="delete_all">Delete All</string>
     <string name="disable_all">Disable All</string>
@@ -31,8 +63,6 @@
 
     <!-- Settings -->
     <string name="default_clock_mode">Default Clock Mode</string>
-    <string name="normal_clock">Normal Clock</string>
-    <string name="sun_based_clock">Sun-Based Clock</string>
     <string name="use_24_hour_format">Use 24-Hour Format</string>
     <string name="show_seconds">Show Seconds</string>
     <string name="language">Language</string>
@@ -64,4 +94,17 @@
     <string name="work">Work</string>
     <string name="short_break">Short Break</string>
     <string name="long_break">Long Break</string>
+
+    <!-- Language names -->
+    <string name="lang_english">English</string>
+    <string name="lang_turkish">Türkçe</string>
+    <string name="lang_spanish">Español</string>
+    <string name="lang_german">Deutsch</string>
+    <string name="lang_french">Français</string>
+    <string name="lang_italian">Italiano</string>
+    <string name="lang_portuguese">Português</string>
+    <string name="lang_russian">Русский</string>
+    <string name="lang_japanese">日本語</string>
+    <string name="lang_chinese">中文</string>
+    <string name="lang_arabic">العربية</string>
 </resources>
