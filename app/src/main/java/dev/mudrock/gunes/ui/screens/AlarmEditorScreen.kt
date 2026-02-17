@@ -48,8 +48,12 @@ fun AlarmEditorScreen(
     val location by viewModel.location.collectAsState()
     val sunTimes by viewModel.sunTimes.collectAsState()
 
-    // Form fields
-    var time by remember { mutableStateOf(alarm?.time ?: "07:00") }
+    // Form fields - use current time as default for new alarms
+    val currentTime = remember {
+        val calendar = Calendar.getInstance()
+        String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))
+    }
+    var time by remember { mutableStateOf(alarm?.time ?: currentTime) }
     var label by remember { mutableStateOf(alarm?.label ?: "") }
     var useSunTime by remember { mutableStateOf(alarm?.useSunTime ?: false) }
     var sunOffset by remember { mutableIntStateOf(alarm?.sunOffset ?: 0) }
@@ -604,7 +608,8 @@ fun ModeButton(
     Surface(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier,
+        modifier = modifier
+            .height(64.dp), // Fixed height to ensure both buttons are same size
         shape = RoundedCornerShape(12.dp),
         color = backgroundColor
     ) {
@@ -619,7 +624,7 @@ fun ModeButton(
                 icon,
                 contentDescription = null,
                 tint = contentColor,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(

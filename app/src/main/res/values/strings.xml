@@ -63,7 +63,7 @@
 
     <!-- Settings -->
     <string name="default_clock_mode">Default Clock Mode</string>
-    <string name="use_24_hour_format">Use 24-Hour Format</string>
+    <string name="use_24_hour_format">Default Hour Format</string>
     <string name="show_seconds">Show Seconds</string>
     <string name="language">Language</string>
     <string name="permissions">Permissions</string>

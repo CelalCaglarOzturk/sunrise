@@ -366,7 +366,7 @@ fun AddTimerSheet(
 ) {
     var label by remember { mutableStateOf("") }
     var hours by remember { mutableIntStateOf(0) }
-    var minutes by remember { mutableIntStateOf(1) }
+    var minutes by remember { mutableIntStateOf(5) }
     var seconds by remember { mutableIntStateOf(0) }
 
     Card(
