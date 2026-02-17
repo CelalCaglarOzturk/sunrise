@@ -492,8 +492,8 @@ fun WheelPicker(
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     
-    // Calculate initial scroll position to center the current value
-    // Each item is 40.dp, we need to scroll so that 'value' is at the center (position 2)
+    // Calculate initial scroll position - need to scroll to index that puts value at center
+    // With 2 padding items at top, the center is at index (value - range.first)
     val initialIndex = value - range.first
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxOf(0, initialIndex))
     
@@ -520,10 +520,12 @@ fun WheelPicker(
         val firstItemTop = -scrollOffset
         val centerItemIndex = firstVisibleIndex + ((centerPositionPx - firstItemTop) / itemHeightPx).toInt()
         
-        val actualIndex = centerItemIndex.coerceIn(0, range.count() - 1)
-        val newValue = range.first + actualIndex
+        // Account for the 2 padding items at the top
+        val actualItemIndex = centerItemIndex - 2
         
-        if (newValue != selectedValue) {
+        val newValue = range.first + actualItemIndex
+        
+        if (newValue in range && newValue != selectedValue) {
             selectedValue = newValue
             onValueChange(newValue)
         }

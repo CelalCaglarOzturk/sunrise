@@ -113,29 +113,58 @@ fun SettingsScreen(viewModel: MainViewModel) {
             )
         }
 
-        // Language - English only
+        // Language Selection
         SettingsSection(title = stringResource(R.string.language)) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(12.dp)
+            val languages = listOf(
+                "en" to R.string.lang_english,
+                "tr" to R.string.lang_turkish,
+                "es" to R.string.lang_spanish,
+                "fr" to R.string.lang_french,
+                "de" to R.string.lang_german,
+                "pt" to R.string.lang_portuguese,
+                "zh" to R.string.lang_chinese,
+                "ja" to R.string.lang_japanese,
+                "ru" to R.string.lang_russian,
+                "ar" to R.string.lang_arabic,
+                "hi" to R.string.lang_hindi
+            )
+
+            var expanded by remember { mutableStateOf(false) }
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = it }
             ) {
-                Row(
+                OutlinedTextField(
+                    value = stringResource(
+                        languages.find { it.first == settings.language }?.second ?: R.string.lang_english
+                    ),
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .menuAnchor(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
                 ) {
-                    Text(
-                        text = stringResource(R.string.lang_english),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    languages.forEach { (code, nameRes) ->
+                        DropdownMenuItem(
+                            text = { Text(stringResource(nameRes)) },
+                            onClick = {
+                                viewModel.updateSettings { s -> s.copy(language = code) }
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
         }

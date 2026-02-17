@@ -126,4 +126,14 @@
 
     <!-- Language names -->
     <string name="lang_english">English</string>
+    <string name="lang_spanish">Español</string>
+    <string name="lang_french">Français</string>
+    <string name="lang_german">Deutsch</string>
+    <string name="lang_portuguese">Português</string>
+    <string name="lang_chinese">中文</string>
+    <string name="lang_japanese">日本語</string>
+    <string name="lang_russian">Русский</string>
+    <string name="lang_arabic">العربية</string>
+    <string name="lang_hindi">हिन्दी</string>
+    <string name="lang_turkish">Türkçe</string>
 </resources>

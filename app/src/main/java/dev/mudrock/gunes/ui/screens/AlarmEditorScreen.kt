@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +33,7 @@ import androidx.compose.ui.window.DialogProperties
 import dev.mudrock.gunes.R
 import dev.mudrock.gunes.data.Alarm
 import dev.mudrock.gunes.ui.MainViewModel
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.UUID
 
@@ -643,16 +645,16 @@ fun ModeButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier
-            .height(64.dp), // Fixed height to ensure both buttons are same size
+            .height(64.dp),
         shape = RoundedCornerShape(12.dp),
         color = backgroundColor
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .padding(12.dp)
+                .padding(8.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Icon(
                 icon,
@@ -660,11 +662,14 @@ fun ModeButton(
                 tint = contentColor,
                 modifier = Modifier.size(20.dp)
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = label,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                color = contentColor
+                color = contentColor,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 2,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -810,10 +815,40 @@ fun NumberWheelPicker(
 ) {
     val listState = rememberLazyListState()
     val items = range.toList()
-    val initialIndex = items.indexOf(value).coerceAtLeast(0)
-
-    LaunchedEffect(initialIndex) {
-        listState.scrollToItem(initialIndex)
+    val selectedIndex = items.indexOf(value).coerceAtLeast(0)
+    val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    
+    // Selected value based on scroll position
+    var selectedValue by remember { mutableIntStateOf(value) }
+    
+    // Scroll to center the selected value when initialized or value changes externally
+    LaunchedEffect(value) {
+        if (value != selectedValue) {
+            val index = items.indexOf(value).coerceAtLeast(0)
+            listState.animateScrollToItem(index)
+        }
+    }
+    
+    // Update selected value when scrolling
+    LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
+        val scrollOffset = listState.firstVisibleItemScrollOffset
+        val firstVisibleIndex = listState.firstVisibleItemIndex
+        
+        // Center of the visible area is at 60.dp (half of 120.dp height)
+        val centerPositionPx = with(density) { 60.dp.toPx() }
+        val itemHeightPx = with(density) { 40.dp.toPx() }
+        
+        val firstItemTop = -scrollOffset
+        val centerItemIndex = firstVisibleIndex + ((centerPositionPx - firstItemTop) / itemHeightPx).toInt()
+        
+        val actualIndex = centerItemIndex.coerceIn(0, items.size - 1)
+        val newValue = items.getOrNull(actualIndex)
+        
+        if (newValue != null && newValue != selectedValue) {
+            selectedValue = newValue
+            onValueChange(newValue)
+        }
     }
 
     Box(
@@ -843,15 +878,24 @@ fun NumberWheelPicker(
             horizontalAlignment = Alignment.CenterHorizontally,
             flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
         ) {
+            // Top padding items
+            items(2) {
+                Box(modifier = Modifier.height(40.dp))
+            }
+            // Actual items
             items(items.size) { index ->
                 val item = items[index]
-                val isSelected = item == value
+                val isSelected = item == selectedValue
 
                 Box(
                     modifier = Modifier
                         .height(40.dp)
                         .fillMaxWidth()
-                        .clickable { onValueChange(item) },
+                        .clickable {
+                            coroutineScope.launch {
+                                listState.animateScrollToItem(index)
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -863,16 +907,9 @@ fun NumberWheelPicker(
                     )
                 }
             }
-        }
-    }
-
-    // Update value when scrolling stops
-    LaunchedEffect(listState.isScrollInProgress) {
-        if (!listState.isScrollInProgress) {
-            val centerItem = listState.firstVisibleItemIndex
-            val item = items.getOrNull(centerItem)
-            if (item != null && item != value) {
-                onValueChange(item)
+            // Bottom padding items
+            items(2) {
+                Box(modifier = Modifier.height(40.dp))
             }
         }
     }

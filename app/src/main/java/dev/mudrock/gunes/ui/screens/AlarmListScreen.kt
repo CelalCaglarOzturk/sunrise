@@ -22,6 +22,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.Manifest
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import dev.mudrock.gunes.R
 import dev.mudrock.gunes.data.Alarm
 import dev.mudrock.gunes.ui.MainViewModel
@@ -31,20 +36,38 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.delay
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun AlarmListScreen(viewModel: MainViewModel) {
     val alarms by viewModel.alarms.collectAsState()
     val settings by viewModel.settings.collectAsState()
     val sunTimes by viewModel.sunTimes.collectAsState()
+    val location by viewModel.location.collectAsState()
+    val context = LocalContext.current
 
     var showEditor by remember { mutableStateOf(false) }
     var editingAlarm by remember { mutableStateOf<Alarm?>(null) }
     var showMenu by remember { mutableStateOf(false) }
+    
+    // Location permission state
+    val locationPermissionState = rememberPermissionState(
+        Manifest.permission.ACCESS_FINE_LOCATION
+    )
 
     val sortedAlarms = remember(alarms) {
         alarms.sortedWith(compareBy<Alarm> { !it.enabled }.thenBy { it.time })
+    }
+    
+    // Update location and sun times when screen loads and permission is granted
+    LaunchedEffect(locationPermissionState.status.isGranted) {
+        if (locationPermissionState.status.isGranted) {
+            viewModel.updateLocation()
+        }
     }
 
     Scaffold(
@@ -154,7 +177,20 @@ fun AlarmListScreen(viewModel: MainViewModel) {
             // Upcoming Sun Times Section
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                SunTimesSection(sunTimes = sunTimes)
+                SunTimesSection(
+                    sunTimes = sunTimes,
+                    hasLocationPermission = locationPermissionState.status.isGranted,
+                    onRequestPermission = {
+                        if (locationPermissionState.status.shouldShowRationale) {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            locationPermissionState.launchPermissionRequest()
+                        }
+                    }
+                )
             }
             
             item {
@@ -478,9 +514,11 @@ fun formatRepeatDays(alarm: Alarm): String {
 }
 
 @Composable
-fun SunTimesSection(sunTimes: List<SunTimes>) {
-    if (sunTimes.isEmpty()) return
-    
+fun SunTimesSection(
+    sunTimes: List<SunTimes>,
+    hasLocationPermission: Boolean,
+    onRequestPermission: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -492,12 +530,60 @@ fun SunTimesSection(sunTimes: List<SunTimes>) {
             modifier = Modifier.padding(bottom = 12.dp)
         )
         
-        sunTimes.take(3).forEachIndexed { index, times ->
-            SunTimeRow(
-                sunTimes = times,
-                isToday = index == 0,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+        if (!hasLocationPermission || sunTimes.isEmpty()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.location_permission_required),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        stringResource(R.string.location_permission_desc_sun),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = onRequestPermission,
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(stringResource(R.string.grant_permission))
+                    }
+                }
+            }
+        } else {
+            sunTimes.take(3).forEachIndexed { index, times ->
+                SunTimeRow(
+                    sunTimes = times,
+                    isToday = index == 0,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
         }
     }
 }

@@ -101,59 +101,44 @@ fun PomodoroScreen(viewModel: MainViewModel) {
         }
     }
 
-    LaunchedEffect(isRunning, remainingSeconds) {
-        if (isRunning && remainingSeconds > 0) {
-            delay(1000)
-            remainingSeconds--
-            
-            // Save progress every second while running
-            viewModel.updateSettings { s ->
-                s.copy(
-                    pomodoroRemainingSeconds = remainingSeconds,
-                    pomodoroLastUpdateTime = System.currentTimeMillis()
-                )
-            }
-            
-            if (remainingSeconds == 0) {
-                isRunning = false
-                if (currentPhase == PomodoroPhase.WORK) {
-                    currentSessionCount++
-                    sessions = sessions + PomodoroSession(
-                        startTime = System.currentTimeMillis(),
-                        duration = totalSeconds,
-                        completed = true,
-                        type = PomodoroPhase.WORK
-                    )
-                    currentPhase = if (currentSessionCount % sessionsBeforeLongBreak == 0) {
-                        PomodoroPhase.LONG_BREAK
+    // Timer tick effect - only runs when isRunning is true
+    LaunchedEffect(isRunning) {
+        if (isRunning) {
+            while (remainingSeconds > 0) {
+                delay(1000)
+                remainingSeconds--
+                
+                if (remainingSeconds == 0) {
+                    isRunning = false
+                    if (currentPhase == PomodoroPhase.WORK) {
+                        currentSessionCount++
+                        sessions = sessions + PomodoroSession(
+                            startTime = System.currentTimeMillis(),
+                            duration = totalSeconds,
+                            completed = true,
+                            type = PomodoroPhase.WORK
+                        )
+                        currentPhase = if (currentSessionCount % sessionsBeforeLongBreak == 0) {
+                            PomodoroPhase.LONG_BREAK
+                        } else {
+                            PomodoroPhase.SHORT_BREAK
+                        }
                     } else {
-                        PomodoroPhase.SHORT_BREAK
+                        currentPhase = PomodoroPhase.WORK
                     }
-                } else {
-                    currentPhase = PomodoroPhase.WORK
-                }
-                remainingSeconds = when (currentPhase) {
-                    PomodoroPhase.WORK -> workDuration * 60
-                    PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
-                    PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
-                }
-                
-                // Auto-start next phase if enabled
-                if ((currentPhase != PomodoroPhase.WORK && autoStartBreaks) ||
-                    (currentPhase == PomodoroPhase.WORK && autoStartWork)) {
-                    delay(1000)
-                    isRunning = true
-                }
-                
-                // Save final state
-                viewModel.updateSettings { s ->
-                    s.copy(
-                        pomodoroRemainingSeconds = remainingSeconds,
-                        pomodoroPhase = currentPhase.name,
-                        pomodoroIsRunning = isRunning,
-                        pomodoroCurrentSessionCount = currentSessionCount,
-                        pomodoroLastUpdateTime = System.currentTimeMillis()
-                    )
+                    remainingSeconds = when (currentPhase) {
+                        PomodoroPhase.WORK -> workDuration * 60
+                        PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
+                        PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
+                    }
+                    
+                    // Auto-start next phase if enabled
+                    if ((currentPhase != PomodoroPhase.WORK && autoStartBreaks) ||
+                        (currentPhase == PomodoroPhase.WORK && autoStartWork)) {
+                        delay(1000)
+                        isRunning = true
+                    }
+                    break
                 }
             }
         }
