@@ -813,9 +813,9 @@ fun NumberWheelPicker(
     onValueChange: (Int) -> Unit,
     displayFormatter: (Int) -> String = { it.toString() }
 ) {
-    val listState = rememberLazyListState()
     val items = range.toList()
-    val selectedIndex = items.indexOf(value).coerceAtLeast(0)
+    val initialIndex = items.indexOf(value).coerceAtLeast(0)
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     
@@ -842,8 +842,10 @@ fun NumberWheelPicker(
         val firstItemTop = -scrollOffset
         val centerItemIndex = firstVisibleIndex + ((centerPositionPx - firstItemTop) / itemHeightPx).toInt()
         
-        val actualIndex = centerItemIndex.coerceIn(0, items.size - 1)
-        val newValue = items.getOrNull(actualIndex)
+        // Account for the 2 padding items at the top
+        val actualItemIndex = centerItemIndex - 2
+        
+        val newValue = items.getOrNull(actualItemIndex)
         
         if (newValue != null && newValue != selectedValue) {
             selectedValue = newValue
