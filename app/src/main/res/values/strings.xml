@@ -27,7 +27,7 @@
     <string name="label">Label</string>
     <string name="time">Time</string>
     <string name="normal_clock">Normal Clock</string>
-    <string name="sun_based_clock">Sun-Based Clock</string>
+    <string name="sun_based_clock">Sun Based Clock</string>
     <string name="sun_offset">Sun Offset</string>
     <string name="hours">Hours</string>
     <string name="minutes">Minutes</string>
@@ -105,7 +105,7 @@
     <string name="work_duration">Work Duration</string>
     <string name="short_break_duration">Short Break Duration</string>
     <string name="long_break_duration">Long Break Duration</string>
-    <string name="sessions_before_long_break">Sessions Before Long Break</string>
+    <string name="long_break_after_short_sessions">Long Break After Short Sessions</string>
     <string name="auto_start_breaks">Auto-start Breaks</string>
     <string name="auto_start_work">Auto-start Work</string>
 
@@ -126,14 +126,4 @@
 
     <!-- Language names -->
     <string name="lang_english">English</string>
-    <string name="lang_turkish">Türkçe</string>
-    <string name="lang_spanish">Español</string>
-    <string name="lang_german">Deutsch</string>
-    <string name="lang_french">Français</string>
-    <string name="lang_italian">Italiano</string>
-    <string name="lang_portuguese">Português</string>
-    <string name="lang_russian">Русский</string>
-    <string name="lang_japanese">日本語</string>
-    <string name="lang_chinese">中文</string>
-    <string name="lang_arabic">العربية</string>
 </resources>

@@ -56,7 +56,6 @@ fun AlarmEditorScreen(
     var time by remember { mutableStateOf(alarm?.time ?: currentTime) }
     var label by remember { mutableStateOf(alarm?.label ?: "") }
     var useSunTime by remember { mutableStateOf(alarm?.useSunTime ?: false) }
-    var sunOffset by remember { mutableIntStateOf(alarm?.sunOffset ?: 0) }
     var sunOffsetHours by remember { mutableIntStateOf(0) }
     var sunOffsetMinutes by remember { mutableIntStateOf(0) }
     var repeatDays by remember { mutableStateOf(parseRepeatDays(alarm?.repeatDays)) }
@@ -70,23 +69,26 @@ fun AlarmEditorScreen(
     var showSoundPicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
-    // Initialize sun offset hours/minutes from total offset
-    LaunchedEffect(alarm) {
+    // Calculate sunOffset from hours and minutes
+    val sunOffset = remember(sunOffsetHours, sunOffsetMinutes) {
+        if (sunOffsetHours < 0) {
+            sunOffsetHours * 60 - sunOffsetMinutes
+        } else {
+            sunOffsetHours * 60 + sunOffsetMinutes
+        }
+    }
+
+    // Initialize sun offset hours/minutes from total offset when alarm changes
+    LaunchedEffect(alarm?.id) {
         if (alarm != null) {
-            sunOffset = alarm.sunOffset
             val absOffset = kotlin.math.abs(alarm.sunOffset)
             sunOffsetHours = (absOffset / 60) * if (alarm.sunOffset < 0) -1 else 1
             sunOffsetMinutes = absOffset % 60
             repeatDays = parseRepeatDays(alarm.repeatDays)
-        }
-    }
-
-    // Update sun offset when hours/minutes change
-    LaunchedEffect(sunOffsetHours, sunOffsetMinutes) {
-        sunOffset = if (sunOffsetHours < 0) {
-            sunOffsetHours * 60 - sunOffsetMinutes
         } else {
-            sunOffsetHours * 60 + sunOffsetMinutes
+            // Reset to defaults for new alarm
+            sunOffsetHours = 0
+            sunOffsetMinutes = 0
         }
     }
 
@@ -293,29 +295,38 @@ fun AlarmEditorScreen(
 
                 // Repeat Days
                 FormSection(title = stringResource(R.string.repeat)) {
-                    // Quick select buttons
+                    // Quick select buttons - Order: once, daily, weekdays, weekends
+                    val isOnce = repeatDays.isEmpty()
+                    val isDaily = repeatDays.size == 7
+                    val isWeekdays = repeatDays.size == 5 && repeatDays.containsAll(setOf(1, 2, 3, 4, 5))
+                    val isWeekends = repeatDays.size == 2 && repeatDays.containsAll(setOf(0, 6))
+                    
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        QuickButton(
-                            label = stringResource(R.string.weekdays),
-                            onClick = { repeatDays = setOf(1, 2, 3, 4, 5) },
+                        RepeatOptionButton(
+                            label = stringResource(R.string.once),
+                            selected = isOnce,
+                            onClick = { repeatDays = emptySet() },
                             modifier = Modifier.weight(1f)
                         )
-                        QuickButton(
-                            label = stringResource(R.string.weekends),
-                            onClick = { repeatDays = setOf(0, 6) },
-                            modifier = Modifier.weight(1f)
-                        )
-                        QuickButton(
+                        RepeatOptionButton(
                             label = stringResource(R.string.daily),
+                            selected = isDaily,
                             onClick = { repeatDays = setOf(0, 1, 2, 3, 4, 5, 6) },
                             modifier = Modifier.weight(1f)
                         )
-                        QuickButton(
-                            label = stringResource(R.string.once),
-                            onClick = { repeatDays = emptySet() },
+                        RepeatOptionButton(
+                            label = stringResource(R.string.weekdays),
+                            selected = isWeekdays,
+                            onClick = { repeatDays = setOf(1, 2, 3, 4, 5) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        RepeatOptionButton(
+                            label = stringResource(R.string.weekends),
+                            selected = isWeekends,
+                            onClick = { repeatDays = setOf(0, 6) },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -675,6 +686,38 @@ fun QuickButton(
             text = label,
             style = MaterialTheme.typography.labelSmall
         )
+    }
+}
+
+@Composable
+fun RepeatOptionButton(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val contentColor = if (selected) Color.Black else MaterialTheme.colorScheme.onSurface
+    val borderColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(40.dp),
+        shape = RoundedCornerShape(8.dp),
+        color = backgroundColor,
+        border = androidx.compose.foundation.BorderStroke(2.dp, borderColor)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                color = contentColor
+            )
+        }
     }
 }
 

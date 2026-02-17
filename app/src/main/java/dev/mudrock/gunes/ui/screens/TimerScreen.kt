@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -368,7 +369,7 @@ fun AddTimerSheet(
 ) {
     var label by remember { mutableStateOf("") }
     var hours by remember { mutableIntStateOf(0) }
-    var minutes by remember { mutableIntStateOf(5) }
+    var minutes by remember { mutableIntStateOf(0) }
     var seconds by remember { mutableIntStateOf(0) }
 
     Card(
@@ -488,38 +489,43 @@ fun WheelPicker(
     modifier: Modifier = Modifier
 ) {
     val itemHeight = 40
-    val centerOffset = itemHeight / 2
     val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
     
     // Calculate initial scroll position to center the current value
+    // Each item is 40.dp, we need to scroll so that 'value' is at the center (position 2)
     val initialIndex = value - range.first
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxOf(0, initialIndex - 2))
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxOf(0, initialIndex))
     
     // Track the currently selected value based on scroll position
     var selectedValue by remember { mutableIntStateOf(value) }
     
+    // Scroll to the correct position when value changes externally
+    LaunchedEffect(value) {
+        if (value != selectedValue) {
+            val targetIndex = value - range.first
+            listState.animateScrollToItem(targetIndex)
+        }
+    }
+    
     // Calculate which item is at the center based on scroll position
     LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
-        // The center of the visible area is at 60dp (half of 120dp height)
-        // We need to find which item is at that position
         val scrollOffset = listState.firstVisibleItemScrollOffset
         val firstVisibleIndex = listState.firstVisibleItemIndex
         
-        // Calculate how many items are visible and which one is centered
-        // Each item is 40dp, center is at 60dp
-        val centerPosition = 60 // half of 120dp height
+        // The center of the visible area is at 60.dp (half of 120.dp height)
+        val centerPositionPx = with(density) { 60.dp.toPx() }
+        val itemHeightPx = with(density) { itemHeight.dp.toPx() }
+        
         val firstItemTop = -scrollOffset
-        val centerItemIndex = firstVisibleIndex + ((centerPosition - firstItemTop) / itemHeight)
+        val centerItemIndex = firstVisibleIndex + ((centerPositionPx - firstItemTop) / itemHeightPx).toInt()
         
-        // Account for the 2 padding items at the top
-        val actualIndex = centerItemIndex - 2
+        val actualIndex = centerItemIndex.coerceIn(0, range.count() - 1)
+        val newValue = range.first + actualIndex
         
-        if (actualIndex in 0 until range.count()) {
-            val newValue = range.first + actualIndex
-            if (newValue != selectedValue) {
-                selectedValue = newValue
-                onValueChange(newValue)
-            }
+        if (newValue != selectedValue) {
+            selectedValue = newValue
+            onValueChange(newValue)
         }
     }
 
@@ -572,9 +578,7 @@ fun WheelPicker(
                             .fillMaxWidth()
                             .clickable {
                                 coroutineScope.launch {
-                                    // Scroll to center this item
-                                    val targetIndex = index
-                                    listState.animateScrollToItem(targetIndex)
+                                    listState.animateScrollToItem(index)
                                 }
                             },
                         contentAlignment = Alignment.Center

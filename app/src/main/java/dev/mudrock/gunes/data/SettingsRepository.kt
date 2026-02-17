@@ -59,16 +59,10 @@ class SettingsRepository(private val context: Context, private val gson: Gson) {
     }
 
     companion object {
-        private val SUPPORTED_LANGUAGES = listOf("en", "tr", "es", "de", "fr", "it", "pt", "ru", "ja", "zh", "ar")
+        private val SUPPORTED_LANGUAGES = listOf("en")
         
         fun getSystemLanguage(): String {
-            val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Locale.getDefault()
-            } else {
-                Locale.getDefault()
-            }
-            val langCode = locale.language
-            return if (langCode in SUPPORTED_LANGUAGES) langCode else "en"
+            return "en"
         }
         
         fun isSystem24HourFormat(context: Context): Boolean {

@@ -24,7 +24,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dev.mudrock.gunes.R
-import dev.mudrock.gunes.ui.screens.*
+import dev.mudrock.gunes.ui.screens.AlarmListScreen
+import dev.mudrock.gunes.ui.screens.PomodoroScreen
+import dev.mudrock.gunes.ui.screens.SettingsScreen
+import dev.mudrock.gunes.ui.screens.StopwatchScreen
+import dev.mudrock.gunes.ui.screens.TimerScreen
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
@@ -33,7 +37,6 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     object Alarms : Screen("alarms", "Alarms", Icons.Default.Alarm)
     object Timer : Screen("timer", "Timer", Icons.Default.Timer)
     object Stopwatch : Screen("stopwatch", "Stopwatch", Icons.Default.HourglassEmpty)
-    object Sun : Screen("sun", "Sun", Icons.Default.WbSunny)
     object Pomodoro : Screen("pomodoro", "Focus", Icons.Default.Psychology)
     object Settings : Screen("settings", "Settings", Icons.Default.Settings)
 }
@@ -45,7 +48,6 @@ fun MainScreen(viewModel: MainViewModel) {
         Screen.Alarms,
         Screen.Timer,
         Screen.Stopwatch,
-        Screen.Sun,
         Screen.Pomodoro,
         Screen.Settings
     )
@@ -110,9 +112,6 @@ fun MainScreen(viewModel: MainViewModel) {
             }
             composable(Screen.Stopwatch.route) {
                 StopwatchScreen()
-            }
-            composable(Screen.Sun.route) {
-                SunTimesScreen(viewModel = viewModel)
             }
             composable(Screen.Pomodoro.route) {
                 PomodoroScreen(viewModel)

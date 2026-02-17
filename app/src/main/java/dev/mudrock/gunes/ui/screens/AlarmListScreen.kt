@@ -6,9 +6,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,7 +25,9 @@ import androidx.compose.ui.unit.sp
 import dev.mudrock.gunes.R
 import dev.mudrock.gunes.data.Alarm
 import dev.mudrock.gunes.ui.MainViewModel
+import dev.mudrock.gunes.util.SunTimes
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.delay
@@ -90,18 +94,6 @@ fun AlarmListScreen(viewModel: MainViewModel) {
                     containerColor = Color.Transparent
                 )
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    editingAlarm = null
-                    showEditor = true
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_alarm))
-            }
         }
     ) { padding ->
         LazyColumn(
@@ -134,10 +126,39 @@ fun AlarmListScreen(viewModel: MainViewModel) {
                         onDelete = { viewModel.deleteAlarm(alarm) }
                     )
                 }
-                
-                item {
-                    Spacer(modifier = Modifier.height(80.dp))
+            }
+            
+            // Add Alarm Button
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        editingAlarm = null
+                        showEditor = true
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.add_alarm),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
+            }
+            
+            // Upcoming Sun Times Section
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                SunTimesSection(sunTimes = sunTimes)
+            }
+            
+            item {
+                Spacer(modifier = Modifier.height(80.dp))
             }
         }
     }
@@ -454,4 +475,133 @@ fun formatRepeatDays(alarm: Alarm): String {
 
     val dayNames = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
     return days.sorted().map { dayNames[it] }.joinToString(", ")
+}
+
+@Composable
+fun SunTimesSection(sunTimes: List<SunTimes>) {
+    if (sunTimes.isEmpty()) return
+    
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            stringResource(R.string.upcoming_sun_times),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        
+        sunTimes.take(3).forEachIndexed { index, times ->
+            SunTimeRow(
+                sunTimes = times,
+                isToday = index == 0,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun SunTimeRow(
+    sunTimes: SunTimes,
+    isToday: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val dateFormat = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
+    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    
+    val cardColor = if (isToday) {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    
+    val borderColor = if (isToday) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
+    
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .border(2.dp, borderColor, RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = cardColor)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Day label
+            val dayLabel = when {
+                isToday -> stringResource(R.string.today)
+                isTomorrowDate(sunTimes.date) -> stringResource(R.string.tomorrow)
+                else -> dateFormat.format(sunTimes.date)
+            }
+            
+            Text(
+                text = dayLabel,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            // Sunrise and Sunset times
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Sunrise
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.WbTwilight,
+                        contentDescription = stringResource(R.string.sunrise),
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = timeFormat.format(sunTimes.sunrise),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontFamily = FontFamily.Monospace,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
+                // Sunset
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.WbTwilight,
+                        contentDescription = stringResource(R.string.sunset),
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = timeFormat.format(sunTimes.sunset),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontFamily = FontFamily.Monospace,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+fun isTomorrowDate(date: Date): Boolean {
+    val calendar = Calendar.getInstance()
+    calendar.add(Calendar.DAY_OF_YEAR, 1)
+    val tomorrow = calendar.time
+    val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+    return dateFormat.format(date) == dateFormat.format(tomorrow)
 }

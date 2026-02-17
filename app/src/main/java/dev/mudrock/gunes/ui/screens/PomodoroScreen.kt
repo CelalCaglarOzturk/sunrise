@@ -558,10 +558,11 @@ fun PomodoroSettingsDialog(
                 )
 
                 DurationSlider(
-                    label = stringResource(R.string.sessions_before_long_break),
+                    label = stringResource(R.string.long_break_after_short_sessions),
                     value = tempSessionsBeforeLongBreak,
-                    range = 2..10,
-                    onValueChange = { tempSessionsBeforeLongBreak = it }
+                    range = 1..10,
+                    onValueChange = { tempSessionsBeforeLongBreak = it },
+                    suffix = ""
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -654,11 +655,12 @@ fun DurationSlider(
     label: String,
     value: Int,
     range: IntRange,
-    onValueChange: (Int) -> Unit
+    onValueChange: (Int) -> Unit,
+    suffix: String = "min"
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            "$label ($value min)",
+            "$label ($value $suffix)",
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium
         )
