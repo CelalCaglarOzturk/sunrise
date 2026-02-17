@@ -45,7 +45,7 @@ fun SunTimesScreen(viewModel: MainViewModel) {
 
         if (location == null) {
             EmptyLocationState(
-                onRequestPermission = {}
+                onRequestPermission = { viewModel.updateLocation() }
             )
         } else {
             LazyColumn(

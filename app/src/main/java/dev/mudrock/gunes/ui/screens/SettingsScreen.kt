@@ -205,7 +205,8 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.Black
                     )
                 ) {
                     Icon(Icons.Default.Download, contentDescription = null)
@@ -217,7 +218,8 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = Color.Black
                     )
                 ) {
                     Icon(Icons.Default.Upload, contentDescription = null)
@@ -302,6 +304,7 @@ fun ToggleButton(
 
     Surface(
         modifier = modifier
+            .height(48.dp)
             .clip(RoundedCornerShape(12.dp)),
         color = backgroundColor,
         shape = RoundedCornerShape(12.dp),
@@ -309,7 +312,7 @@ fun ToggleButton(
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp)
+                .padding(horizontal = 12.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
@@ -376,7 +379,8 @@ fun PermissionButton(
             Text(
                 label,
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(

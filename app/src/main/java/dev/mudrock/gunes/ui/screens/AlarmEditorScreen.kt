@@ -165,7 +165,7 @@ fun AlarmEditorScreen(
                             icon = Icons.Default.WbSunny,
                             selected = useSunTime,
                             onClick = { useSunTime = true },
-                            enabled = location != null,
+                            enabled = true,
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -446,27 +446,6 @@ fun AlarmEditorScreen(
                     }
                 }
 
-                // Volume
-                FormSection(title = "${stringResource(R.string.volume)}: ${volume}%") {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.VolumeMute, contentDescription = null)
-                        Slider(
-                            value = volume.toFloat(),
-                            onValueChange = { volume = it.toInt() },
-                            valueRange = 0f..100f,
-                            modifier = Modifier.weight(1f),
-                            colors = SliderDefaults.colors(
-                                thumbColor = MaterialTheme.colorScheme.primary,
-                                activeTrackColor = MaterialTheme.colorScheme.primary
-                            )
-                        )
-                        Icon(Icons.Default.VolumeUp, contentDescription = null)
-                    }
-                }
-
                 // Vibrate Toggle
                 FormSection(title = null) {
                     ToggleRow(
@@ -735,7 +714,8 @@ fun ToggleRow(
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Switch(

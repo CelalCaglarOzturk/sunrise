@@ -51,6 +51,8 @@ fun PomodoroScreen() {
     var shortBreakDuration by remember { mutableIntStateOf(5) }
     var longBreakDuration by remember { mutableIntStateOf(15) }
     var sessionsBeforeLongBreak by remember { mutableIntStateOf(4) }
+    var autoStartBreaks by remember { mutableStateOf(false) }
+    var autoStartWork by remember { mutableStateOf(false) }
     var currentSessionCount by remember { mutableIntStateOf(0) }
     var sessions by remember { mutableStateOf<List<PomodoroSession>>(emptyList()) }
     var showSettings by remember { mutableStateOf(false) }
@@ -259,11 +261,15 @@ fun PomodoroScreen() {
             shortBreakDuration = shortBreakDuration,
             longBreakDuration = longBreakDuration,
             sessionsBeforeLongBreak = sessionsBeforeLongBreak,
-            onSave = { work, shortBreak, longBreak, sessionsCount ->
+            autoStartBreaks = autoStartBreaks,
+            autoStartWork = autoStartWork,
+            onSave = { work, shortBreak, longBreak, sessionsCount, autoBreaks, autoWork ->
                 workDuration = work
                 shortBreakDuration = shortBreak
                 longBreakDuration = longBreak
                 sessionsBeforeLongBreak = sessionsCount
+                autoStartBreaks = autoBreaks
+                autoStartWork = autoWork
                 if (!isRunning) {
                     remainingSeconds = when (currentPhase) {
                         PomodoroPhase.WORK -> workDuration * 60
@@ -400,13 +406,17 @@ fun PomodoroSettingsDialog(
     shortBreakDuration: Int,
     longBreakDuration: Int,
     sessionsBeforeLongBreak: Int,
-    onSave: (Int, Int, Int, Int) -> Unit,
+    autoStartBreaks: Boolean,
+    autoStartWork: Boolean,
+    onSave: (Int, Int, Int, Int, Boolean, Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
     var tempWorkDuration by remember { mutableIntStateOf(workDuration) }
     var tempShortBreakDuration by remember { mutableIntStateOf(shortBreakDuration) }
     var tempLongBreakDuration by remember { mutableIntStateOf(longBreakDuration) }
     var tempSessionsBeforeLongBreak by remember { mutableIntStateOf(sessionsBeforeLongBreak) }
+    var tempAutoStartBreaks by remember { mutableStateOf(autoStartBreaks) }
+    var tempAutoStartWork by remember { mutableStateOf(autoStartWork) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -463,6 +473,53 @@ fun PomodoroSettingsDialog(
                     onValueChange = { tempSessionsBeforeLongBreak = it }
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Auto-start toggles
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.PlayArrow, contentDescription = null)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Auto-start Breaks",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = tempAutoStartBreaks,
+                        onCheckedChange = { tempAutoStartBreaks = it },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.primary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.PlayArrow, contentDescription = null)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Auto-start Work",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = tempAutoStartWork,
+                        onCheckedChange = { tempAutoStartWork = it },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.primary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        )
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Row(
@@ -482,7 +539,9 @@ fun PomodoroSettingsDialog(
                                 tempWorkDuration,
                                 tempShortBreakDuration,
                                 tempLongBreakDuration,
-                                tempSessionsBeforeLongBreak
+                                tempSessionsBeforeLongBreak,
+                                tempAutoStartBreaks,
+                                tempAutoStartWork
                             )
                         },
                         modifier = Modifier.weight(1f),
