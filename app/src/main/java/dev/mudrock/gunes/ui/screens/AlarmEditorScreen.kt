@@ -814,28 +814,27 @@ fun NumberWheelPicker(
     displayFormatter: (Int) -> String = { it.toString() }
 ) {
     val items = range.toList()
-    val initialIndex = items.indexOf(value).coerceAtLeast(0)
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
+    val itemIndex = items.indexOf(value).coerceAtLeast(0)
+    // Account for 2 padding items: actual item is at lazyColumn index (2 + itemIndex)
+    // For it to be at center (position 1), firstVisibleIndex should be (2 + itemIndex) - 1 = itemIndex + 1
+    val initialScrollIndex = itemIndex + 1
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialScrollIndex)
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
     
-    // Selected value based on scroll position
     var selectedValue by remember { mutableIntStateOf(value) }
     
-    // Scroll to center the selected value when initialized or value changes externally
     LaunchedEffect(value) {
         if (value != selectedValue) {
             val index = items.indexOf(value).coerceAtLeast(0)
-            listState.animateScrollToItem(index)
+            listState.animateScrollToItem(index + 1)
         }
     }
     
-    // Update selected value when scrolling
     LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
         val scrollOffset = listState.firstVisibleItemScrollOffset
         val firstVisibleIndex = listState.firstVisibleItemIndex
         
-        // Center of the visible area is at 60.dp (half of 120.dp height)
         val centerPositionPx = with(density) { 60.dp.toPx() }
         val itemHeightPx = with(density) { 40.dp.toPx() }
         
@@ -865,7 +864,6 @@ fun NumberWheelPicker(
             )
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        // Center highlight
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -880,11 +878,9 @@ fun NumberWheelPicker(
             horizontalAlignment = Alignment.CenterHorizontally,
             flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
         ) {
-            // Top padding items
             items(2) {
                 Box(modifier = Modifier.height(40.dp))
             }
-            // Actual items
             items(items.size) { index ->
                 val item = items[index]
                 val isSelected = item == selectedValue
@@ -895,7 +891,7 @@ fun NumberWheelPicker(
                         .fillMaxWidth()
                         .clickable {
                             coroutineScope.launch {
-                                listState.animateScrollToItem(index)
+                                listState.animateScrollToItem(index + 1)
                             }
                         },
                     contentAlignment = Alignment.Center
@@ -909,7 +905,6 @@ fun NumberWheelPicker(
                     )
                 }
             }
-            // Bottom padding items
             items(2) {
                 Box(modifier = Modifier.height(40.dp))
             }
