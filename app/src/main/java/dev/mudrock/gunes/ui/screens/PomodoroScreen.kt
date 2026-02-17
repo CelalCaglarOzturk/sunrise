@@ -27,6 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.res.stringResource
+import dev.mudrock.gunes.R
 import dev.mudrock.gunes.ui.MainViewModel
 import kotlinx.coroutines.delay
 import java.util.UUID
@@ -195,7 +197,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
 
         val completedWorkSessions = sessions.count { it.type == PomodoroPhase.WORK && it.completed }
         Text(
-            "$completedWorkSessions sessions completed",
+            "$completedWorkSessions ${stringResource(R.string.sessions_completed)}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
@@ -215,7 +217,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Start", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.start), fontWeight = FontWeight.SemiBold)
                 }
             } else {
                 Button(
@@ -227,7 +229,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
                 ) {
                     Icon(Icons.Default.Pause, contentDescription = null)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Pause")
+                    Text(stringResource(R.string.pause))
                 }
             }
 
@@ -305,7 +307,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        "Sessions",
+                        stringResource(R.string.sessions_completed),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -370,10 +372,15 @@ fun PomodoroScreen(viewModel: MainViewModel) {
 
 @Composable
 fun PhaseIndicator(phase: PomodoroPhase) {
-    val (icon, label) = when (phase) {
-        PomodoroPhase.WORK -> Icons.Default.Psychology to "Work"
-        PomodoroPhase.SHORT_BREAK -> Icons.Default.Coffee to "Short Break"
-        PomodoroPhase.LONG_BREAK -> Icons.Default.Coffee to "Long Break"
+    val icon = when (phase) {
+        PomodoroPhase.WORK -> Icons.Default.Psychology
+        PomodoroPhase.SHORT_BREAK, PomodoroPhase.LONG_BREAK -> Icons.Default.Coffee
+    }
+    
+    val label = when (phase) {
+        PomodoroPhase.WORK -> stringResource(R.string.work)
+        PomodoroPhase.SHORT_BREAK -> stringResource(R.string.short_break)
+        PomodoroPhase.LONG_BREAK -> stringResource(R.string.long_break)
     }
 
     Row(
@@ -436,9 +443,9 @@ fun SessionItem(session: PomodoroSession) {
     }
 
     val label = when (session.type) {
-        PomodoroPhase.WORK -> "Work"
-        PomodoroPhase.SHORT_BREAK -> "Short Break"
-        PomodoroPhase.LONG_BREAK -> "Long Break"
+        PomodoroPhase.WORK -> stringResource(R.string.work)
+        PomodoroPhase.SHORT_BREAK -> stringResource(R.string.short_break)
+        PomodoroPhase.LONG_BREAK -> stringResource(R.string.long_break)
     }
 
     Row(
@@ -517,7 +524,7 @@ fun PomodoroSettingsDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Pomodoro Settings",
+                        stringResource(R.string.pomodoro_settings),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -530,28 +537,28 @@ fun PomodoroSettingsDialog(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 DurationSlider(
-                    label = "Work Duration",
+                    label = stringResource(R.string.work_duration),
                     value = tempWorkDuration,
                     range = 1..60,
                     onValueChange = { tempWorkDuration = it }
                 )
 
                 DurationSlider(
-                    label = "Short Break Duration",
+                    label = stringResource(R.string.short_break_duration),
                     value = tempShortBreakDuration,
                     range = 1..30,
                     onValueChange = { tempShortBreakDuration = it }
                 )
 
                 DurationSlider(
-                    label = "Long Break Duration",
+                    label = stringResource(R.string.long_break_duration),
                     value = tempLongBreakDuration,
                     range = 1..60,
                     onValueChange = { tempLongBreakDuration = it }
                 )
 
                 DurationSlider(
-                    label = "Sessions Before Long Break",
+                    label = stringResource(R.string.sessions_before_long_break),
                     value = tempSessionsBeforeLongBreak,
                     range = 2..10,
                     onValueChange = { tempSessionsBeforeLongBreak = it }
@@ -567,7 +574,7 @@ fun PomodoroSettingsDialog(
                     Icon(Icons.Default.PlayArrow, contentDescription = null)
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Auto-start Breaks",
+                        text = stringResource(R.string.auto_start_breaks),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f)
                     )
@@ -590,7 +597,7 @@ fun PomodoroSettingsDialog(
                     Icon(Icons.Default.PlayArrow, contentDescription = null)
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Auto-start Work",
+                        text = stringResource(R.string.auto_start_work),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f)
                     )
@@ -615,7 +622,7 @@ fun PomodoroSettingsDialog(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                     Button(
                         onClick = {
@@ -634,7 +641,7 @@ fun PomodoroSettingsDialog(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text("Save")
+                        Text(stringResource(R.string.save))
                     }
                 }
             }

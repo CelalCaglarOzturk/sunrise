@@ -375,35 +375,26 @@ fun AlarmEditorScreen(
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                val sounds = listOf(
-                                    "Default" to "",
-                                    "Gentle" to "gentle.mp3",
-                                    "Loud" to "loud.mp3",
-                                    "Nature" to "nature.mp3",
-                                    "Digital" to "digital.mp3"
-                                )
-
-                                sounds.forEach { (name, uri) ->
-                                    TextButton(
-                                        onClick = {
-                                            soundName = name
-                                            soundUri = uri
-                                            showSoundPicker = false
-                                        },
-                                        modifier = Modifier.fillMaxWidth()
+                                // Default option
+                                TextButton(
+                                    onClick = {
+                                        soundName = "Default"
+                                        soundUri = ""
+                                        showSoundPicker = false
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                Icons.Default.Notifications,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(16.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(name)
-                                        }
+                                        Icon(
+                                            Icons.Default.Notifications,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(stringResource(R.string.select_sound))
                                     }
                                 }
 
@@ -490,13 +481,45 @@ fun AlarmEditorScreen(
 
                 // Delete After Use Toggle
                 FormSection(title = null) {
-                    ToggleRow(
-                        label = stringResource(R.string.delete_after_use),
-                        icon = Icons.Default.Delete,
-                        checked = deleteAfterUse,
-                        onCheckedChange = { deleteAfterUse = it },
-                        iconTint = MaterialTheme.colorScheme.error
-                    )
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(12.dp),
+                        onClick = { deleteAfterUse = !deleteAfterUse }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = null,
+                                    tint = Color(0xFFFF0000),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = stringResource(R.string.delete_after_use),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = Color(0xFFFF0000)
+                                )
+                            }
+                            Switch(
+                                checked = deleteAfterUse,
+                                onCheckedChange = { deleteAfterUse = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color(0xFFFF0000),
+                                    checkedTrackColor = Color(0xFFFF0000).copy(alpha = 0.5f)
+                                )
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))

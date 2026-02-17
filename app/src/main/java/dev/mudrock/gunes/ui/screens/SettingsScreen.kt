@@ -242,7 +242,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "Sun-Based Alarm Clock",
+                        "Sunrise Clock",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary

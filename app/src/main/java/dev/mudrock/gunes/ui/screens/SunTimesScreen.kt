@@ -27,6 +27,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import dev.mudrock.gunes.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -53,7 +55,7 @@ fun SunTimesScreen(viewModel: MainViewModel) {
             .padding(16.dp)
     ) {
         Text(
-            "Upcoming Sun Times",
+            stringResource(R.string.upcoming_sun_times),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -121,13 +123,13 @@ fun EmptyLocationState(onRequestPermission: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            "Location Permission Required",
+            stringResource(R.string.location_permission_required),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            "Please grant location permission to see sun times",
+            stringResource(R.string.location_permission_desc_sun),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -140,7 +142,7 @@ fun EmptyLocationState(onRequestPermission: () -> Unit) {
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Grant Permission", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.grant_permission), fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -181,8 +183,8 @@ fun SunTimeCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val dayLabel = when {
-                    isToday -> "Today"
-                    isTomorrow(sunTimes.date) -> "Tomorrow"
+                    isToday -> stringResource(R.string.today)
+                    isTomorrow(sunTimes.date) -> stringResource(R.string.tomorrow)
                     else -> SimpleDateFormat("EEEE", Locale.getDefault()).format(sunTimes.date)
                 }
 
@@ -213,7 +215,7 @@ fun SunTimeCard(
                             modifier = Modifier.size(32.dp)
                         )
                     },
-                    label = "Sunrise",
+                    label = stringResource(R.string.sunrise),
                     time = timeFormat.format(sunTimes.sunrise),
                     modifier = Modifier.weight(1f)
                 )
@@ -227,7 +229,7 @@ fun SunTimeCard(
                             modifier = Modifier.size(32.dp)
                         )
                     },
-                    label = "Sunset",
+                    label = stringResource(R.string.sunset),
                     time = timeFormat.format(sunTimes.sunset),
                     modifier = Modifier.weight(1f)
                 )
@@ -256,7 +258,7 @@ fun SunTimeCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        "Daylight: $daylightDuration",
+                        "${stringResource(R.string.daylight)}: $daylightDuration",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary

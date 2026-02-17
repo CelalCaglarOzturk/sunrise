@@ -19,6 +19,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import dev.mudrock.gunes.R
 import kotlinx.coroutines.delay
 import java.util.UUID
 
@@ -85,7 +87,7 @@ fun StopwatchScreen() {
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(24.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Start", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.start), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
                 OutlinedButton(
                     onClick = {},
@@ -95,7 +97,7 @@ fun StopwatchScreen() {
                 ) {
                     Icon(Icons.Default.Flag, contentDescription = null, modifier = Modifier.size(24.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Lap", fontSize = 16.sp)
+                    Text(stringResource(R.string.lap), fontSize = 16.sp)
                 }
             } else if (isRunning) {
                 Button(
@@ -112,7 +114,7 @@ fun StopwatchScreen() {
                 ) {
                     Icon(Icons.Default.Pause, contentDescription = null, modifier = Modifier.size(24.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Pause", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.pause), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
                 OutlinedButton(
                     onClick = {
@@ -131,7 +133,7 @@ fun StopwatchScreen() {
                 ) {
                     Icon(Icons.Default.Flag, contentDescription = null, modifier = Modifier.size(24.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Lap", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.lap), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
             } else {
                 Button(
@@ -148,7 +150,7 @@ fun StopwatchScreen() {
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(24.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Resume", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.resume), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Button(
                     onClick = {
@@ -165,7 +167,7 @@ fun StopwatchScreen() {
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(24.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Reset", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.reset), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -195,12 +197,12 @@ fun StopwatchScreen() {
                         TextButton(
                             onClick = { laps = emptyList() },
                             colors = ButtonDefaults.textButtonColors(
-                                contentColor = MaterialTheme.colorScheme.error
+                                contentColor = Color(0xFFFF0000)
                             )
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Clear")
+                            Text(stringResource(R.string.clear))
                         }
                     }
 

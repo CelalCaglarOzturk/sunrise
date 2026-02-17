@@ -82,7 +82,7 @@ fun AlarmListScreen(viewModel: MainViewModel) {
                                 viewModel.deleteAllAlarms()
                                 showMenu = false
                             },
-                            colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.error)
+                            colors = MenuDefaults.itemColors(textColor = Color(0xFFFF0000))
                         )
                     }
                 },
@@ -377,7 +377,7 @@ fun AlarmItem(
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.error
+                        tint = Color(0xFFFF0000)
                     )
                 }
             }

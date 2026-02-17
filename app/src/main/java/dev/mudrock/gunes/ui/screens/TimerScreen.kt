@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import dev.mudrock.gunes.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -103,7 +105,7 @@ fun TimerScreen() {
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Add Timer", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.add_timer), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -158,13 +160,13 @@ fun EmptyTimerState(onAddClick: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            "No Timers Yet",
+            stringResource(R.string.no_timers_yet),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            "Create your first timer",
+            stringResource(R.string.create_your_first_timer),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
@@ -176,9 +178,9 @@ fun EmptyTimerState(onAddClick: () -> Unit) {
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Add Timer", fontWeight = FontWeight.Bold)
+Icon(Icons.Default.Add, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.add_timer), fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -242,7 +244,7 @@ fun TimerCard(
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Delete",
-                        tint = MaterialTheme.colorScheme.error
+                        tint = Color(0xFFFF0000)
                     )
                 }
             }
@@ -298,7 +300,7 @@ fun TimerCard(
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = null)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Start")
+                        Text(stringResource(R.string.start))
                     }
                 } else if (timer.isRunning) {
                     Button(
@@ -311,7 +313,7 @@ fun TimerCard(
                     ) {
                         Icon(Icons.Default.Pause, contentDescription = null)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Pause")
+                        Text(stringResource(R.string.pause))
                     }
                 } else {
                     Button(
@@ -324,7 +326,7 @@ fun TimerCard(
                     ) {
                         Icon(Icons.Default.PlayArrow, contentDescription = null)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Resume")
+                        Text(stringResource(R.string.resume))
                     }
                 }
 
@@ -335,7 +337,7 @@ fun TimerCard(
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Reset")
+                    Text(stringResource(R.string.reset))
                 }
             }
 
@@ -347,7 +349,7 @@ fun TimerCard(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        "Timer Finished!",
+                        stringResource(R.string.timer_finished),
                         modifier = Modifier.padding(12.dp),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
@@ -402,7 +404,7 @@ fun AddTimerSheet(
             OutlinedTextField(
                 value = label,
                 onValueChange = { label = it },
-                label = { Text("Label (optional)") },
+                label = { Text(stringResource(R.string.label_optional)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -455,7 +457,7 @@ fun AddTimerSheet(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
                 Button(
                     onClick = {
@@ -470,7 +472,7 @@ fun AddTimerSheet(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.save))
                 }
             }
         }
@@ -485,13 +487,39 @@ fun WheelPicker(
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxOf(0, value - range.first - 2))
+    val itemHeight = 40
+    val centerOffset = itemHeight / 2
     val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(listState.firstVisibleItemIndex) {
-        val index = listState.firstVisibleItemIndex + 2
-        if (index in range) {
-            onValueChange(index)
+    
+    // Calculate initial scroll position to center the current value
+    val initialIndex = value - range.first
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxOf(0, initialIndex - 2))
+    
+    // Track the currently selected value based on scroll position
+    var selectedValue by remember { mutableIntStateOf(value) }
+    
+    // Calculate which item is at the center based on scroll position
+    LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
+        // The center of the visible area is at 60dp (half of 120dp height)
+        // We need to find which item is at that position
+        val scrollOffset = listState.firstVisibleItemScrollOffset
+        val firstVisibleIndex = listState.firstVisibleItemIndex
+        
+        // Calculate how many items are visible and which one is centered
+        // Each item is 40dp, center is at 60dp
+        val centerPosition = 60 // half of 120dp height
+        val firstItemTop = -scrollOffset
+        val centerItemIndex = firstVisibleIndex + ((centerPosition - firstItemTop) / itemHeight)
+        
+        // Account for the 2 padding items at the top
+        val actualIndex = centerItemIndex - 2
+        
+        if (actualIndex in 0 until range.count()) {
+            val newValue = range.first + actualIndex
+            if (newValue != selectedValue) {
+                selectedValue = newValue
+                onValueChange(newValue)
+            }
         }
     }
 
@@ -512,6 +540,7 @@ fun WheelPicker(
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
+            // Center highlight
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -529,19 +558,23 @@ fun WheelPicker(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
             ) {
+                // Top padding items
                 items(2) {
                     Box(modifier = Modifier.height(40.dp))
                 }
+                // Actual items
                 items(range.count()) { index ->
                     val itemValue = range.first + index
-                    val isSelected = itemValue == value
+                    val isSelected = itemValue == selectedValue
                     Box(
                         modifier = Modifier
                             .height(40.dp)
                             .fillMaxWidth()
                             .clickable {
                                 coroutineScope.launch {
-                                    listState.animateScrollToItem(index)
+                                    // Scroll to center this item
+                                    val targetIndex = index
+                                    listState.animateScrollToItem(targetIndex)
                                 }
                             },
                         contentAlignment = Alignment.Center
@@ -556,6 +589,7 @@ fun WheelPicker(
                         )
                     }
                 }
+                // Bottom padding items
                 items(2) {
                     Box(modifier = Modifier.height(40.dp))
                 }
