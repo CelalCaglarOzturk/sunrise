@@ -1,5 +1,9 @@
 package dev.mudrock.gunes.ui.screens
 
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -11,24 +15,37 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import dev.mudrock.gunes.ui.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SunTimesScreen(viewModel: MainViewModel) {
     val sunTimes by viewModel.sunTimes.collectAsState()
     val location by viewModel.location.collectAsState()
+    val context = LocalContext.current
+
+    // Request location permission
+    val locationPermissionState = rememberPermissionState(
+        Manifest.permission.ACCESS_FINE_LOCATION
+    )
 
     Column(
         modifier = Modifier
@@ -43,19 +60,44 @@ fun SunTimesScreen(viewModel: MainViewModel) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        if (location == null) {
-            EmptyLocationState(
-                onRequestPermission = { viewModel.updateLocation() }
-            )
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                itemsIndexed(sunTimes) { index, times ->
-                    SunTimeCard(
-                        sunTimes = times,
-                        isToday = index == 0
-                    )
+        when {
+            !locationPermissionState.status.isGranted -> {
+                EmptyLocationState(
+                    onRequestPermission = {
+                        if (locationPermissionState.status.shouldShowRationale) {
+                            // Show rationale and direct to settings
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            locationPermissionState.launchPermissionRequest()
+                        }
+                    }
+                )
+            }
+            location == null -> {
+                // Permission granted but location is null, show loading or request location
+                LaunchedEffect(Unit) {
+                    viewModel.updateLocation()
+                }
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+            }
+            else -> {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    itemsIndexed(sunTimes) { index, times ->
+                        SunTimeCard(
+                            sunTimes = times,
+                            isToday = index == 0
+                        )
+                    }
                 }
             }
         }

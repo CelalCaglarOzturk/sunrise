@@ -2,7 +2,12 @@ package dev.mudrock.gunes.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +19,18 @@ data class AppSettings(
     val defaultClockMode: String = "normal",
     val use24HourFormat: Boolean = true,
     val showSeconds: Boolean = false,
-    val language: String = "en"
+    val language: String = "en",
+    val pomodoroRemainingSeconds: Int = 25 * 60,
+    val pomodoroPhase: String = "WORK",
+    val pomodoroIsRunning: Boolean = false,
+    val pomodoroWorkDuration: Int = 25,
+    val pomodoroShortBreakDuration: Int = 5,
+    val pomodoroLongBreakDuration: Int = 15,
+    val pomodoroSessionsBeforeLongBreak: Int = 4,
+    val pomodoroCurrentSessionCount: Int = 0,
+    val pomodoroAutoStartBreaks: Boolean = false,
+    val pomodoroAutoStartWork: Boolean = false,
+    val pomodoroLastUpdateTime: Long = 0
 )
 
 class SettingsRepository(private val context: Context, private val gson: Gson) {
@@ -25,6 +41,17 @@ class SettingsRepository(private val context: Context, private val gson: Gson) {
         val USE_24_HOUR_FORMAT = booleanPreferencesKey("use_24_hour_format")
         val SHOW_SECONDS = booleanPreferencesKey("show_seconds")
         val LANGUAGE = stringPreferencesKey("language")
+        val POMODORO_REMAINING_SECONDS = intPreferencesKey("pomodoro_remaining_seconds")
+        val POMODORO_PHASE = stringPreferencesKey("pomodoro_phase")
+        val POMODORO_IS_RUNNING = booleanPreferencesKey("pomodoro_is_running")
+        val POMODORO_WORK_DURATION = intPreferencesKey("pomodoro_work_duration")
+        val POMODORO_SHORT_BREAK_DURATION = intPreferencesKey("pomodoro_short_break_duration")
+        val POMODORO_LONG_BREAK_DURATION = intPreferencesKey("pomodoro_long_break_duration")
+        val POMODORO_SESSIONS_BEFORE_LONG_BREAK = intPreferencesKey("pomodoro_sessions_before_long_break")
+        val POMODORO_CURRENT_SESSION_COUNT = intPreferencesKey("pomodoro_current_session_count")
+        val POMODORO_AUTO_START_BREAKS = booleanPreferencesKey("pomodoro_auto_start_breaks")
+        val POMODORO_AUTO_START_WORK = booleanPreferencesKey("pomodoro_auto_start_work")
+        val POMODORO_LAST_UPDATE_TIME = longPreferencesKey("pomodoro_last_update_time")
     }
 
     val settings: Flow<AppSettings> = dataStore.data.map { prefs ->
@@ -32,7 +59,18 @@ class SettingsRepository(private val context: Context, private val gson: Gson) {
             defaultClockMode = prefs[Keys.DEFAULT_CLOCK_MODE] ?: "normal",
             use24HourFormat = prefs[Keys.USE_24_HOUR_FORMAT] ?: true,
             showSeconds = prefs[Keys.SHOW_SECONDS] ?: false,
-            language = prefs[Keys.LANGUAGE] ?: "en"
+            language = prefs[Keys.LANGUAGE] ?: "en",
+            pomodoroRemainingSeconds = prefs[Keys.POMODORO_REMAINING_SECONDS] ?: 25 * 60,
+            pomodoroPhase = prefs[Keys.POMODORO_PHASE] ?: "WORK",
+            pomodoroIsRunning = prefs[Keys.POMODORO_IS_RUNNING] ?: false,
+            pomodoroWorkDuration = prefs[Keys.POMODORO_WORK_DURATION] ?: 25,
+            pomodoroShortBreakDuration = prefs[Keys.POMODORO_SHORT_BREAK_DURATION] ?: 5,
+            pomodoroLongBreakDuration = prefs[Keys.POMODORO_LONG_BREAK_DURATION] ?: 15,
+            pomodoroSessionsBeforeLongBreak = prefs[Keys.POMODORO_SESSIONS_BEFORE_LONG_BREAK] ?: 4,
+            pomodoroCurrentSessionCount = prefs[Keys.POMODORO_CURRENT_SESSION_COUNT] ?: 0,
+            pomodoroAutoStartBreaks = prefs[Keys.POMODORO_AUTO_START_BREAKS] ?: false,
+            pomodoroAutoStartWork = prefs[Keys.POMODORO_AUTO_START_WORK] ?: false,
+            pomodoroLastUpdateTime = prefs[Keys.POMODORO_LAST_UPDATE_TIME] ?: 0
         )
     }
 
@@ -42,13 +80,35 @@ class SettingsRepository(private val context: Context, private val gson: Gson) {
                 defaultClockMode = prefs[Keys.DEFAULT_CLOCK_MODE] ?: "normal",
                 use24HourFormat = prefs[Keys.USE_24_HOUR_FORMAT] ?: true,
                 showSeconds = prefs[Keys.SHOW_SECONDS] ?: false,
-                language = prefs[Keys.LANGUAGE] ?: "en"
+                language = prefs[Keys.LANGUAGE] ?: "en",
+                pomodoroRemainingSeconds = prefs[Keys.POMODORO_REMAINING_SECONDS] ?: 25 * 60,
+                pomodoroPhase = prefs[Keys.POMODORO_PHASE] ?: "WORK",
+                pomodoroIsRunning = prefs[Keys.POMODORO_IS_RUNNING] ?: false,
+                pomodoroWorkDuration = prefs[Keys.POMODORO_WORK_DURATION] ?: 25,
+                pomodoroShortBreakDuration = prefs[Keys.POMODORO_SHORT_BREAK_DURATION] ?: 5,
+                pomodoroLongBreakDuration = prefs[Keys.POMODORO_LONG_BREAK_DURATION] ?: 15,
+                pomodoroSessionsBeforeLongBreak = prefs[Keys.POMODORO_SESSIONS_BEFORE_LONG_BREAK] ?: 4,
+                pomodoroCurrentSessionCount = prefs[Keys.POMODORO_CURRENT_SESSION_COUNT] ?: 0,
+                pomodoroAutoStartBreaks = prefs[Keys.POMODORO_AUTO_START_BREAKS] ?: false,
+                pomodoroAutoStartWork = prefs[Keys.POMODORO_AUTO_START_WORK] ?: false,
+                pomodoroLastUpdateTime = prefs[Keys.POMODORO_LAST_UPDATE_TIME] ?: 0
             )
             val newSettings = transform(current)
             prefs[Keys.DEFAULT_CLOCK_MODE] = newSettings.defaultClockMode
             prefs[Keys.USE_24_HOUR_FORMAT] = newSettings.use24HourFormat
             prefs[Keys.SHOW_SECONDS] = newSettings.showSeconds
             prefs[Keys.LANGUAGE] = newSettings.language
+            prefs[Keys.POMODORO_REMAINING_SECONDS] = newSettings.pomodoroRemainingSeconds
+            prefs[Keys.POMODORO_PHASE] = newSettings.pomodoroPhase
+            prefs[Keys.POMODORO_IS_RUNNING] = newSettings.pomodoroIsRunning
+            prefs[Keys.POMODORO_WORK_DURATION] = newSettings.pomodoroWorkDuration
+            prefs[Keys.POMODORO_SHORT_BREAK_DURATION] = newSettings.pomodoroShortBreakDuration
+            prefs[Keys.POMODORO_LONG_BREAK_DURATION] = newSettings.pomodoroLongBreakDuration
+            prefs[Keys.POMODORO_SESSIONS_BEFORE_LONG_BREAK] = newSettings.pomodoroSessionsBeforeLongBreak
+            prefs[Keys.POMODORO_CURRENT_SESSION_COUNT] = newSettings.pomodoroCurrentSessionCount
+            prefs[Keys.POMODORO_AUTO_START_BREAKS] = newSettings.pomodoroAutoStartBreaks
+            prefs[Keys.POMODORO_AUTO_START_WORK] = newSettings.pomodoroAutoStartWork
+            prefs[Keys.POMODORO_LAST_UPDATE_TIME] = newSettings.pomodoroLastUpdateTime
         }
     }
 }

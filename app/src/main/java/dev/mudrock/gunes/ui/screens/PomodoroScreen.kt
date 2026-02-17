@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import dev.mudrock.gunes.ui.MainViewModel
 import kotlinx.coroutines.delay
 import java.util.UUID
 
@@ -43,19 +44,31 @@ data class PomodoroSession(
 )
 
 @Composable
-fun PomodoroScreen() {
-    var currentPhase by remember { mutableStateOf(PomodoroPhase.WORK) }
-    var remainingSeconds by remember { mutableIntStateOf(25 * 60) }
-    var isRunning by remember { mutableStateOf(false) }
-    var workDuration by remember { mutableIntStateOf(25) }
-    var shortBreakDuration by remember { mutableIntStateOf(5) }
-    var longBreakDuration by remember { mutableIntStateOf(15) }
-    var sessionsBeforeLongBreak by remember { mutableIntStateOf(4) }
-    var autoStartBreaks by remember { mutableStateOf(false) }
-    var autoStartWork by remember { mutableStateOf(false) }
-    var currentSessionCount by remember { mutableIntStateOf(0) }
-    var sessions by remember { mutableStateOf<List<PomodoroSession>>(emptyList()) }
+fun PomodoroScreen(viewModel: MainViewModel) {
+    val settings by viewModel.settings.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
+    var sessions by remember { mutableStateOf<List<PomodoroSession>>(emptyList()) }
+    
+    // Restore state from settings
+    var currentPhase by remember { mutableStateOf(PomodoroPhase.valueOf(settings.pomodoroPhase)) }
+    var remainingSeconds by remember { mutableIntStateOf(settings.pomodoroRemainingSeconds) }
+    var isRunning by remember { mutableStateOf(false) } // Always start paused
+    var workDuration by remember { mutableIntStateOf(settings.pomodoroWorkDuration) }
+    var shortBreakDuration by remember { mutableIntStateOf(settings.pomodoroShortBreakDuration) }
+    var longBreakDuration by remember { mutableIntStateOf(settings.pomodoroLongBreakDuration) }
+    var sessionsBeforeLongBreak by remember { mutableIntStateOf(settings.pomodoroSessionsBeforeLongBreak) }
+    var autoStartBreaks by remember { mutableStateOf(settings.pomodoroAutoStartBreaks) }
+    var autoStartWork by remember { mutableStateOf(settings.pomodoroAutoStartWork) }
+    var currentSessionCount by remember { mutableIntStateOf(settings.pomodoroCurrentSessionCount) }
+    
+    // Calculate time elapsed since last update
+    val lastUpdateTime = settings.pomodoroLastUpdateTime
+    if (lastUpdateTime > 0 && !isRunning) {
+        val elapsedSinceLastUpdate = (System.currentTimeMillis() - lastUpdateTime) / 1000
+        if (elapsedSinceLastUpdate > 0 && remainingSeconds > 0) {
+            remainingSeconds = (remainingSeconds - elapsedSinceLastUpdate.toInt()).coerceAtLeast(0)
+        }
+    }
 
     val totalSeconds = when (currentPhase) {
         PomodoroPhase.WORK -> workDuration * 60
@@ -64,11 +77,41 @@ fun PomodoroScreen() {
     }
 
     val progress = (totalSeconds - remainingSeconds).toFloat() / totalSeconds
+    
+    // Save state when leaving the screen
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.updateSettings { s ->
+                s.copy(
+                    pomodoroRemainingSeconds = remainingSeconds,
+                    pomodoroPhase = currentPhase.name,
+                    pomodoroIsRunning = isRunning,
+                    pomodoroWorkDuration = workDuration,
+                    pomodoroShortBreakDuration = shortBreakDuration,
+                    pomodoroLongBreakDuration = longBreakDuration,
+                    pomodoroSessionsBeforeLongBreak = sessionsBeforeLongBreak,
+                    pomodoroCurrentSessionCount = currentSessionCount,
+                    pomodoroAutoStartBreaks = autoStartBreaks,
+                    pomodoroAutoStartWork = autoStartWork,
+                    pomodoroLastUpdateTime = System.currentTimeMillis()
+                )
+            }
+        }
+    }
 
     LaunchedEffect(isRunning, remainingSeconds) {
         if (isRunning && remainingSeconds > 0) {
             delay(1000)
             remainingSeconds--
+            
+            // Save progress every second while running
+            viewModel.updateSettings { s ->
+                s.copy(
+                    pomodoroRemainingSeconds = remainingSeconds,
+                    pomodoroLastUpdateTime = System.currentTimeMillis()
+                )
+            }
+            
             if (remainingSeconds == 0) {
                 isRunning = false
                 if (currentPhase == PomodoroPhase.WORK) {
@@ -91,6 +134,24 @@ fun PomodoroScreen() {
                     PomodoroPhase.WORK -> workDuration * 60
                     PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
                     PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
+                }
+                
+                // Auto-start next phase if enabled
+                if ((currentPhase != PomodoroPhase.WORK && autoStartBreaks) ||
+                    (currentPhase == PomodoroPhase.WORK && autoStartWork)) {
+                    delay(1000)
+                    isRunning = true
+                }
+                
+                // Save final state
+                viewModel.updateSettings { s ->
+                    s.copy(
+                        pomodoroRemainingSeconds = remainingSeconds,
+                        pomodoroPhase = currentPhase.name,
+                        pomodoroIsRunning = isRunning,
+                        pomodoroCurrentSessionCount = currentSessionCount,
+                        pomodoroLastUpdateTime = System.currentTimeMillis()
+                    )
                 }
             }
         }
@@ -208,6 +269,16 @@ fun PomodoroScreen() {
                         PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
                         PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
                     }
+                    // Save state
+                    viewModel.updateSettings { s ->
+                        s.copy(
+                            pomodoroRemainingSeconds = remainingSeconds,
+                            pomodoroPhase = currentPhase.name,
+                            pomodoroIsRunning = false,
+                            pomodoroCurrentSessionCount = currentSessionCount,
+                            pomodoroLastUpdateTime = System.currentTimeMillis()
+                        )
+                    }
                 },
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -276,6 +347,19 @@ fun PomodoroScreen() {
                         PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
                         PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
                     }
+                }
+                // Save settings
+                viewModel.updateSettings { s ->
+                    s.copy(
+                        pomodoroWorkDuration = workDuration,
+                        pomodoroShortBreakDuration = shortBreakDuration,
+                        pomodoroLongBreakDuration = longBreakDuration,
+                        pomodoroSessionsBeforeLongBreak = sessionsBeforeLongBreak,
+                        pomodoroAutoStartBreaks = autoStartBreaks,
+                        pomodoroAutoStartWork = autoStartWork,
+                        pomodoroRemainingSeconds = remainingSeconds,
+                        pomodoroLastUpdateTime = System.currentTimeMillis()
+                    )
                 }
                 showSettings = false
             },

@@ -16,6 +16,7 @@
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
     />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <application
@@ -52,7 +53,11 @@
             android:theme="@style/AppTheme.NoActionBar"
         />
 
-        <receiver android:name=".service.AlarmReceiver" />
+        <receiver android:name=".service.AlarmReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="dev.mudrock.gunes.ALARM_TRIGGER" />
+            </intent-filter>
+        </receiver>
         <service
             android:name=".service.AlarmService"
             android:foregroundServiceType="mediaPlayback"

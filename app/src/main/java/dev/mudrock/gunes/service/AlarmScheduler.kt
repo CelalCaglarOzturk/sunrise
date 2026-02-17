@@ -26,11 +26,10 @@ class AlarmScheduler(
         val location = locationManager.getCurrentLocation()
         val nextTime = calculateNextAlarmTime(alarm, location) ?: return
 
+        // Create intent with all necessary extras
         val intent = Intent(context, AlarmReceiver::class.java).apply {
+            action = "dev.mudrock.gunes.ALARM_TRIGGER"
             putExtra("ALARM_ID", alarm.id)
-            putExtra("ALARM_LABEL", alarm.label)
-            putExtra("ALARM_SOUND", alarm.soundUri)
-            putExtra("ALARM_VIBRATE", alarm.vibrate)
         }
 
         // Use a unique ID based on hash of UUID string for the PendingIntent
@@ -44,19 +43,27 @@ class AlarmScheduler(
         )
 
         try {
+            // Cancel any existing alarm first
+            alarmManager.cancel(pendingIntent)
+            
+            // Schedule new alarm
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 nextTime,
                 pendingIntent
             )
         } catch (e: SecurityException) {
-            // Handle permission exception
+            // Handle permission exception - likely SCHEDULE_EXACT_ALARM not granted
+            e.printStackTrace()
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     fun cancelAlarm(alarm: Alarm) {
-        val intent = Intent(context, AlarmReceiver::class.java)
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            putExtra("ALARM_ID", alarm.id)
+        }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             alarm.id.hashCode(),
@@ -64,6 +71,7 @@ class AlarmScheduler(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager.cancel(pendingIntent)
+        pendingIntent.cancel()
     }
 
     private fun calculateNextAlarmTime(alarm: Alarm, location: AndroidLocation?): Long? {

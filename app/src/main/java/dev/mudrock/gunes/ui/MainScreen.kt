@@ -25,6 +25,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dev.mudrock.gunes.R
 import dev.mudrock.gunes.ui.screens.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.asPaddingValues
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Alarms : Screen("alarms", "Alarms", Icons.Default.Alarm)
@@ -57,6 +60,7 @@ fun MainScreen(viewModel: MainViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
+                    .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
             ) {
                 Row(
                     modifier = Modifier
@@ -111,7 +115,7 @@ fun MainScreen(viewModel: MainViewModel) {
                 SunTimesScreen(viewModel = viewModel)
             }
             composable(Screen.Pomodoro.route) {
-                PomodoroScreen()
+                PomodoroScreen(viewModel)
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(viewModel = viewModel)

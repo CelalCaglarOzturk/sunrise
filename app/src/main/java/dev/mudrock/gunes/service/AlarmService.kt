@@ -58,7 +58,9 @@ class AlarmService : Service() {
         val channelId = "alarm_service_channel"
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val channel = NotificationChannel(channelId, "Alarm Service", NotificationManager.IMPORTANCE_HIGH)
+        val channel = NotificationChannel(channelId, "Alarm Service", NotificationManager.IMPORTANCE_HIGH).apply {
+            setSound(null, null) // Don't play sound in notification, we handle it separately
+        }
         notificationManager.createNotificationChannel(channel)
 
         val intent = Intent(this, AlarmActivity::class.java).apply {
@@ -66,7 +68,9 @@ class AlarmService : Service() {
             putExtra("ALARM_ID", alarmId)
             putExtra("ALARM_LABEL", label)
         }
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        // Use unique requestCode based on alarmId to ensure unique PendingIntents
+        val requestCode = alarmId.hashCode()
+        val pendingIntent = PendingIntent.getActivity(this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE)
 
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle(label)
@@ -87,9 +91,17 @@ class AlarmService : Service() {
     ) {
         // Sound
         try {
-            val uri = if (!soundUriString.isNullOrEmpty()) soundUriString.toUri() else RingtoneManager.getDefaultUri(
-                RingtoneManager.TYPE_ALARM
-            )
+            // Use Android's default alarm sound - always use TYPE_ALARM for consistency
+            val defaultAlarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            
+            // If no default alarm sound, fallback to notification sound
+            val uri = if (defaultAlarmUri != null) {
+                defaultAlarmUri
+            } else {
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                    ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+            }
+            
             mediaPlayer = MediaPlayer().apply {
                 setDataSource(applicationContext, uri)
                 setAudioAttributes(
@@ -114,20 +126,31 @@ class AlarmService : Service() {
 
         } catch (e: Exception) {
             e.printStackTrace()
+            // If all else fails, try to at least vibrate
+            android.util.Log.e("AlarmService", "Failed to play alarm sound", e)
         }
 
         // Vibrate
         if (vibrate) {
-            vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                vibratorManager.defaultVibrator
-            } else {
-                @Suppress("DEPRECATION")
-                getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            }
+            try {
+                vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                    vibratorManager.defaultVibrator
+                } else {
+                    @Suppress("DEPRECATION")
+                    getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                }
 
-            val pattern = longArrayOf(0, 1000, 1000)
-            vibrator?.vibrate(VibrationEffect.createWaveform(pattern, 0))
+                val pattern = longArrayOf(0, 1000, 1000)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator?.vibrate(VibrationEffect.createWaveform(pattern, 0))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator?.vibrate(pattern, 0)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
