@@ -676,25 +676,6 @@ fun ModeButton(
 }
 
 @Composable
-fun QuickButton(
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall
-        )
-    }
-}
-
-@Composable
 fun RepeatOptionButton(
     label: String,
     selected: Boolean,

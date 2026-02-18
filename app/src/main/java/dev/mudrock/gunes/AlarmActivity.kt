@@ -15,8 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.mudrock.gunes.service.AlarmService
 import dev.mudrock.gunes.ui.theme.SunriseTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class AlarmActivity : ComponentActivity() {
+
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +38,7 @@ class AlarmActivity : ComponentActivity() {
         )
 
         val alarmLabel = intent.getStringExtra("ALARM_LABEL") ?: "Alarm"
+        val alarmId = intent.getStringExtra("ALARM_ID")
 
         setContent {
             SunriseTheme {
@@ -43,12 +50,40 @@ class AlarmActivity : ComponentActivity() {
                         stopService(Intent(this, AlarmService::class.java))
                         finish()
                     }, onSnooze = {
-                        // TODO: Implement actual snooze logic (reschedule alarm)
-                        // For now just stop
                         stopService(Intent(this, AlarmService::class.java))
+                        if (alarmId != null) {
+                            snoozeAlarm(alarmId)
+                        }
                         finish()
                     })
                 }
+            }
+        }
+    }
+
+    private fun snoozeAlarm(alarmId: String) {
+        scope.launch {
+            val app = application as SunriseApp
+            val alarmDao = app.container.alarmDao
+            val alarmScheduler = app.container.alarmScheduler
+            
+            val alarm = alarmDao.getAlarmById(alarmId)
+            if (alarm != null) {
+                val snoozeMinutes = 5
+                val calendar = Calendar.getInstance()
+                calendar.add(Calendar.MINUTE, snoozeMinutes)
+                
+                val snoozedAlarm = alarm.copy(
+                    time = String.format("%02d:%02d", 
+                        calendar.get(Calendar.HOUR_OF_DAY), 
+                        calendar.get(Calendar.MINUTE)),
+                    useSunTime = false,
+                    deleteAfterUse = true,
+                    enabled = true
+                )
+                
+                alarmDao.insertAlarm(snoozedAlarm)
+                alarmScheduler.scheduleAlarm(snoozedAlarm)
             }
         }
     }

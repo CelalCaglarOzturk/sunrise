@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -53,6 +52,7 @@ fun AlarmListScreen(viewModel: MainViewModel) {
     var showEditor by remember { mutableStateOf(false) }
     var editingAlarm by remember { mutableStateOf<Alarm?>(null) }
     var showMenu by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
     
     // Location permission state
     val locationPermissionState = rememberPermissionState(
@@ -106,8 +106,8 @@ fun AlarmListScreen(viewModel: MainViewModel) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.delete_all)) },
                             onClick = {
-                                viewModel.deleteAllAlarms()
                                 showMenu = false
+                                showDeleteConfirm = true
                             },
                             colors = MenuDefaults.itemColors(textColor = Color(0xFFFF0000))
                         )
@@ -212,6 +212,32 @@ fun AlarmListScreen(viewModel: MainViewModel) {
                 showEditor = false
             },
             onCancel = { showEditor = false }
+        )
+    }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.delete_all)) },
+            text = { Text(stringResource(R.string.delete_all_confirmation)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteAllAlarms()
+                        showDeleteConfirm = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFF0000)
+                    )
+                ) {
+                    Text(stringResource(R.string.delete))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDeleteConfirm = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
         )
     }
 }

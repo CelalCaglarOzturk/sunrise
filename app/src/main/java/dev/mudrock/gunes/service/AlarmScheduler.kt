@@ -82,7 +82,7 @@ class AlarmScheduler(
         val repeatDays = if (alarm.repeatDays.isEmpty()) {
             emptyList()
         } else {
-            alarm.repeatDays.split(",").map { it.toInt() }
+            alarm.repeatDays.split(",").mapNotNull { it.trim().toIntOrNull() }
         }
 
         // Check next 7 days

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,22 +24,25 @@ import androidx.compose.ui.res.stringResource
 import dev.mudrock.gunes.R
 import kotlinx.coroutines.delay
 import java.util.UUID
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Lap(
     val id: String = UUID.randomUUID().toString(),
     val lapNumber: Int,
     val lapTime: Long,
     val splitTime: Long
-)
+) : Parcelable
 
 @Composable
 fun StopwatchScreen() {
-    var timeMillis by remember { mutableLongStateOf(0L) }
-    var isRunning by remember { mutableStateOf(false) }
-    var isPaused by remember { mutableStateOf(false) }
-    var laps by remember { mutableStateOf<List<Lap>>(emptyList()) }
-    var startTime by remember { mutableLongStateOf(0L) }
-    var pausedTime by remember { mutableLongStateOf(0L) }
+    var timeMillis by rememberSaveable { mutableLongStateOf(0L) }
+    var isRunning by rememberSaveable { mutableStateOf(false) }
+    var isPaused by rememberSaveable { mutableStateOf(false) }
+    var laps by rememberSaveable { mutableStateOf<List<Lap>>(emptyList()) }
+    var startTime by rememberSaveable { mutableLongStateOf(0L) }
+    var pausedTime by rememberSaveable { mutableLongStateOf(0L) }
 
     LaunchedEffect(isRunning) {
         if (isRunning) {
@@ -188,8 +192,9 @@ fun StopwatchScreen() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val lapLabel = stringResource(R.string.lap)
                         Text(
-                            "Laps (${laps.size})",
+                            "$lapLabel (${laps.size})",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -210,6 +215,8 @@ fun StopwatchScreen() {
 
                     val fastestLap = laps.minByOrNull { it.lapTime }
                     val slowestLap = laps.maxByOrNull { it.lapTime }
+                    val fastestLapId = fastestLap?.id
+                    val slowestLapId = slowestLap?.id
 
                     LazyColumn(
                         modifier = Modifier
@@ -217,9 +224,9 @@ fun StopwatchScreen() {
                             .heightIn(max = 300.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(laps) { lap ->
-                            val isFastest = lap.id == fastestLap?.id && laps.size > 1
-                            val isSlowest = lap.id == slowestLap?.id && laps.size > 1
+                        items(laps, key = { it.id }) { lap ->
+                            val isFastest = lap.id == fastestLapId && laps.size > 1
+                            val isSlowest = lap.id == slowestLapId && laps.size > 1
 
                             LapItem(
                                 lap = lap,
@@ -251,6 +258,9 @@ fun LapItem(
         isSlowest -> MaterialTheme.colorScheme.surfaceVariant
         else -> MaterialTheme.colorScheme.surface
     }
+
+    val lapLabel = stringResource(R.string.lap)
+    val timeLabel = stringResource(R.string.time)
 
     Row(
         modifier = Modifier
@@ -289,7 +299,7 @@ fun LapItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    "Lap Time:",
+                    "$lapLabel:",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -306,7 +316,7 @@ fun LapItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    "Split Time:",
+                    "$timeLabel:",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )

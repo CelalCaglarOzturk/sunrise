@@ -7,15 +7,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,19 +30,23 @@ import dev.mudrock.gunes.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class TimerItem(
     val id: String = UUID.randomUUID().toString(),
     val label: String,
     val durationSeconds: Int,
-    var remainingSeconds: Int,
-    var isRunning: Boolean = false,
-    var isPaused: Boolean = false
-)
+    val remainingSeconds: Int,
+    val isRunning: Boolean = false,
+    val isPaused: Boolean = false,
+    val startTimeMillis: Long = 0L
+) : Parcelable
 
 @Composable
 fun TimerScreen() {
-    var timers by remember { mutableStateOf<List<TimerItem>>(emptyList()) }
+    var timers by rememberSaveable { mutableStateOf<List<TimerItem>>(emptyList()) }
     var showAddTimer by remember { mutableStateOf(false) }
 
     Column(
@@ -65,25 +68,30 @@ fun TimerScreen() {
                     TimerCard(
                         timer = timer,
                         onStart = {
-                            timers = timers.map {
-                                if (it.id == timer.id) it.copy(isRunning = true, isPaused = false)
-                                else it
+                            timers = timers.map { item ->
+                                if (item.id == timer.id) item.copy(
+                                    isRunning = true,
+                                    isPaused = false,
+                                    startTimeMillis = System.currentTimeMillis()
+                                )
+                                else item
                             }
                         },
                         onPause = {
-                            timers = timers.map {
-                                if (it.id == timer.id) it.copy(isRunning = false, isPaused = true)
-                                else it
+                            timers = timers.map { item ->
+                                if (item.id == timer.id) item.copy(isRunning = false, isPaused = true)
+                                else item
                             }
                         },
                         onReset = {
-                            timers = timers.map {
-                                if (it.id == timer.id) it.copy(
+                            timers = timers.map { item ->
+                                if (item.id == timer.id) item.copy(
                                     isRunning = false,
                                     isPaused = false,
-                                    remainingSeconds = it.durationSeconds
+                                    remainingSeconds = item.durationSeconds,
+                                    startTimeMillis = 0L
                                 )
-                                else it
+                                else item
                             }
                         },
                         onDelete = {
@@ -131,13 +139,18 @@ fun TimerScreen() {
     timers.forEach { timer ->
         if (timer.isRunning && timer.remainingSeconds > 0) {
             LaunchedEffect(timer.id) {
-                while (timer.isRunning && timer.remainingSeconds > 0) {
+                var elapsed = 0L
+                val startRemaining = timer.remainingSeconds
+                while (elapsed < startRemaining * 1000L) {
                     delay(1000)
-                    timers = timers.map {
-                        if (it.id == timer.id && it.isRunning) {
-                            it.copy(remainingSeconds = it.remainingSeconds - 1)
-                        } else it
+                    elapsed += 1000
+                    val newRemaining = (startRemaining - (elapsed / 1000)).toInt().coerceAtLeast(0)
+                    timers = timers.map { item ->
+                        if (item.id == timer.id && item.isRunning) {
+                            item.copy(remainingSeconds = newRemaining)
+                        } else item
                     }
+                    if (newRemaining == 0) break
                 }
             }
         }
@@ -179,9 +192,9 @@ fun EmptyTimerState(onAddClick: () -> Unit) {
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
-Icon(Icons.Default.Add, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.add_timer), fontWeight = FontWeight.Bold)
+            Icon(Icons.Default.Add, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.add_timer), fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -199,17 +212,6 @@ fun TimerCard(
     } else 0f
 
     val isFinished = timer.remainingSeconds == 0
-
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha"
-    )
 
     Card(
         modifier = Modifier
@@ -244,7 +246,7 @@ fun TimerCard(
                 IconButton(onClick = onDelete) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Delete",
+                        contentDescription = stringResource(R.string.delete_alarm),
                         tint = Color(0xFFFF0000)
                     )
                 }
@@ -371,6 +373,7 @@ fun AddTimerSheet(
     var hours by remember { mutableIntStateOf(0) }
     var minutes by remember { mutableIntStateOf(0) }
     var seconds by remember { mutableIntStateOf(0) }
+    val timerLabel = stringResource(R.string.timer)
 
     Card(
         modifier = Modifier
@@ -390,13 +393,13 @@ fun AddTimerSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Add Timer",
+                    stringResource(R.string.add_timer),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 IconButton(onClick = onCancel) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel))
                 }
             }
 
@@ -413,7 +416,7 @@ fun AddTimerSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                "Duration",
+                stringResource(R.string.duration),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -425,21 +428,21 @@ fun AddTimerSheet(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 WheelPicker(
-                    label = "Hours",
+                    label = stringResource(R.string.hours),
                     value = hours,
                     range = 0..23,
                     onValueChange = { hours = it },
                     modifier = Modifier.weight(1f)
                 )
                 WheelPicker(
-                    label = "Minutes",
+                    label = stringResource(R.string.minutes),
                     value = minutes,
                     range = 0..59,
                     onValueChange = { minutes = it },
                     modifier = Modifier.weight(1f)
                 )
                 WheelPicker(
-                    label = "Seconds",
+                    label = stringResource(R.string.seconds),
                     value = seconds,
                     range = 0..59,
                     onValueChange = { seconds = it },
@@ -464,7 +467,7 @@ fun AddTimerSheet(
                     onClick = {
                         val totalSeconds = hours * 3600 + minutes * 60 + seconds
                         if (totalSeconds > 0) {
-                            onAdd(label.ifEmpty { "Timer" }, totalSeconds)
+                            onAdd(label.ifEmpty { timerLabel }, totalSeconds)
                         }
                     },
                     modifier = Modifier.weight(1f),
@@ -491,40 +494,33 @@ fun WheelPicker(
     val itemHeight = 40
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
-    
-    // Calculate initial scroll position - need to scroll to index that puts value at center
-    // With 2 padding items at top, the center is at index (value - range.first)
+
     val initialIndex = value - range.first
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxOf(0, initialIndex))
-    
-    // Track the currently selected value based on scroll position
+
     var selectedValue by remember { mutableIntStateOf(value) }
-    
-    // Scroll to the correct position when value changes externally
+
     LaunchedEffect(value) {
         if (value != selectedValue) {
             val targetIndex = value - range.first
             listState.animateScrollToItem(targetIndex)
         }
     }
-    
-    // Calculate which item is at the center based on scroll position
+
     LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
         val scrollOffset = listState.firstVisibleItemScrollOffset
         val firstVisibleIndex = listState.firstVisibleItemIndex
-        
-        // The center of the visible area is at 60.dp (half of 120.dp height)
+
         val centerPositionPx = with(density) { 60.dp.toPx() }
         val itemHeightPx = with(density) { itemHeight.dp.toPx() }
-        
+
         val firstItemTop = -scrollOffset
         val centerItemIndex = firstVisibleIndex + ((centerPositionPx - firstItemTop) / itemHeightPx).toInt()
-        
-        // Account for the 2 padding items at the top
+
         val actualItemIndex = centerItemIndex - 2
-        
+
         val newValue = range.first + actualItemIndex
-        
+
         if (newValue in range && newValue != selectedValue) {
             selectedValue = newValue
             onValueChange(newValue)
@@ -548,7 +544,6 @@ fun WheelPicker(
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            // Center highlight
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -566,11 +561,9 @@ fun WheelPicker(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
             ) {
-                // Top padding items
                 items(2) {
                     Box(modifier = Modifier.height(40.dp))
                 }
-                // Actual items
                 items(range.count()) { index ->
                     val itemValue = range.first + index
                     val isSelected = itemValue == selectedValue
@@ -595,7 +588,6 @@ fun WheelPicker(
                         )
                     }
                 }
-                // Bottom padding items
                 items(2) {
                     Box(modifier = Modifier.height(40.dp))
                 }

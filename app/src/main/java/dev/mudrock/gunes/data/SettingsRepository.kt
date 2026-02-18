@@ -38,6 +38,7 @@ data class AppSettings(
 
 class SettingsRepository(private val context: Context, private val gson: Gson) {
     private val dataStore = context.dataStore
+    private val sharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
     private object Keys {
         val DEFAULT_CLOCK_MODE = stringPreferencesKey("default_clock_mode")
@@ -149,6 +150,9 @@ class SettingsRepository(private val context: Context, private val gson: Gson) {
             prefs[Keys.POMODORO_LAST_UPDATE_TIME] = newSettings.pomodoroLastUpdateTime
             // Mark first launch as complete when settings are updated
             prefs[Keys.FIRST_LAUNCH] = false
+            
+            // Also save language to SharedPreferences for sync access in attachBaseContext
+            sharedPrefs.edit().putString("language", newSettings.language).apply()
         }
     }
 }

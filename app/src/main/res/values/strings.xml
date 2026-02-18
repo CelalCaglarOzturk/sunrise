@@ -57,6 +57,8 @@
 
     <!-- Bulk Actions -->
     <string name="delete_all">Delete All</string>
+    <string name="delete_all_confirmation">Are you sure you want to delete all alarms? This cannot be undone.</string>
+    <string name="delete">Delete</string>
     <string name="disable_all">Disable All</string>
     <string name="enable_all">Enable All</string>
     <string name="bulk_actions">Bulk Actions</string>
@@ -82,6 +84,8 @@
     <string name="import_settings">Import Settings</string>
     <string name="about">About</string>
     <string name="version">Version</string>
+    <string name="app_name_display">Sun Clock</string>
+    <string name="app_version">1.0.0</string>
 
     <!-- Timer & Stopwatch -->
     <string name="start">Start</string>
@@ -95,6 +99,7 @@
     <string name="no_timers_yet">No timers yet</string>
     <string name="create_your_first_timer">Create your first timer</string>
     <string name="timer_finished">Timer Finished!</string>
+    <string name="duration">Duration</string>
 
     <!-- Pomodoro -->
     <string name="work">Work</string>

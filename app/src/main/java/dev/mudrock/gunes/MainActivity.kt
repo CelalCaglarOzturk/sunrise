@@ -21,18 +21,15 @@ import dev.mudrock.gunes.ui.MainViewModel
 import dev.mudrock.gunes.ui.ViewModelFactory
 import dev.mudrock.gunes.ui.theme.SunriseTheme
 import dev.mudrock.gunes.util.LocaleHelper
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
     
     private var currentLanguage: String = "en"
     
     override fun attachBaseContext(newBase: Context) {
-        val appContainer = (newBase.applicationContext as SunriseApp).container
-        val settings = runBlocking { appContainer.settingsRepository.settings.first() }
-        currentLanguage = settings.language
-        val context = LocaleHelper.setLocale(newBase, settings.language)
+        val prefs = newBase.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        currentLanguage = prefs.getString("language", null) ?: "en"
+        val context = LocaleHelper.setLocale(newBase, currentLanguage)
         super.attachBaseContext(context)
     }
     
@@ -41,7 +38,6 @@ class MainActivity : ComponentActivity() {
 
         val appContainer = (application as SunriseApp).container
         
-        // Apply saved language
         LocaleHelper.applyLocaleToContext(this, currentLanguage)
 
         setContent {
@@ -49,16 +45,12 @@ class MainActivity : ComponentActivity() {
                 factory = ViewModelFactory(appContainer)
             )
             
-            // Observe settings
             val settings by viewModel.settings.collectAsState()
             
-            // Check for language changes and recreate activity if needed
             LaunchedEffect(settings.language) {
                 if (settings.language != currentLanguage) {
                     currentLanguage = settings.language
-                    // Apply the new locale
                     LocaleHelper.applyLocaleToContext(this@MainActivity, settings.language)
-                    // Recreate the activity to apply new language immediately
                     recreate()
                 }
             }
@@ -76,7 +68,6 @@ class MainActivity : ComponentActivity() {
     
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        // Re-apply locale when configuration changes
         LocaleHelper.applyLocaleToContext(this, currentLanguage)
     }
 }

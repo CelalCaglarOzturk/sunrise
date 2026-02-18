@@ -4,9 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import dev.mudrock.gunes.SunriseApp
-import dev.mudrock.gunes.data.AlarmDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class BootReceiver : BroadcastReceiver() {
@@ -18,11 +18,10 @@ class BootReceiver : BroadcastReceiver() {
             val alarmScheduler = app.container.alarmScheduler
 
             CoroutineScope(Dispatchers.IO).launch {
-                alarmDao.getAllAlarms().collect { alarms ->
-                    alarms.forEach { alarm ->
-                        if (alarm.enabled) {
-                            alarmScheduler.scheduleAlarm(alarm)
-                        }
+                val alarms = alarmDao.getAllAlarms().first()
+                alarms.forEach { alarm ->
+                    if (alarm.enabled) {
+                        alarmScheduler.scheduleAlarm(alarm)
                     }
                 }
             }
