@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.material3.*
@@ -113,7 +114,7 @@ fun AlarmListScreen(viewModel: MainViewModel) {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 )
             )
@@ -430,7 +431,7 @@ fun AlarmItem(
                         AlarmBadge(icon = Icons.Default.Vibration, label = null)
                     }
                     if (alarm.gradualVolume) {
-                        AlarmBadge(icon = Icons.Default.TrendingUp, label = null)
+                        AlarmBadge(icon = Icons.AutoMirrored.Filled.TrendingUp, label = null)
                     }
                 }
             }

@@ -15,9 +15,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -468,7 +470,7 @@ fun AlarmEditorScreen(
                 FormSection(title = null) {
                     ToggleRow(
                         label = stringResource(R.string.gradual_volume),
-                        icon = Icons.Default.TrendingUp,
+                        icon = Icons.AutoMirrored.Filled.TrendingUp,
                         checked = gradualVolume,
                         onCheckedChange = { gradualVolume = it }
                     )
@@ -627,8 +629,8 @@ fun ModeButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     selected: Boolean,
     onClick: () -> Unit,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     val backgroundColor = when {
         !enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
@@ -812,25 +814,25 @@ fun NumberWheelPicker(
         }
     }
     
-    LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
-        val scrollOffset = listState.firstVisibleItemScrollOffset
-        val firstVisibleIndex = listState.firstVisibleItemIndex
-        
-        val centerPositionPx = with(density) { 60.dp.toPx() }
-        val itemHeightPx = with(density) { 40.dp.toPx() }
-        
-        val firstItemTop = -scrollOffset
-        val centerItemIndex = firstVisibleIndex + ((centerPositionPx - firstItemTop) / itemHeightPx).toInt()
-        
-        // Account for the 2 padding items at the top
-        val actualItemIndex = centerItemIndex - 2
-        
-        val newValue = items.getOrNull(actualItemIndex)
-        
-        if (newValue != null && newValue != selectedValue) {
-            selectedValue = newValue
-            onValueChange(newValue)
-        }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (firstVisibleIndex, scrollOffset) ->
+                val centerPositionPx = with(density) { 60.dp.toPx() }
+                val itemHeightPx = with(density) { 40.dp.toPx() }
+                
+                val firstItemTop = -scrollOffset
+                val centerItemIndex = firstVisibleIndex + ((centerPositionPx - firstItemTop) / itemHeightPx).toInt()
+                
+                // Account for the 2 padding items at the top
+                val actualItemIndex = centerItemIndex - 2
+                
+                val newValue = items.getOrNull(actualItemIndex)
+                
+                if (newValue != null && newValue != selectedValue) {
+                    selectedValue = newValue
+                    onValueChange(newValue)
+                }
+            }
     }
 
     Box(

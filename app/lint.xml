@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="AppBundleLocaleChanges" severity="ignore">
+        <ignore path="**/LocaleHelper.kt" />
+    </issue>
+    <issue id="IconLauncherShape" severity="ignore" />
+    <issue id="IconDipSize" severity="ignore" />
+    <issue id="IconDuplicates" severity="ignore" />
+</lint>

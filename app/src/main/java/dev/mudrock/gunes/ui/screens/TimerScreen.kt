@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -507,24 +508,24 @@ fun WheelPicker(
         }
     }
 
-    LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
-        val scrollOffset = listState.firstVisibleItemScrollOffset
-        val firstVisibleIndex = listState.firstVisibleItemIndex
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (firstVisibleIndex, scrollOffset) ->
+                val centerPositionPx = with(density) { 60.dp.toPx() }
+                val itemHeightPx = with(density) { itemHeight.dp.toPx() }
 
-        val centerPositionPx = with(density) { 60.dp.toPx() }
-        val itemHeightPx = with(density) { itemHeight.dp.toPx() }
+                val firstItemTop = -scrollOffset
+                val centerItemIndex = firstVisibleIndex + ((centerPositionPx - firstItemTop) / itemHeightPx).toInt()
 
-        val firstItemTop = -scrollOffset
-        val centerItemIndex = firstVisibleIndex + ((centerPositionPx - firstItemTop) / itemHeightPx).toInt()
+                val actualItemIndex = centerItemIndex - 2
 
-        val actualItemIndex = centerItemIndex - 2
+                val newValue = range.first + actualItemIndex
 
-        val newValue = range.first + actualItemIndex
-
-        if (newValue in range && newValue != selectedValue) {
-            selectedValue = newValue
-            onValueChange(newValue)
-        }
+                if (newValue in range && newValue != selectedValue) {
+                    selectedValue = newValue
+                    onValueChange(newValue)
+                }
+            }
     }
 
     Column(
