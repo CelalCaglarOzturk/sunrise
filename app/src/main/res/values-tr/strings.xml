@@ -1,23 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
     <string name="app_name">Güneş Saati</string>
-    <string name="title_activity_main">Güneş Saati</string>
-    <string name="alarms">Alarmlar</string>
     <string name="timer">Zamanlayıcı</string>
-    <string name="stopwatch">Kronometre</string>
-    <string name="sun_times">Güneş</string>
-    <string name="focus">Odak</string>
-    <string name="settings">Ayarlar</string>
     <string name="add_alarm">Alarm Ekle</string>
     <string name="edit_alarm">Alarmı Düzenle</string>
     <string name="delete_alarm">Alarmı Sil</string>
-    <string name="no_alarms_yet">Henüz alarm yok</string>
     <string name="sunrise">Gün doğumu</string>
     <string name="minutes_after_sunrise">dakika sonra gün doğumu</string>
     <string name="minutes_before_sunrise">dakika önce gün doğumu</string>
-    <string name="alarm_ringing">Alarm çalıyor</string>
-    <string name="dismiss">Kapat</string>
-    <string name="snooze">Ertele</string>
     <string name="label">Etiket</string>
     <string name="time">Saat</string>
     <string name="normal_clock">Normal Saat</string>
@@ -40,7 +30,6 @@
     <string name="alarm_sound">Alarm Sesi</string>
     <string name="select_sound">Ses Seç</string>
     <string name="browse_files">Dosyalara Göz At</string>
-    <string name="volume">Ses Seviyesi</string>
     <string name="vibrate">Titreşim</string>
     <string name="gradual_volume">Kademeli Ses</string>
     <string name="gradual_duration">Kademeli Süre</string>
@@ -93,12 +82,7 @@
     <string name="location_permission_desc_sun">Güneş saatlerini görmek için lütfen konum izni verin</string>
     <string name="today">Bugün</string>
     <string name="tomorrow">Yarın</string>
-    <string name="daylight">Gün ışığı</string>
     <string name="sunset">Gün batımı</string>
-    <string name="once_repeat">Bir kez</string>
-    <string name="daily_repeat">Her gün</string>
-    <string name="weekdays_repeat">Hafta içi</string>
-    <string name="weekends_repeat">Hafta sonu</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

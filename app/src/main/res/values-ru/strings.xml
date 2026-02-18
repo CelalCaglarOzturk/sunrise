@@ -1,23 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
     <string name="app_name">Солнечные часы</string>
-    <string name="title_activity_main">Солнечные часы</string>
-    <string name="alarms">Будильники</string>
     <string name="timer">Таймер</string>
-    <string name="stopwatch">Секундомер</string>
-    <string name="sun_times">Солнце</string>
-    <string name="focus">Фокус</string>
-    <string name="settings">Настройки</string>
     <string name="add_alarm">Добавить будильник</string>
     <string name="edit_alarm">Редактировать будильник</string>
     <string name="delete_alarm">Удалить будильник</string>
-    <string name="no_alarms_yet">Нет будильников</string>
     <string name="sunrise">Восход</string>
     <string name="minutes_after_sunrise">минут после восхода</string>
     <string name="minutes_before_sunrise">минут до восхода</string>
-    <string name="alarm_ringing">Будильник звонит</string>
-    <string name="dismiss">Отключить</string>
-    <string name="snooze">Отложить</string>
     <string name="label">Метка</string>
     <string name="time">Время</string>
     <string name="normal_clock">Обычные часы</string>
@@ -40,7 +30,6 @@
     <string name="alarm_sound">Звук будильника</string>
     <string name="select_sound">Выбрать звук</string>
     <string name="browse_files">Обзор файлов</string>
-    <string name="volume">Громкость</string>
     <string name="vibrate">Вибрация</string>
     <string name="gradual_volume">Плавная громкость</string>
     <string name="gradual_duration">Длительность нарастания</string>
@@ -93,12 +82,7 @@
     <string name="location_permission_desc_sun">Пожалуйста, предоставьте разрешение на местоположение для просмотра времени солнца</string>
     <string name="today">Сегодня</string>
     <string name="tomorrow">Завтра</string>
-    <string name="daylight">Световой день</string>
     <string name="sunset">Закат</string>
-    <string name="once_repeat">Один раз</string>
-    <string name="daily_repeat">Ежедневно</string>
-    <string name="weekdays_repeat">Будни</string>
-    <string name="weekends_repeat">Выходные</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

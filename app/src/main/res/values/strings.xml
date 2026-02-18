@@ -1,27 +1,17 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
     <string name="app_name">Sun Clock</string>
-    <string name="title_activity_main">Sun Clock</string>
 
     <!-- Navigation -->
-    <string name="alarms">Alarms</string>
     <string name="timer">Timer</string>
-    <string name="stopwatch">Stopwatch</string>
-    <string name="sun_times">Sun</string>
-    <string name="focus">Focus</string>
-    <string name="settings">Settings</string>
 
     <!-- Alarms -->
     <string name="add_alarm">Add Alarm</string>
     <string name="edit_alarm">Edit Alarm</string>
     <string name="delete_alarm">Delete Alarm</string>
-    <string name="no_alarms_yet">No alarms yet</string>
     <string name="sunrise">Sunrise</string>
     <string name="minutes_after_sunrise">minutes after sunrise</string>
     <string name="minutes_before_sunrise">minutes before sunrise</string>
-    <string name="alarm_ringing">Alarm is ringing</string>
-    <string name="dismiss">Dismiss</string>
-    <string name="snooze">Snooze</string>
 
     <!-- Alarm Editor -->
     <string name="label">Label</string>
@@ -46,7 +36,6 @@
     <string name="alarm_sound">Alarm Sound</string>
     <string name="select_sound">Select Sound</string>
     <string name="browse_files">Browse Files</string>
-    <string name="volume">Volume</string>
     <string name="vibrate">Vibrate</string>
     <string name="gradual_volume">Gradual Volume</string>
     <string name="gradual_duration">Gradual Duration</string>
@@ -120,14 +109,9 @@
     <string name="location_permission_desc_sun">Please grant location permission to see sun times</string>
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
-    <string name="daylight">Daylight</string>
     <string name="sunset">Sunset</string>
 
     <!-- Repeat patterns -->
-    <string name="once_repeat">Once</string>
-    <string name="daily_repeat">Daily</string>
-    <string name="weekdays_repeat">Weekdays</string>
-    <string name="weekends_repeat">Weekends</string>
 
     <!-- Language names -->
     <string name="lang_english">English</string>

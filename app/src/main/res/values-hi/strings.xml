@@ -1,23 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
     <string name="app_name">सन क्लॉक</string>
-    <string name="title_activity_main">सन क्लॉक</string>
-    <string name="alarms">अलार्म</string>
     <string name="timer">टाइमर</string>
-    <string name="stopwatch">स्टॉपवॉच</string>
-    <string name="sun_times">सूर्य</string>
-    <string name="focus">फोकस</string>
-    <string name="settings">सेटिंग्स</string>
     <string name="add_alarm">अलार्म जोड़ें</string>
     <string name="edit_alarm">अलार्म संपादित करें</string>
     <string name="delete_alarm">अलार्म हटाएं</string>
-    <string name="no_alarms_yet">अभी तक कोई अलार्म नहीं</string>
     <string name="sunrise">सूर्योदय</string>
     <string name="minutes_after_sunrise">सूर्योदय के बाद मिनट</string>
     <string name="minutes_before_sunrise">सूर्योदय से पहले मिनट</string>
-    <string name="alarm_ringing">अलार्म बज रहा है</string>
-    <string name="dismiss">बंद करें</string>
-    <string name="snooze">स्नूज़</string>
     <string name="label">लेबल</string>
     <string name="time">समय</string>
     <string name="normal_clock">सामान्य घड़ी</string>
@@ -40,7 +30,6 @@
     <string name="alarm_sound">अलार्म ध्वनि</string>
     <string name="select_sound">ध्वनि चुनें</string>
     <string name="browse_files">फ़ाइलें ब्राउज़ करें</string>
-    <string name="volume">वॉल्यूम</string>
     <string name="vibrate">कंपन</string>
     <string name="gradual_volume">धीरे-धीरे वॉल्यूम</string>
     <string name="gradual_duration">धीरे-धीरे अवधि</string>
@@ -93,12 +82,7 @@
     <string name="location_permission_desc_sun">सूर्य समय देखने के लिए कृपया स्थान अनुमति प्रदान करें</string>
     <string name="today">आज</string>
     <string name="tomorrow">कल</string>
-    <string name="daylight">दिन की रोशनी</string>
     <string name="sunset">सूर्यास्त</string>
-    <string name="once_repeat">एक बार</string>
-    <string name="daily_repeat">रोज़</string>
-    <string name="weekdays_repeat">कार्यदिवस</string>
-    <string name="weekends_repeat">सप्ताहांत</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

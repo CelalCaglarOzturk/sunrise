@@ -1,23 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
     <string name="app_name">太阳时钟</string>
-    <string name="title_activity_main">太阳时钟</string>
-    <string name="alarms">闹钟</string>
     <string name="timer">计时器</string>
-    <string name="stopwatch">秒表</string>
-    <string name="sun_times">太阳</string>
-    <string name="focus">专注</string>
-    <string name="settings">设置</string>
     <string name="add_alarm">添加闹钟</string>
     <string name="edit_alarm">编辑闹钟</string>
     <string name="delete_alarm">删除闹钟</string>
-    <string name="no_alarms_yet">暂无闹钟</string>
     <string name="sunrise">日出</string>
     <string name="minutes_after_sunrise">分钟后日出</string>
     <string name="minutes_before_sunrise">分钟前日出</string>
-    <string name="alarm_ringing">闹钟响了</string>
-    <string name="dismiss">关闭</string>
-    <string name="snooze">贪睡</string>
     <string name="label">标签</string>
     <string name="time">时间</string>
     <string name="normal_clock">普通时钟</string>
@@ -40,7 +30,6 @@
     <string name="alarm_sound">闹钟声音</string>
     <string name="select_sound">选择声音</string>
     <string name="browse_files">浏览文件</string>
-    <string name="volume">音量</string>
     <string name="vibrate">振动</string>
     <string name="gradual_volume">渐强音量</string>
     <string name="gradual_duration">渐强持续时间</string>
@@ -93,12 +82,7 @@
     <string name="location_permission_desc_sun">请授予位置权限以查看太阳时间</string>
     <string name="today">今天</string>
     <string name="tomorrow">明天</string>
-    <string name="daylight">日照时间</string>
     <string name="sunset">日落</string>
-    <string name="once_repeat">一次</string>
-    <string name="daily_repeat">每天</string>
-    <string name="weekdays_repeat">工作日</string>
-    <string name="weekends_repeat">周末</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

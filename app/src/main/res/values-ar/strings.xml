@@ -1,23 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
     <string name="app_name">ساعة الشمس</string>
-    <string name="title_activity_main">ساعة الشمس</string>
-    <string name="alarms">المنبهات</string>
     <string name="timer">المؤقت</string>
-    <string name="stopwatch">ساعة الإيقاف</string>
-    <string name="sun_times">الشمس</string>
-    <string name="focus">التركيز</string>
-    <string name="settings">الإعدادات</string>
     <string name="add_alarm">إضافة منبه</string>
     <string name="edit_alarm">تعديل المنبه</string>
     <string name="delete_alarm">حذف المنبه</string>
-    <string name="no_alarms_yet">لا توجد منبهات</string>
     <string name="sunrise">الشروق</string>
     <string name="minutes_after_sunrise">دقيقة بعد الشروق</string>
     <string name="minutes_before_sunrise">دقيقة قبل الشروق</string>
-    <string name="alarm_ringing">المنبه يرن</string>
-    <string name="dismiss">إيقاف</string>
-    <string name="snooze">غفوة</string>
     <string name="label">التسمية</string>
     <string name="time">الوقت</string>
     <string name="normal_clock">ساعة عادية</string>
@@ -40,7 +30,6 @@
     <string name="alarm_sound">صوت المنبه</string>
     <string name="select_sound">اختر الصوت</string>
     <string name="browse_files">تصفح الملفات</string>
-    <string name="volume">مستوى الصوت</string>
     <string name="vibrate">اهتزاز</string>
     <string name="gradual_volume">صوت متدرج</string>
     <string name="gradual_duration">مدة التدرج</string>
@@ -93,12 +82,7 @@
     <string name="location_permission_desc_sun">يرجى منح إذن الموقع لرؤية أوقات الشمس</string>
     <string name="today">اليوم</string>
     <string name="tomorrow">غداً</string>
-    <string name="daylight">ساعات النهار</string>
     <string name="sunset">الغروب</string>
-    <string name="once_repeat">مرة واحدة</string>
-    <string name="daily_repeat">يومياً</string>
-    <string name="weekdays_repeat">أيام الأسبوع</string>
-    <string name="weekends_repeat">عطلة نهاية الأسبوع</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

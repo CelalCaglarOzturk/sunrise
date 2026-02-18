@@ -1,23 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
     <string name="app_name">Sonnen Uhr</string>
-    <string name="title_activity_main">Sonnen Uhr</string>
-    <string name="alarms">Wecker</string>
     <string name="timer">Timer</string>
-    <string name="stopwatch">Stoppuhr</string>
-    <string name="sun_times">Sonne</string>
-    <string name="focus">Fokus</string>
-    <string name="settings">Einstellungen</string>
     <string name="add_alarm">Wecker Hinzufügen</string>
     <string name="edit_alarm">Wecker Bearbeiten</string>
     <string name="delete_alarm">Wecker Löschen</string>
-    <string name="no_alarms_yet">Noch keine Wecker</string>
     <string name="sunrise">Sonnenaufgang</string>
     <string name="minutes_after_sunrise">Minuten nach Sonnenaufgang</string>
     <string name="minutes_before_sunrise">Minuten vor Sonnenaufgang</string>
-    <string name="alarm_ringing">Alarm läutet</string>
-    <string name="dismiss">Ausschalten</string>
-    <string name="snooze">Schlummern</string>
     <string name="label">Beschriftung</string>
     <string name="time">Zeit</string>
     <string name="normal_clock">Normale Uhr</string>
@@ -40,7 +30,6 @@
     <string name="alarm_sound">Weckerton</string>
     <string name="select_sound">Ton Auswählen</string>
     <string name="browse_files">Dateien Durchsuchen</string>
-    <string name="volume">Lautstärke</string>
     <string name="vibrate">Vibrieren</string>
     <string name="gradual_volume">Lautstärke Steigern</string>
     <string name="gradual_duration">Steigerungsdauer</string>
@@ -93,12 +82,7 @@
     <string name="location_permission_desc_sun">Bitte erteilen Sie die Standortberechtigung, um Sonnenzeiten zu sehen</string>
     <string name="today">Heute</string>
     <string name="tomorrow">Morgen</string>
-    <string name="daylight">Tageslicht</string>
     <string name="sunset">Sonnenuntergang</string>
-    <string name="once_repeat">Einmal</string>
-    <string name="daily_repeat">Täglich</string>
-    <string name="weekdays_repeat">Wochentage</string>
-    <string name="weekends_repeat">Wochenenden</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

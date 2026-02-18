@@ -1,23 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
     <string name="app_name">Relógio Solar</string>
-    <string name="title_activity_main">Relógio Solar</string>
-    <string name="alarms">Alarmes</string>
     <string name="timer">Timer</string>
-    <string name="stopwatch">Cronômetro</string>
-    <string name="sun_times">Sol</string>
-    <string name="focus">Foco</string>
-    <string name="settings">Configurações</string>
     <string name="add_alarm">Adicionar Alarme</string>
     <string name="edit_alarm">Editar Alarme</string>
     <string name="delete_alarm">Excluir Alarme</string>
-    <string name="no_alarms_yet">Sem alarmes ainda</string>
     <string name="sunrise">Nascer do sol</string>
     <string name="minutes_after_sunrise">minutos após o nascer do sol</string>
     <string name="minutes_before_sunrise">minutos antes do nascer do sol</string>
-    <string name="alarm_ringing">O alarme está tocando</string>
-    <string name="dismiss">Descartar</string>
-    <string name="snooze">Soneca</string>
     <string name="label">Etiqueta</string>
     <string name="time">Hora</string>
     <string name="normal_clock">Relógio Normal</string>
@@ -40,7 +30,6 @@
     <string name="alarm_sound">Som do Alarme</string>
     <string name="select_sound">Selecionar Som</string>
     <string name="browse_files">Explorar Arquivos</string>
-    <string name="volume">Volume</string>
     <string name="vibrate">Vibrar</string>
     <string name="gradual_volume">Volume Gradual</string>
     <string name="gradual_duration">Duração Gradual</string>
@@ -93,12 +82,7 @@
     <string name="location_permission_desc_sun">Conceda permissão de localização para ver os horários do sol</string>
     <string name="today">Hoje</string>
     <string name="tomorrow">Amanhã</string>
-    <string name="daylight">Horas de luz</string>
     <string name="sunset">Pôr do sol</string>
-    <string name="once_repeat">Uma vez</string>
-    <string name="daily_repeat">Diário</string>
-    <string name="weekdays_repeat">Dias úteis</string>
-    <string name="weekends_repeat">Finais de semana</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

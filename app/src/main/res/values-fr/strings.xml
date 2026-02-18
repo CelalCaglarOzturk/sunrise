@@ -1,23 +1,13 @@
 <?xml version='1.0' encoding='utf-8' ?>
 <resources>
     <string name="app_name">Horloge Solaire</string>
-    <string name="title_activity_main">Horloge Solaire</string>
-    <string name="alarms">Alarmes</string>
     <string name="timer">Minuteur</string>
-    <string name="stopwatch">Chronomètre</string>
-    <string name="sun_times">Soleil</string>
-    <string name="focus">Concentration</string>
-    <string name="settings">Paramètres</string>
     <string name="add_alarm">Ajouter Alarme</string>
     <string name="edit_alarm">Modifier Alarme</string>
     <string name="delete_alarm">Supprimer Alarme</string>
-    <string name="no_alarms_yet">Pas encore d\'alarmes</string>
     <string name="sunrise">Lever du soleil</string>
     <string name="minutes_after_sunrise">minutes après le lever du soleil</string>
     <string name="minutes_before_sunrise">minutes avant le lever du soleil</string>
-    <string name="alarm_ringing">L\'alarme sonne</string>
-    <string name="dismiss">Arrêter</string>
-    <string name="snooze">Répéter</string>
     <string name="label">Étiquette</string>
     <string name="time">Heure</string>
     <string name="normal_clock">Horloge Normale</string>
@@ -40,7 +30,6 @@
     <string name="alarm_sound">Son d\'alarme</string>
     <string name="select_sound">Sélectionner Son</string>
     <string name="browse_files">Parcourir Fichiers</string>
-    <string name="volume">Volume</string>
     <string name="vibrate">Vibrer</string>
     <string name="gradual_volume">Volume Progressif</string>
     <string name="gradual_duration">Durée Progressive</string>
@@ -93,12 +82,7 @@
     <string name="location_permission_desc_sun">Veuillez accorder l\'autorisation de localisation pour voir les horaires du soleil</string>
     <string name="today">Aujourd\'hui</string>
     <string name="tomorrow">Demain</string>
-    <string name="daylight">Heures de jour</string>
     <string name="sunset">Coucher du soleil</string>
-    <string name="once_repeat">Une fois</string>
-    <string name="daily_repeat">Quotidien</string>
-    <string name="weekdays_repeat">Jours ouvrés</string>
-    <string name="weekends_repeat">Week-ends</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>
