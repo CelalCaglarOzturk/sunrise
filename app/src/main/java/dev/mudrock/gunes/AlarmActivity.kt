@@ -74,7 +74,7 @@ class AlarmActivity : ComponentActivity() {
                 calendar.add(Calendar.MINUTE, snoozeMinutes)
                 
                 val snoozedAlarm = alarm.copy(
-                    time = String.format("%02d:%02d", 
+                    time = String.format(java.util.Locale.US, "%02d:%02d", 
                         calendar.get(Calendar.HOUR_OF_DAY), 
                         calendar.get(Calendar.MINUTE)),
                     useSunTime = false,

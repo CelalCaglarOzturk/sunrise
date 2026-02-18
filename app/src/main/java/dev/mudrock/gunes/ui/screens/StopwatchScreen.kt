@@ -337,5 +337,5 @@ fun formatStopwatchTime(millis: Long): String {
     val seconds = totalSeconds % 60
     val centiseconds = (millis % 1000) / 10
 
-    return String.format("%02d:%02d.%02d", minutes, seconds, centiseconds)
+    return String.format(java.util.Locale.US, "%02d:%02d.%02d", minutes, seconds, centiseconds)
 }

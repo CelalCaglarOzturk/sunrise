@@ -579,7 +579,7 @@ fun WheelPicker(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = String.format("%02d", itemValue),
+                            text = String.format(java.util.Locale.US, "%02d", itemValue),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = if (isSelected) MaterialTheme.colorScheme.primary
@@ -601,8 +601,8 @@ fun formatTimerTime(seconds: Int): String {
     val m = (seconds % 3600) / 60
     val s = seconds % 60
     return if (h > 0) {
-        String.format("%02d:%02d:%02d", h, m, s)
+        String.format(java.util.Locale.US, "%02d:%02d:%02d", h, m, s)
     } else {
-        String.format("%02d:%02d", m, s)
+        String.format(java.util.Locale.US, "%02d:%02d", m, s)
     }
 }

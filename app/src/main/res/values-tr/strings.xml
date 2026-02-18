@@ -38,6 +38,8 @@
     <string name="save">Kaydet</string>
     <string name="cancel">İptal</string>
     <string name="delete_all">Tümünü Sil</string>
+    <string name="delete_all_confirmation">Tüm alarmları silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</string>
+    <string name="delete">Sil</string>
     <string name="disable_all">Tümünü Devre Dışı Bırak</string>
     <string name="enable_all">Tümünü Etkinleştir</string>
     <string name="bulk_actions">Toplu İşlemler</string>
@@ -55,6 +57,8 @@
     <string name="import_settings">Ayarları İçe Aktar</string>
     <string name="about">Hakkında</string>
     <string name="version">Sürüm</string>
+    <string name="app_name_display">Güneş Saati</string>
+    <string name="app_version">1.0.0</string>
     <string name="start">Başlat</string>
     <string name="pause">Duraklat</string>
     <string name="resume">Devam Et</string>
@@ -66,6 +70,7 @@
     <string name="no_timers_yet">Henüz zamanlayıcı yok</string>
     <string name="create_your_first_timer">İlk zamanlayıcınızı oluşturun</string>
     <string name="timer_finished">Zamanlayıcı Bitti!</string>
+    <string name="duration">Süre</string>
     <string name="work">Çalışma</string>
     <string name="short_break">Kısa Mola</string>
     <string name="long_break">Uzun Mola</string>

@@ -38,6 +38,8 @@
     <string name="save">Guardar</string>
     <string name="cancel">Cancelar</string>
     <string name="delete_all">Eliminar Todo</string>
+    <string name="delete_all_confirmation">¿Está seguro de que desea eliminar todas las alarmas? Esta acción no se puede deshacer.</string>
+    <string name="delete">Eliminar</string>
     <string name="disable_all">Desactivar Todo</string>
     <string name="enable_all">Activar Todo</string>
     <string name="bulk_actions">Acciones Masivas</string>
@@ -55,6 +57,8 @@
     <string name="import_settings">Importar Ajustes</string>
     <string name="about">Acerca de</string>
     <string name="version">Versión</string>
+    <string name="app_name_display">Reloj Solar</string>
+    <string name="app_version">1.0.0</string>
     <string name="start">Iniciar</string>
     <string name="pause">Pausar</string>
     <string name="resume">Reanudar</string>
@@ -66,6 +70,7 @@
     <string name="no_timers_yet">Sin temporizadores aún</string>
     <string name="create_your_first_timer">Crea tu primer temporizador</string>
     <string name="timer_finished">¡Temporizador Terminado!</string>
+    <string name="duration">Duración</string>
     <string name="work">Trabajo</string>
     <string name="short_break">Descanso Corto</string>
     <string name="long_break">Descanso Largo</string>

@@ -38,6 +38,8 @@
     <string name="save">保存</string>
     <string name="cancel">キャンセル</string>
     <string name="delete_all">すべて削除</string>
+    <string name="delete_all_confirmation">すべてのアラームを削除してもよろしいですか？この操作は元に戻せません。</string>
+    <string name="delete">削除</string>
     <string name="disable_all">すべて無効</string>
     <string name="enable_all">すべて有効</string>
     <string name="bulk_actions">一括操作</string>
@@ -55,6 +57,8 @@
     <string name="import_settings">設定をインポート</string>
     <string name="about">について</string>
     <string name="version">バージョン</string>
+    <string name="app_name_display">サン クロック</string>
+    <string name="app_version">1.0.0</string>
     <string name="start">開始</string>
     <string name="pause">一時停止</string>
     <string name="resume">再開</string>
@@ -66,6 +70,7 @@
     <string name="no_timers_yet">タイマーなし</string>
     <string name="create_your_first_timer">最初のタイマーを作成</string>
     <string name="timer_finished">タイマー完了！</string>
+    <string name="duration">期間</string>
     <string name="work">作業</string>
     <string name="short_break">短い休憩</string>
     <string name="long_break">長い休憩</string>

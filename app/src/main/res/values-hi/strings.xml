@@ -38,6 +38,8 @@
     <string name="save">सहेजें</string>
     <string name="cancel">रद्द करें</string>
     <string name="delete_all">सभी हटाएं</string>
+    <string name="delete_all_confirmation">क्या आप वाकई सभी अलार्म हटाना चाहते हैं? इस क्रिया को पूर्ववत नहीं किया जा सकता।</string>
+    <string name="delete">हटाएं</string>
     <string name="disable_all">सभी अक्षम करें</string>
     <string name="enable_all">सभी सक्षम करें</string>
     <string name="bulk_actions">बल्क एक्शन</string>
@@ -55,6 +57,8 @@
     <string name="import_settings">सेटिंग्स आयात करें</string>
     <string name="about">के बारे में</string>
     <string name="version">संस्करण</string>
+    <string name="app_name_display">सन क्लॉक</string>
+    <string name="app_version">1.0.0</string>
     <string name="start">शुरू</string>
     <string name="pause">रोकें</string>
     <string name="resume">फिर से शुरू</string>
@@ -66,6 +70,7 @@
     <string name="no_timers_yet">अभी तक कोई टाइमर नहीं</string>
     <string name="create_your_first_timer">अपना पहला टाइमर बनाएं</string>
     <string name="timer_finished">टाइमर समाप्त!</string>
+    <string name="duration">अवधि</string>
     <string name="work">काम</string>
     <string name="short_break">छोटा ब्रेक</string>
     <string name="long_break">लंबा ब्रेक</string>

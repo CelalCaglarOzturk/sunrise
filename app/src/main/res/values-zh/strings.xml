@@ -38,6 +38,8 @@
     <string name="save">保存</string>
     <string name="cancel">取消</string>
     <string name="delete_all">删除全部</string>
+    <string name="delete_all_confirmation">您确定要删除所有闹钟吗？此操作无法撤销。</string>
+    <string name="delete">删除</string>
     <string name="disable_all">全部禁用</string>
     <string name="enable_all">全部启用</string>
     <string name="bulk_actions">批量操作</string>
@@ -55,6 +57,8 @@
     <string name="import_settings">导入设置</string>
     <string name="about">关于</string>
     <string name="version">版本</string>
+    <string name="app_name_display">太阳时钟</string>
+    <string name="app_version">1.0.0</string>
     <string name="start">开始</string>
     <string name="pause">暂停</string>
     <string name="resume">继续</string>
@@ -66,6 +70,7 @@
     <string name="no_timers_yet">暂无计时器</string>
     <string name="create_your_first_timer">创建您的第一个计时器</string>
     <string name="timer_finished">计时器完成！</string>
+    <string name="duration">时长</string>
     <string name="work">工作</string>
     <string name="short_break">短休息</string>
     <string name="long_break">长休息</string>

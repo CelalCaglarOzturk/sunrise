@@ -38,6 +38,8 @@
     <string name="save">حفظ</string>
     <string name="cancel">إلغاء</string>
     <string name="delete_all">حذف الكل</string>
+    <string name="delete_all_confirmation">هل أنت متأكد أنك تريد حذف جميع المنبهات؟ لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="delete">حذف</string>
     <string name="disable_all">تعطيل الكل</string>
     <string name="enable_all">تفعيل الكل</string>
     <string name="bulk_actions">إجراءات متعددة</string>
@@ -55,6 +57,8 @@
     <string name="import_settings">استيراد الإعدادات</string>
     <string name="about">حول</string>
     <string name="version">الإصدار</string>
+    <string name="app_name_display">ساعة الشمس</string>
+    <string name="app_version">1.0.0</string>
     <string name="start">ابدأ</string>
     <string name="pause">إيقاف مؤقت</string>
     <string name="resume">استئناف</string>
@@ -66,6 +70,7 @@
     <string name="no_timers_yet">لا توجد مؤقتات</string>
     <string name="create_your_first_timer">أنشئ مؤقتك الأول</string>
     <string name="timer_finished">انتهى المؤقت!</string>
+    <string name="duration">المدة</string>
     <string name="work">عمل</string>
     <string name="short_break">استراحة قصيرة</string>
     <string name="long_break">استراحة طويلة</string>

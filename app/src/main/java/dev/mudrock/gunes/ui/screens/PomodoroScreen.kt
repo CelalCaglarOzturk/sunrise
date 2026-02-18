@@ -7,12 +7,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,67 +32,144 @@ import dev.mudrock.gunes.R
 import dev.mudrock.gunes.ui.MainViewModel
 import kotlinx.coroutines.delay
 import java.util.UUID
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 enum class PomodoroPhase {
     WORK, SHORT_BREAK, LONG_BREAK
 }
 
+@Parcelize
 data class PomodoroSession(
     val id: String = UUID.randomUUID().toString(),
     val startTime: Long,
     val duration: Int,
     val completed: Boolean,
     val type: PomodoroPhase
-)
+) : Parcelable
+
+@Parcelize
+data class PomodoroState(
+    val currentPhase: PomodoroPhase = PomodoroPhase.WORK,
+    val remainingSeconds: Int = 25 * 60,
+    val isRunning: Boolean = false,
+    val currentSessionCount: Int = 0,
+    val sessions: List<PomodoroSession> = emptyList(),
+    val targetEndTimeMillis: Long = 0L
+) : Parcelable
 
 @Composable
 fun PomodoroScreen(viewModel: MainViewModel) {
     val settings by viewModel.settings.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
-    var sessions by remember { mutableStateOf<List<PomodoroSession>>(emptyList()) }
     
-    // Restore state from settings
-    var currentPhase by remember { mutableStateOf(PomodoroPhase.valueOf(settings.pomodoroPhase)) }
-    var remainingSeconds by remember { mutableIntStateOf(settings.pomodoroRemainingSeconds) }
-    var isRunning by remember { mutableStateOf(false) } // Always start paused
     var workDuration by remember { mutableIntStateOf(settings.pomodoroWorkDuration) }
     var shortBreakDuration by remember { mutableIntStateOf(settings.pomodoroShortBreakDuration) }
     var longBreakDuration by remember { mutableIntStateOf(settings.pomodoroLongBreakDuration) }
     var sessionsBeforeLongBreak by remember { mutableIntStateOf(settings.pomodoroSessionsBeforeLongBreak) }
     var autoStartBreaks by remember { mutableStateOf(settings.pomodoroAutoStartBreaks) }
     var autoStartWork by remember { mutableStateOf(settings.pomodoroAutoStartWork) }
-    var currentSessionCount by remember { mutableIntStateOf(settings.pomodoroCurrentSessionCount) }
-    
-    // Calculate time elapsed since last update
-    val lastUpdateTime = settings.pomodoroLastUpdateTime
-    if (lastUpdateTime > 0 && !isRunning) {
-        val elapsedSinceLastUpdate = (System.currentTimeMillis() - lastUpdateTime) / 1000
-        if (elapsedSinceLastUpdate > 0 && remainingSeconds > 0) {
-            remainingSeconds = (remainingSeconds - elapsedSinceLastUpdate.toInt()).coerceAtLeast(0)
-        }
+
+    var pomodoroState by rememberSaveable { 
+        mutableStateOf(
+            PomodoroState(
+                currentPhase = PomodoroPhase.valueOf(settings.pomodoroPhase),
+                remainingSeconds = settings.pomodoroRemainingSeconds,
+                currentSessionCount = settings.pomodoroCurrentSessionCount,
+                isRunning = false
+            )
+        )
     }
 
-    val totalSeconds = when (currentPhase) {
+    fun getTotalSeconds(phase: PomodoroPhase): Int = when (phase) {
         PomodoroPhase.WORK -> workDuration * 60
         PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
         PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
     }
 
-    val progress = (totalSeconds - remainingSeconds).toFloat() / totalSeconds
-    
-    // Save state when leaving the screen
+    fun resetCurrentPhase() {
+        pomodoroState = pomodoroState.copy(
+            remainingSeconds = getTotalSeconds(pomodoroState.currentPhase),
+            isRunning = false,
+            targetEndTimeMillis = 0L
+        )
+    }
+
+    fun moveToNextPhase(completed: Boolean = true) {
+        val newSessionCount = if (pomodoroState.currentPhase == PomodoroPhase.WORK && completed) {
+            pomodoroState.currentSessionCount + 1
+        } else {
+            pomodoroState.currentSessionCount
+        }
+
+        val newSession = if (completed) {
+            PomodoroSession(
+                startTime = System.currentTimeMillis(),
+                duration = getTotalSeconds(pomodoroState.currentPhase),
+                completed = true,
+                type = pomodoroState.currentPhase
+            )
+        } else null
+
+        val newPhase = when (pomodoroState.currentPhase) {
+            PomodoroPhase.WORK -> {
+                if (newSessionCount % sessionsBeforeLongBreak == 0) {
+                    PomodoroPhase.LONG_BREAK
+                } else {
+                    PomodoroPhase.SHORT_BREAK
+                }
+            }
+            PomodoroPhase.SHORT_BREAK, PomodoroPhase.LONG_BREAK -> PomodoroPhase.WORK
+        }
+
+        val shouldAutoStart = when (newPhase) {
+            PomodoroPhase.WORK -> autoStartWork
+            PomodoroPhase.SHORT_BREAK, PomodoroPhase.LONG_BREAK -> autoStartBreaks
+        }
+
+        val newRemainingSeconds = getTotalSeconds(newPhase)
+        val now = System.currentTimeMillis()
+
+        pomodoroState = pomodoroState.copy(
+            currentPhase = newPhase,
+            remainingSeconds = newRemainingSeconds,
+            currentSessionCount = newSessionCount,
+            sessions = if (newSession != null) listOf(newSession) + pomodoroState.sessions else pomodoroState.sessions,
+            isRunning = shouldAutoStart,
+            targetEndTimeMillis = if (shouldAutoStart) now + (newRemainingSeconds * 1000L) else 0L
+        )
+    }
+
+    fun startTimer() {
+        val now = System.currentTimeMillis()
+        pomodoroState = pomodoroState.copy(
+            isRunning = true,
+            targetEndTimeMillis = now + (pomodoroState.remainingSeconds * 1000L)
+        )
+    }
+
+    fun pauseTimer() {
+        pomodoroState = pomodoroState.copy(
+            isRunning = false,
+            targetEndTimeMillis = 0L
+        )
+    }
+
+    val totalSeconds = getTotalSeconds(pomodoroState.currentPhase)
+    val progress = (totalSeconds - pomodoroState.remainingSeconds).toFloat() / totalSeconds.coerceAtLeast(1)
+
     DisposableEffect(Unit) {
         onDispose {
             viewModel.updateSettings { s ->
                 s.copy(
-                    pomodoroRemainingSeconds = remainingSeconds,
-                    pomodoroPhase = currentPhase.name,
-                    pomodoroIsRunning = isRunning,
+                    pomodoroRemainingSeconds = pomodoroState.remainingSeconds,
+                    pomodoroPhase = pomodoroState.currentPhase.name,
+                    pomodoroIsRunning = false,
                     pomodoroWorkDuration = workDuration,
                     pomodoroShortBreakDuration = shortBreakDuration,
                     pomodoroLongBreakDuration = longBreakDuration,
                     pomodoroSessionsBeforeLongBreak = sessionsBeforeLongBreak,
-                    pomodoroCurrentSessionCount = currentSessionCount,
+                    pomodoroCurrentSessionCount = pomodoroState.currentSessionCount,
                     pomodoroAutoStartBreaks = autoStartBreaks,
                     pomodoroAutoStartWork = autoStartWork,
                     pomodoroLastUpdateTime = System.currentTimeMillis()
@@ -101,45 +178,27 @@ fun PomodoroScreen(viewModel: MainViewModel) {
         }
     }
 
-    // Timer tick effect - only runs when isRunning is true
-    LaunchedEffect(isRunning) {
-        if (isRunning) {
-            while (remainingSeconds > 0) {
-                delay(1000)
-                remainingSeconds--
+    LaunchedEffect(pomodoroState.isRunning, pomodoroState.targetEndTimeMillis) {
+        if (pomodoroState.isRunning && pomodoroState.targetEndTimeMillis > 0) {
+            while (pomodoroState.isRunning) {
+                val now = System.currentTimeMillis()
+                val remaining = ((pomodoroState.targetEndTimeMillis - now) / 1000L).toInt()
                 
-                if (remainingSeconds == 0) {
-                    isRunning = false
-                    if (currentPhase == PomodoroPhase.WORK) {
-                        currentSessionCount++
-                        sessions = sessions + PomodoroSession(
-                            startTime = System.currentTimeMillis(),
-                            duration = totalSeconds,
-                            completed = true,
-                            type = PomodoroPhase.WORK
-                        )
-                        currentPhase = if (currentSessionCount % sessionsBeforeLongBreak == 0) {
-                            PomodoroPhase.LONG_BREAK
-                        } else {
-                            PomodoroPhase.SHORT_BREAK
-                        }
-                    } else {
-                        currentPhase = PomodoroPhase.WORK
-                    }
-                    remainingSeconds = when (currentPhase) {
-                        PomodoroPhase.WORK -> workDuration * 60
-                        PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
-                        PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
-                    }
-                    
-                    // Auto-start next phase if enabled
-                    if ((currentPhase != PomodoroPhase.WORK && autoStartBreaks) ||
-                        (currentPhase == PomodoroPhase.WORK && autoStartWork)) {
-                        delay(1000)
-                        isRunning = true
-                    }
+                if (remaining <= 0) {
+                    pomodoroState = pomodoroState.copy(
+                        remainingSeconds = 0,
+                        isRunning = false,
+                        targetEndTimeMillis = 0L
+                    )
+                    moveToNextPhase(completed = true)
                     break
                 }
+                
+                if (remaining != pomodoroState.remainingSeconds) {
+                    pomodoroState = pomodoroState.copy(remainingSeconds = remaining)
+                }
+                
+                delay(100)
             }
         }
     }
@@ -152,7 +211,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        PhaseIndicator(currentPhase)
+        PhaseIndicator(pomodoroState.currentPhase)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -161,7 +220,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
             contentAlignment = Alignment.Center
         ) {
             ProgressRing(
-                progress = progress,
+                progress = progress.coerceIn(0f, 1f),
                 modifier = Modifier.fillMaxSize()
             )
 
@@ -169,7 +228,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = formatPomodoroTime(remainingSeconds),
+                    text = formatPomodoroTime(pomodoroState.remainingSeconds),
                     style = MaterialTheme.typography.displayLarge,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace,
@@ -180,9 +239,10 @@ fun PomodoroScreen(viewModel: MainViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val completedWorkSessions = sessions.count { it.type == PomodoroPhase.WORK && it.completed }
+        val completedWorkSessions = pomodoroState.sessions.count { it.type == PomodoroPhase.WORK && it.completed }
+        val sessionsText = stringResource(R.string.sessions_completed)
         Text(
-            "$completedWorkSessions ${stringResource(R.string.sessions_completed)}",
+            "$completedWorkSessions $sessionsText",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
@@ -192,9 +252,9 @@ fun PomodoroScreen(viewModel: MainViewModel) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (!isRunning) {
+            if (!pomodoroState.isRunning) {
                 Button(
-                    onClick = { isRunning = true },
+                    onClick = { startTimer() },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
@@ -206,7 +266,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
                 }
             } else {
                 Button(
-                    onClick = { isRunning = false },
+                    onClick = { pauseTimer() },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                     ),
@@ -219,14 +279,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
             }
 
             OutlinedButton(
-                onClick = {
-                    isRunning = false
-                    remainingSeconds = when (currentPhase) {
-                        PomodoroPhase.WORK -> workDuration * 60
-                        PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
-                        PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
-                    }
-                },
+                onClick = { resetCurrentPhase() },
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = null)
@@ -234,38 +287,8 @@ fun PomodoroScreen(viewModel: MainViewModel) {
 
             OutlinedButton(
                 onClick = {
-                    isRunning = false
-                    if (currentPhase == PomodoroPhase.WORK) {
-                        currentSessionCount++
-                        sessions = sessions + PomodoroSession(
-                            startTime = System.currentTimeMillis(),
-                            duration = totalSeconds - remainingSeconds,
-                            completed = false,
-                            type = PomodoroPhase.WORK
-                        )
-                        currentPhase = if (currentSessionCount % sessionsBeforeLongBreak == 0) {
-                            PomodoroPhase.LONG_BREAK
-                        } else {
-                            PomodoroPhase.SHORT_BREAK
-                        }
-                    } else {
-                        currentPhase = PomodoroPhase.WORK
-                    }
-                    remainingSeconds = when (currentPhase) {
-                        PomodoroPhase.WORK -> workDuration * 60
-                        PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
-                        PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
-                    }
-                    // Save state
-                    viewModel.updateSettings { s ->
-                        s.copy(
-                            pomodoroRemainingSeconds = remainingSeconds,
-                            pomodoroPhase = currentPhase.name,
-                            pomodoroIsRunning = false,
-                            pomodoroCurrentSessionCount = currentSessionCount,
-                            pomodoroLastUpdateTime = System.currentTimeMillis()
-                        )
-                    }
+                    pauseTimer()
+                    moveToNextPhase(completed = false)
                 },
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -280,7 +303,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
             }
         }
 
-        if (sessions.isNotEmpty()) {
+        if (pomodoroState.sessions.isNotEmpty()) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Card(
@@ -304,7 +327,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
                         modifier = Modifier.heightIn(max = 200.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(sessions.take(10)) { session ->
+                        items(pomodoroState.sessions.take(10), key = { it.id }) { session ->
                             SessionItem(session)
                         }
                     }
@@ -328,14 +351,13 @@ fun PomodoroScreen(viewModel: MainViewModel) {
                 sessionsBeforeLongBreak = sessionsCount
                 autoStartBreaks = autoBreaks
                 autoStartWork = autoWork
-                if (!isRunning) {
-                    remainingSeconds = when (currentPhase) {
-                        PomodoroPhase.WORK -> workDuration * 60
-                        PomodoroPhase.SHORT_BREAK -> shortBreakDuration * 60
-                        PomodoroPhase.LONG_BREAK -> longBreakDuration * 60
-                    }
+                
+                if (!pomodoroState.isRunning) {
+                    pomodoroState = pomodoroState.copy(
+                        remainingSeconds = getTotalSeconds(pomodoroState.currentPhase)
+                    )
                 }
-                // Save settings
+                
                 viewModel.updateSettings { s ->
                     s.copy(
                         pomodoroWorkDuration = workDuration,
@@ -344,7 +366,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
                         pomodoroSessionsBeforeLongBreak = sessionsBeforeLongBreak,
                         pomodoroAutoStartBreaks = autoStartBreaks,
                         pomodoroAutoStartWork = autoStartWork,
-                        pomodoroRemainingSeconds = remainingSeconds,
+                        pomodoroRemainingSeconds = pomodoroState.remainingSeconds,
                         pomodoroLastUpdateTime = System.currentTimeMillis()
                     )
                 }
@@ -515,7 +537,7 @@ fun PomodoroSettingsDialog(
                         color = MaterialTheme.colorScheme.primary
                     )
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = null)
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel))
                     }
                 }
 
@@ -552,7 +574,6 @@ fun PomodoroSettingsDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Auto-start toggles
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -666,5 +687,5 @@ fun DurationSlider(
 fun formatPomodoroTime(seconds: Int): String {
     val mins = seconds / 60
     val secs = seconds % 60
-    return String.format("%02d:%02d", mins, secs)
+    return String.format(java.util.Locale.US, "%02d:%02d", mins, secs)
 }

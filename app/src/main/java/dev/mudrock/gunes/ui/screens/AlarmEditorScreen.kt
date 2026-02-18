@@ -53,7 +53,7 @@ fun AlarmEditorScreen(
     // Form fields - use current time as default for new alarms
     val currentTime = remember {
         val calendar = Calendar.getInstance()
-        String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))
+        String.format(java.util.Locale.US, "%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))
     }
     var time by remember { mutableStateOf(alarm?.time ?: currentTime) }
     var label by remember { mutableStateOf(alarm?.label ?: "") }

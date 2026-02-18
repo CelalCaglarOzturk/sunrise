@@ -38,6 +38,8 @@
     <string name="save">Speichern</string>
     <string name="cancel">Abbrechen</string>
     <string name="delete_all">Alle Löschen</string>
+    <string name="delete_all_confirmation">Sind Sie sicher, dass Sie alle Alarme löschen möchten? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="delete">Löschen</string>
     <string name="disable_all">Alle Deaktivieren</string>
     <string name="enable_all">Alle Aktivieren</string>
     <string name="bulk_actions">Massenaktionen</string>
@@ -55,6 +57,8 @@
     <string name="import_settings">Einstellungen Importieren</string>
     <string name="about">Über</string>
     <string name="version">Version</string>
+    <string name="app_name_display">Sonnen Uhr</string>
+    <string name="app_version">1.0.0</string>
     <string name="start">Start</string>
     <string name="pause">Pause</string>
     <string name="resume">Fortsetzen</string>
@@ -66,6 +70,7 @@
     <string name="no_timers_yet">Noch keine Timer</string>
     <string name="create_your_first_timer">Erstellen Sie Ihren ersten Timer</string>
     <string name="timer_finished">Timer Beendet!</string>
+    <string name="duration">Dauer</string>
     <string name="work">Arbeit</string>
     <string name="short_break">Kurze Pause</string>
     <string name="long_break">Lange Pause</string>
