@@ -192,7 +192,7 @@ fun AlarmEditorScreen(
                             calendar.add(Calendar.MINUTE, sunOffset)
                             val hour = calendar.get(Calendar.HOUR_OF_DAY)
                             val minute = calendar.get(Calendar.MINUTE)
-                            String.format("%02d:%02d", hour, minute)
+                            String.format(java.util.Locale.US, "%02d:%02d", hour, minute)
                         } else "--:--"
 
                         Text(
@@ -242,7 +242,7 @@ fun AlarmEditorScreen(
                                     value = sunOffsetMinutes,
                                     range = 0..59,
                                     onValueChange = { sunOffsetMinutes = it },
-                                    displayFormatter = { String.format("%02d", it) }
+                                    displayFormatter = { String.format(java.util.Locale.US, "%02d", it) }
                                 )
                             }
                         }
@@ -283,7 +283,7 @@ fun AlarmEditorScreen(
                             TimePickerDialog(
                                 context,
                                 { _, hourOfDay, minute ->
-                                    time = String.format("%02d:%02d", hourOfDay, minute)
+                                    time = String.format(java.util.Locale.US, "%02d:%02d", hourOfDay, minute)
                                     showTimePicker = false
                                 },
                                 initialHour,

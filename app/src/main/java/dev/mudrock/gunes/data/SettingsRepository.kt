@@ -1,7 +1,6 @@
 package dev.mudrock.gunes.data
 
 import android.content.Context
-import android.os.Build
 import android.text.format.DateFormat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -63,11 +62,7 @@ class SettingsRepository(private val context: Context, private val gson: Gson) {
         private val SUPPORTED_LANGUAGES = listOf("en", "tr", "es", "fr", "de", "pt", "zh", "ja", "ru", "ar", "hi")
         
         fun getSystemLanguage(): String {
-            val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Locale.getDefault()
-            } else {
-                Locale.getDefault()
-            }
+            val locale = Locale.getDefault()
             val langCode = locale.language
             return if (langCode in SUPPORTED_LANGUAGES) langCode else "en"
         }
