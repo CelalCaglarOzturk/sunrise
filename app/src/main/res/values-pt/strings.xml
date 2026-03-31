@@ -91,6 +91,7 @@
     <string name="location_error">Erro de Localização</string>
     <string name="location_error_desc">Não foi possível obter a localização. Verifique as configurações de localização.</string>
     <string name="try_again">Tentar novamente</string>
+    <string name="getting_location">Obtendo localização...</string>
     <string name="sun_based_time">Hora Solar</string>
     <string name="normal_time">Hora Normal</string>
     <string name="sun_clock_description">Tempo desde/até o nascer do sol.\n+Horas = após o nascer do sol\n(-) = horas até o próximo nascer do sol</string>

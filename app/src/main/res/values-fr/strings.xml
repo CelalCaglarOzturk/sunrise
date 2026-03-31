@@ -91,6 +91,7 @@
     <string name="location_error">Erreur de Localisation</string>
     <string name="location_error_desc">Impossible d\'obtenir la position. Vérifiez les paramètres de localisation.</string>
     <string name="try_again">Réessayer</string>
+    <string name="getting_location">Obtention de la position...</string>
     <string name="sun_based_time">Heure Solaire</string>
     <string name="normal_time">Heure Normale</string>
     <string name="sun_clock_description">Temps depuis/vers le lever du soleil.\n+Heures = après le lever\n(-) = heures jusqu\'au prochain lever</string>

@@ -91,6 +91,7 @@
     <string name="location_error">Konum Hatası</string>
     <string name="location_error_desc">Konum alınamadı. Lütfen konum ayarlarınızı kontrol edin.</string>
     <string name="try_again">Tekrar Dene</string>
+    <string name="getting_location">Konum alınıyor...</string>
     <string name="sun_based_time">Güneş Saati</string>
     <string name="normal_time">Normal Saat</string>
     <string name="sun_clock_description">Gün doğumundan beri/gecine süre.\n+Saat = gün doğumundan sonra\n(-) = sonraki gün doğumuna kadar saatler</string>

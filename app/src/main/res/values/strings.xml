@@ -68,6 +68,7 @@
     <string name="location_error_desc">Unable to get location. Please check your location settings.</string>
     <string name="try_again">Try Again</string>
     <string name="grant_permission">Grant Permission</string>
+    <string name="getting_location">Getting location...</string>
     <string name="open_settings">Open Settings</string>
     <string name="permission_granted">Granted</string>
     <string name="battery_optimization">Battery Optimization</string>

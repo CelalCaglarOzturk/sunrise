@@ -66,6 +66,7 @@ fun AlarmListScreen(viewModel: MainViewModel) {
     }
     
     val locationError by viewModel.locationError.collectAsState()
+    val isLoadingLocation by viewModel.isLoadingLocation.collectAsState()
     
     // Request location permission on first launch for sun-based features
     LaunchedEffect(Unit) {
@@ -193,6 +194,7 @@ fun AlarmListScreen(viewModel: MainViewModel) {
                     sunTimes = sunTimes,
                     hasLocationPermission = locationPermissionState.status.isGranted,
                     locationError = locationError,
+                    isLoading = isLoadingLocation,
                     onRequestPermission = {
                         if (locationPermissionState.status.shouldShowRationale) {
                             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -623,6 +625,7 @@ fun SunTimesSection(
     sunTimes: List<SunTimes>,
     hasLocationPermission: Boolean,
     locationError: String?,
+    isLoading: Boolean,
     onRequestPermission: () -> Unit,
     onRetry: () -> Unit
 ) {
@@ -697,6 +700,38 @@ fun SunTimesSection(
                         }
                     }
                 }
+                isLoading -> {
+                    // Loading location
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    stringResource(R.string.getting_location),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+                }
                 locationError != null -> {
                     // Permission granted but location error
                     Card(
@@ -746,7 +781,7 @@ fun SunTimesSection(
                     }
                 }
                 else -> {
-                    // Loading state
+                    // Waiting for first location fetch
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),

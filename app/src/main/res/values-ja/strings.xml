@@ -91,6 +91,7 @@
     <string name="location_error">位置情報エラー</string>
     <string name="location_error_desc">位置情報を取得できませんでした。位置設定を確認してください。</string>
     <string name="try_again">再試行</string>
+    <string name="getting_location">位置情報を取得中...</string>
     <string name="sun_based_time">太陽時間</string>
     <string name="normal_time">通常時間</string>
     <string name="sun_clock_description">日の出までの時間。\n+時間 = 日の出後\n(-) = 次の日の出までの時間</string>

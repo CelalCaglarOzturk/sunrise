@@ -91,6 +91,7 @@
     <string name="location_error">स्थान त्रुटि</string>
     <string name="location_error_desc">स्थान प्राप्त नहीं किया जा सका। कृपया स्थान सेटिंग्स जांचें।</string>
     <string name="try_again">पुनः प्रयास करें</string>
+    <string name="getting_location">स्थान प्राप्त कर रहे हैं...</string>
     <string name="sun_based_time">सूर्य आधारित समय</string>
     <string name="normal_time">सामान्य समय</string>
     <string name="sun_clock_description">सूर्योदय से/तक समय।\n+घंटे = सूर्योदय के बाद\n(-) = अगले सूर्योदय तक घंटे</string>

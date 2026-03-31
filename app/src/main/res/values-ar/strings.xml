@@ -91,6 +91,7 @@
     <string name="location_error">خطأ في الموقع</string>
     <string name="location_error_desc">تعذر الحصول على الموقع. يرجى التحقق من إعدادات الموقع.</string>
     <string name="try_again">حاول مرة أخرى</string>
+    <string name="getting_location">جاري الحصول على الموقع...</string>
     <string name="sun_based_time">وقت الشمس</string>
     <string name="normal_time">الوقت العادي</string>
     <string name="sun_clock_description">الوقت منذ/حتى شروق الشمس.\n+ساعات = بعد الشروق\n(-) = ساعات حتى الشروق التالي</string>

@@ -83,7 +83,7 @@ class SunTimeWorker(
                     val date = Date(now.time + i * 24 * 60 * 60 * 1000L)
                     try {
                         val sunTimes = SunCalc.getTimes(date, lat, lng)
-                        sunTimesList.add("${sunTimes.sunrise.time},${sunTimes.sunset.time}")
+                        sunTimesList.add("${date.time},${sunTimes.sunrise.time},${sunTimes.sunset.time}")
                     } catch (e: Exception) {
                         Log.e(TAG, "Failed to calculate sun times for day $i", e)
                     }
@@ -109,11 +109,20 @@ class SunTimeWorker(
                 sunTimesString.split(";").mapNotNull { dayData ->
                     try {
                         val parts = dayData.split(",")
-                        if (parts.size == 2) {
+                        if (parts.size == 3) {
                             SunTimes(
-                                sunrise = Date(parts[0].toLong()),
-                                sunset = Date(parts[1].toLong()),
-                                date = Date()
+                                date = Date(parts[0].toLong()),
+                                sunrise = Date(parts[1].toLong()),
+                                sunset = Date(parts[2].toLong())
+                            )
+                        } else if (parts.size == 2) {
+                            // Legacy format fallback - use sunrise as date reference
+                            val sunriseTime = parts[0].toLong()
+                            val sunsetTime = parts[1].toLong()
+                            SunTimes(
+                                date = Date(sunriseTime),
+                                sunrise = Date(sunriseTime),
+                                sunset = Date(sunsetTime)
                             )
                         } else null
                     } catch (e: Exception) {

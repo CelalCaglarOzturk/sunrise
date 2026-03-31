@@ -40,6 +40,9 @@ class MainViewModel(
 
     private val _locationError = MutableStateFlow<String?>(null)
     val locationError = _locationError.asStateFlow()
+    
+    private val _isLoadingLocation = MutableStateFlow(false)
+    val isLoadingLocation = _isLoadingLocation.asStateFlow()
 
     init {
         loadCachedSunTimes()
@@ -49,9 +52,9 @@ class MainViewModel(
 
     private fun loadCachedSunTimes() {
         val cached = SunTimeWorker.getCachedSunTimes(application)
-        if (cached != null && !SunTimeWorker.needsUpdate(application)) {
+        if (cached != null) {
             _sunTimes.value = cached
-            _locationError.value = null  // Clear error if we have valid cached data
+            _locationError.value = null
         }
     }
 
@@ -80,6 +83,7 @@ class MainViewModel(
 
     fun updateLocation() {
         viewModelScope.launch {
+            _isLoadingLocation.value = true
             _locationError.value = null
             try {
                 val loc = locationManager.getCurrentLocation()
@@ -87,11 +91,20 @@ class MainViewModel(
                 if (loc != null) {
                     SunTimeWorker.schedule(application, loc)
                     updateSunTimes(loc)
+                    _locationError.value = null
                 } else {
-                    _locationError.value = "Unable to get location"
+                    // Only show error if we don't have cached data
+                    if (_sunTimes.value.isEmpty()) {
+                        _locationError.value = "Unable to get location. Please enable location services."
+                    }
                 }
             } catch (e: Exception) {
-                _locationError.value = e.message ?: "Location error"
+                // Only show error if we don't have cached data
+                if (_sunTimes.value.isEmpty()) {
+                    _locationError.value = e.message ?: "Location error"
+                }
+            } finally {
+                _isLoadingLocation.value = false
             }
         }
     }
