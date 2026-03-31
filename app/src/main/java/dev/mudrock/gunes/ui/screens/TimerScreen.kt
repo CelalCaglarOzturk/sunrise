@@ -9,8 +9,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -488,6 +490,46 @@ fun AddTimerSheet(
                     onValueChange = { seconds = it },
                     modifier = Modifier.weight(1f)
                 )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Quick presets
+            Text(
+                "Quick Presets",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            val presets = listOf(
+                "1 min" to Triple(0, 1, 0),
+                "3 min" to Triple(0, 3, 0),
+                "5 min" to Triple(0, 5, 0),
+                "10 min" to Triple(0, 10, 0),
+                "15 min" to Triple(0, 15, 0),
+                "30 min" to Triple(0, 30, 0)
+            )
+            
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(presets.size) { index ->
+                    val (presetLabel, presetTime) = presets[index]
+                    FilterChip(
+                        selected = false,
+                        onClick = {
+                            hours = presetTime.first
+                            minutes = presetTime.second
+                            seconds = presetTime.third
+                        },
+                        label = { Text(presetLabel) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))

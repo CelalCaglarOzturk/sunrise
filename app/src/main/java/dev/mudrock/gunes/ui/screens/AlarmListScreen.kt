@@ -251,6 +251,12 @@ fun AlarmListScreen(viewModel: MainViewModel) {
 fun DigitalClock(settings: dev.mudrock.gunes.data.AppSettings, sunriseTime: Date?) {
     var currentTime by remember { mutableStateOf(Date()) }
 
+    val dateFormat = remember { SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()) }
+    val timeFormat24h = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()) }
+    val timeFormat12h = remember { SimpleDateFormat("h:mm:ss a", Locale.getDefault()) }
+    val timeFormat24hNoSec = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val timeFormat12hNoSec = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
+
     LaunchedEffect(Unit) {
         while (true) {
             currentTime = Date()
@@ -277,9 +283,8 @@ fun DigitalClock(settings: dev.mudrock.gunes.data.AppSettings, sunriseTime: Date
                 color = MaterialTheme.colorScheme.primary
             )
 
-            val datePattern = "EEEE, MMMM d, yyyy"
             Text(
-                text = SimpleDateFormat(datePattern, Locale.getDefault()).format(currentTime),
+                text = dateFormat.format(currentTime),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
@@ -312,12 +317,12 @@ fun DigitalClock(settings: dev.mudrock.gunes.data.AppSettings, sunriseTime: Date
                 )
             }
         } else {
-            val pattern = if (settings.use24HourFormat) {
-                if (settings.showSeconds) "HH:mm:ss" else "HH:mm"
+            val timeFormat = if (settings.use24HourFormat) {
+                if (settings.showSeconds) timeFormat24h else timeFormat24hNoSec
             } else {
-                if (settings.showSeconds) "h:mm:ss a" else "h:mm a"
+                if (settings.showSeconds) timeFormat12h else timeFormat12hNoSec
             }
-            val timeString = SimpleDateFormat(pattern, Locale.getDefault()).format(currentTime)
+            val timeString = timeFormat.format(currentTime)
 
             Text(
                 text = timeString,
@@ -327,9 +332,8 @@ fun DigitalClock(settings: dev.mudrock.gunes.data.AppSettings, sunriseTime: Date
                 color = MaterialTheme.colorScheme.primary
             )
 
-            val datePattern = "EEEE, MMMM d, yyyy"
             Text(
-                text = SimpleDateFormat(datePattern, Locale.getDefault()).format(currentTime),
+                text = dateFormat.format(currentTime),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )

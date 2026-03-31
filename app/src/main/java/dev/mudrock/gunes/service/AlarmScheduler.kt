@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import dev.mudrock.gunes.data.Alarm
 import dev.mudrock.gunes.util.SunCalc
 import dev.mudrock.gunes.util.SunTimes
@@ -17,6 +18,10 @@ class AlarmScheduler(
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     private val locationManager = LocationManager(context)
 
+    companion object {
+        private const val TAG = "AlarmScheduler"
+    }
+
     suspend fun scheduleAlarm(alarm: Alarm) {
         if (!alarm.enabled) {
             cancelAlarm(alarm)
@@ -24,15 +29,20 @@ class AlarmScheduler(
         }
 
         val location = locationManager.getCurrentLocation()
-        val nextTime = calculateNextAlarmTime(alarm, location) ?: return
+        val nextTime = calculateNextAlarmTime(alarm, location)
+        
+        if (nextTime == null) {
+            Log.w(TAG, "Could not calculate next alarm time for ${alarm.id}")
+            return
+        }
 
-        // Create intent with all necessary extras
+        Log.d(TAG, "Scheduling alarm ${alarm.id} for ${Date(nextTime)}")
+
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             action = "dev.mudrock.gunes.ALARM_TRIGGER"
             putExtra("ALARM_ID", alarm.id)
         }
 
-        // Use a unique ID based on hash of UUID string for the PendingIntent
         val requestCode = alarm.id.hashCode()
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -43,20 +53,19 @@ class AlarmScheduler(
         )
 
         try {
-            // Cancel any existing alarm first
             alarmManager.cancel(pendingIntent)
             
-            // Schedule new alarm
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 nextTime,
                 pendingIntent
             )
+            
+            Log.d(TAG, "Alarm ${alarm.id} scheduled successfully")
         } catch (e: SecurityException) {
-            // Handle permission exception - likely SCHEDULE_EXACT_ALARM not granted
-            e.printStackTrace()
+            Log.e(TAG, "SecurityException scheduling alarm - likely missing SCHEDULE_EXACT_ALARM permission", e)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Exception scheduling alarm", e)
         }
     }
 
@@ -72,26 +81,24 @@ class AlarmScheduler(
         )
         alarmManager.cancel(pendingIntent)
         pendingIntent.cancel()
+        Log.d(TAG, "Alarm ${alarm.id} cancelled")
     }
 
     private fun calculateNextAlarmTime(alarm: Alarm, location: AndroidLocation?): Long? {
         val now = System.currentTimeMillis()
         val calendar = Calendar.getInstance()
 
-        // Parse repeat days
         val repeatDays = if (alarm.repeatDays.isEmpty()) {
             emptyList()
         } else {
             alarm.repeatDays.split(",").mapNotNull { it.trim().toIntOrNull() }
         }
 
-        // Check next 7 days
         for (i in 0..7) {
             calendar.timeInMillis = now
             calendar.add(Calendar.DAY_OF_YEAR, i)
 
-            // If repeating, check if this day is enabled
-            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1 // 0=Sunday
+            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1
             if (repeatDays.isNotEmpty() && !repeatDays.contains(dayOfWeek)) {
                 continue
             }
@@ -99,14 +106,26 @@ class AlarmScheduler(
             var alarmTimeMillis: Long
 
             if (alarm.useSunTime && location != null) {
-                val sunTimes = SunCalc.getTimes(
-                    calendar.time,
-                    location.latitude,
-                    location.longitude
-                )
+                try {
+                    val sunTimes = SunCalc.getTimes(
+                        calendar.time,
+                        location.latitude,
+                        location.longitude
+                    )
 
-                // Sunrise time + offset
-                alarmTimeMillis = sunTimes.sunrise.time + (alarm.sunOffset * 60 * 1000)
+                    if (sunTimes.sunrise == null) {
+                        Log.w(TAG, "Null sunrise time for day $i")
+                        continue
+                    }
+
+                    alarmTimeMillis = sunTimes.sunrise.time + (alarm.sunOffset * 60 * 1000L)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error calculating sun time", e)
+                    continue
+                }
+            } else if (alarm.useSunTime && location == null) {
+                Log.w(TAG, "Sun-based alarm ${alarm.id} but no location available")
+                continue
             } else {
                 val (hours, minutes) = alarm.time.split(":").map { it.toInt() }
                 calendar.set(Calendar.HOUR_OF_DAY, hours)
@@ -117,13 +136,11 @@ class AlarmScheduler(
             }
 
             if (alarmTimeMillis > now) {
-                // If it's a one-time alarm (no repeat days) and we are checking future days,
-                // we only accept it if i == 0 (today) or if it's tomorrow and time hasn't passed today.
-                // Actually simpler: if repeatDays is empty, we just take the first valid future time.
-                // If repeatDays is NOT empty, we take the first valid future time that matches the day.
                 return alarmTimeMillis
             }
         }
+        
+        Log.w(TAG, "No valid alarm time found in next 7 days for alarm ${alarm.id}")
         return null
     }
 }

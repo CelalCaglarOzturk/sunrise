@@ -1,6 +1,12 @@
 package dev.mudrock.gunes.ui.screens
 
 import android.app.TimePickerDialog
+import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.RingtoneManager
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -20,6 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +47,7 @@ import dev.mudrock.gunes.ui.MainViewModel
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.UUID
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -344,6 +352,32 @@ fun AlarmEditorScreen(
                                 }
                             }
                         }
+                        
+                        // Sun time variability warning
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Sunrise times vary daily (~1-2 min). Your alarm time will shift with the sunrise.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                            }
+                        }
                     }
                 } else {
                     FormSection(title = stringResource(R.string.time)) {
@@ -454,14 +488,70 @@ fun AlarmEditorScreen(
 
                 // Alarm Sound
                 FormSection(title = stringResource(R.string.alarm_sound)) {
-                    OutlinedButton(
-                        onClick = { showSoundPicker = !showSoundPicker },
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.Notifications, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(soundName)
+                        OutlinedButton(
+                            onClick = { showSoundPicker = !showSoundPicker },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.Notifications, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(soundName)
+                        }
+                        
+                        var testPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+                        var isPlaying by remember { mutableStateOf(false) }
+                        
+                        IconButton(
+                            onClick = {
+                                if (isPlaying) {
+                                    testPlayer?.stop()
+                                    testPlayer?.release()
+                                    testPlayer = null
+                                    isPlaying = false
+                                } else {
+                                    try {
+                                        val uri: Uri? = if (soundUri.isNotEmpty()) {
+                                            soundUri.toUri()
+                                        } else {
+                                            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                                                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                                        }
+                                        
+                                        if (uri != null) {
+                                            testPlayer = MediaPlayer().apply {
+                                                setDataSource(context, uri)
+                                                setAudioAttributes(
+                                                    AudioAttributes.Builder()
+                                                        .setUsage(AudioAttributes.USAGE_ALARM)
+                                                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                                        .build()
+                                                )
+                                                setVolume(volume / 100f, volume / 100f)
+                                                isLooping = false
+                                                setOnCompletionListener {
+                                                    isPlaying = false
+                                                    release()
+                                                }
+                                                prepare()
+                                                start()
+                                            }
+                                            isPlaying = true
+                                        }
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                if (isPlaying) Icons.Default.Stop else Icons.Default.PlayArrow,
+                                contentDescription = if (isPlaying) "Stop" else "Test"
+                            )
+                        }
                     }
 
                     if (showSoundPicker) {
@@ -546,6 +636,20 @@ fun AlarmEditorScreen(
                         icon = Icons.Default.Vibration,
                         checked = vibrate,
                         onCheckedChange = { vibrate = it }
+                    )
+                }
+
+                // Volume Slider
+                FormSection(title = "Volume: $volume%") {
+                    Slider(
+                        value = volume.toFloat(),
+                        onValueChange = { volume = it.toInt() },
+                        valueRange = 0f..100f,
+                        steps = 19,
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary
+                        )
                     )
                 }
 

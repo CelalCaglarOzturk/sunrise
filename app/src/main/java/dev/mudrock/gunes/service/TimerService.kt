@@ -26,10 +26,12 @@ class TimerService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     
-    private var timerSeconds: Int = 0
-    private var remainingSeconds: Int = 0
+    private var totalSeconds: Int = 0
+    private var targetEndTimeMillis: Long = 0L
     private var timerLabel: String = ""
     private var isTimerRunning: Boolean = false
+    private var isPaused: Boolean = false
+    private var pausedRemainingSeconds: Int = 0
     private var onTickCallback: ((Int) -> Unit)? = null
     private var onFinishCallback: (() -> Unit)? = null
     
@@ -50,108 +52,138 @@ class TimerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> {
-                val totalSeconds = intent.getIntExtra(EXTRA_TOTAL_SECONDS, 0)
+                val totalSecs = intent.getIntExtra(EXTRA_TOTAL_SECONDS, 0)
                 val label = intent.getStringExtra(EXTRA_LABEL) ?: "Timer"
-                startTimer(totalSeconds, label)
+                startTimer(totalSecs, label)
+            }
+            ACTION_PAUSE -> {
+                pauseTimer()
             }
             ACTION_STOP -> {
                 stopTimer()
-            }
-            ACTION_FINISH -> {
-                playFinishSound()
             }
         }
         return START_NOT_STICKY
     }
 
-    fun startTimer(totalSeconds: Int, label: String) {
-        timerSeconds = totalSeconds
-        remainingSeconds = totalSeconds
+    fun startTimer(totalSecs: Int, label: String) {
+        totalSeconds = totalSecs
+        targetEndTimeMillis = System.currentTimeMillis() + (totalSecs * 1000L)
         timerLabel = label
         isTimerRunning = true
+        isPaused = false
         
-        startForeground(NOTIFICATION_ID, createNotification(remainingSeconds, label, false))
+        startForeground(NOTIFICATION_ID, createNotification(totalSecs, label, false))
         
-        wakeLock?.acquire(10 * 60 * 1000L)
+        acquireWakeLock()
         
         timerJob?.cancel()
         timerJob = scope.launch {
-            while (isTimerRunning && remainingSeconds > 0) {
-                delay(1000)
-                remainingSeconds--
-                updateNotification()
-                onTickCallback?.invoke(remainingSeconds)
+            while (isTimerRunning && isActive) {
+                val remaining = calculateRemainingSeconds()
                 
-                if (remainingSeconds <= 0) {
+                if (remaining <= 0) {
                     onTimerFinish()
                     break
                 }
+                
+                updateNotification()
+                onTickCallback?.invoke(remaining)
+                
+                delay(100)
             }
         }
     }
 
     fun pauseTimer() {
+        if (!isTimerRunning) return
+        
         isTimerRunning = false
+        isPaused = true
+        pausedRemainingSeconds = calculateRemainingSeconds()
         timerJob?.cancel()
-        wakeLock?.release()
+        releaseWakeLock()
         updateNotification()
+        
+        // Change to paused notification
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID, createNotification(pausedRemainingSeconds, timerLabel, false, true))
     }
 
     fun resumeTimer() {
-        if (remainingSeconds > 0) {
-            isTimerRunning = true
-            wakeLock?.acquire(10 * 60 * 1000L)
-            
-            timerJob?.cancel()
-            timerJob = scope.launch {
-                while (isTimerRunning && remainingSeconds > 0) {
-                    delay(1000)
-                    remainingSeconds--
-                    updateNotification()
-                    onTickCallback?.invoke(remainingSeconds)
-                    
-                    if (remainingSeconds <= 0) {
-                        onTimerFinish()
-                        break
-                    }
+        if (!isPaused) return
+        
+        isTimerRunning = true
+        isPaused = false
+        targetEndTimeMillis = System.currentTimeMillis() + (pausedRemainingSeconds * 1000L)
+        
+        acquireWakeLock()
+        
+        timerJob?.cancel()
+        timerJob = scope.launch {
+            while (isTimerRunning && isActive) {
+                val remaining = calculateRemainingSeconds()
+                
+                if (remaining <= 0) {
+                    onTimerFinish()
+                    break
                 }
+                
+                updateNotification()
+                onTickCallback?.invoke(remaining)
+                
+                delay(100)
             }
         }
     }
 
     fun stopTimer() {
         isTimerRunning = false
+        isPaused = false
         timerJob?.cancel()
-        remainingSeconds = timerSeconds
         stopMediaPlayer()
+        releaseWakeLock()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+    }
+
+    private fun calculateRemainingSeconds(): Int {
+        val now = System.currentTimeMillis()
+        return ((targetEndTimeMillis - now) / 1000L).toInt().coerceAtLeast(0)
     }
 
     private fun onTimerFinish() {
         isTimerRunning = false
-        wakeLock?.release()
-        updateNotification()
+        isPaused = false
+        releaseWakeLock()
+        
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID, createNotification(0, timerLabel, true))
+        
         onFinishCallback?.invoke()
         playFinishSound()
     }
 
     private fun playFinishSound() {
         try {
-            val uri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            val uri: Uri? = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                 ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
                 ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
             
-            mediaPlayer?.release()
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(applicationContext, uri)
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
-                isLooping = false
-                prepare()
-                start()
+            if (uri != null) {
+                mediaPlayer?.release()
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(applicationContext, uri)
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_ALARM)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build()
+                    )
+                    isLooping = false
+                    setOnCompletionListener { stopForeground(STOP_FOREGROUND_REMOVE) }
+                    prepare()
+                    start()
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -164,6 +196,26 @@ class TimerService : Service() {
         mediaPlayer = null
     }
 
+    private fun acquireWakeLock() {
+        try {
+            wakeLock?.acquire(10 * 60 * 1000L)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun releaseWakeLock() {
+        try {
+            wakeLock?.let {
+                if (it.isHeld) {
+                    it.release()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     fun setOnTickCallback(callback: (Int) -> Unit) {
         onTickCallback = callback
     }
@@ -172,10 +224,11 @@ class TimerService : Service() {
         onFinishCallback = callback
     }
 
-    fun getRemainingSeconds(): Int = remainingSeconds
+    fun getRemainingSeconds(): Int = calculateRemainingSeconds()
     fun isRunning(): Boolean = isTimerRunning
+    fun isPausedState(): Boolean = isPaused
 
-    private fun createNotification(remaining: Int, label: String, isFinished: Boolean): android.app.Notification {
+    private fun createNotification(remaining: Int, label: String, isFinished: Boolean, isPaused: Boolean = false): android.app.Notification {
         createNotificationChannel()
         
         val intent = Intent(this, MainActivity::class.java).apply {
@@ -187,23 +240,45 @@ class TimerService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val pauseIntent = Intent(this, TimerService::class.java).apply {
+            action = ACTION_PAUSE
+        }
+        val pausePendingIntent = PendingIntent.getService(
+            this, 1, pauseIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val stopIntent = Intent(this, TimerService::class.java).apply {
             action = ACTION_STOP
         }
         val stopPendingIntent = PendingIntent.getService(
-            this, 1, stopIntent,
+            this, 2, stopIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val title = when {
+            isFinished -> "$label - Finished!"
+            isPaused -> "$label (Paused)"
+            else -> label
+        }
+        
+        val content = when {
+            isFinished -> "Timer completed"
+            else -> formatTime(remaining)
+        }
+
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(if (isFinished) "$label - Finished!" else label)
-            .setContentText(if (isFinished) "Timer completed" else formatTime(remaining))
+            .setContentTitle(title)
+            .setContentText(content)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
             .setOngoing(!isFinished)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
 
+        if (!isFinished && !isPaused) {
+            builder.addAction(R.drawable.ic_stop, "Pause", pausePendingIntent)
+        }
         if (!isFinished) {
             builder.addAction(R.drawable.ic_stop, "Stop", stopPendingIntent)
         }
@@ -212,8 +287,9 @@ class TimerService : Service() {
     }
 
     private fun updateNotification() {
+        val remaining = calculateRemainingSeconds()
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID, createNotification(remainingSeconds, timerLabel, remainingSeconds <= 0))
+        notificationManager.notify(NOTIFICATION_ID, createNotification(remaining, timerLabel, false, isPaused))
     }
 
     private fun createNotificationChannel() {
@@ -247,7 +323,7 @@ class TimerService : Service() {
         timerJob?.cancel()
         scope.cancel()
         stopMediaPlayer()
-        wakeLock?.release()
+        releaseWakeLock()
     }
 
     companion object {
@@ -255,8 +331,8 @@ class TimerService : Service() {
         const val NOTIFICATION_ID = 1001
         
         const val ACTION_START = "dev.mudrock.gunes.TIMER_START"
+        const val ACTION_PAUSE = "dev.mudrock.gunes.TIMER_PAUSE"
         const val ACTION_STOP = "dev.mudrock.gunes.TIMER_STOP"
-        const val ACTION_FINISH = "dev.mudrock.gunes.TIMER_FINISH"
         
         const val EXTRA_TOTAL_SECONDS = "total_seconds"
         const val EXTRA_LABEL = "label"

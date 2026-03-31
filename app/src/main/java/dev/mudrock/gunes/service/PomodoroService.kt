@@ -14,6 +14,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import dev.mudrock.gunes.MainActivity
 import dev.mudrock.gunes.R
@@ -26,9 +27,12 @@ class PomodoroService : Service() {
     private var wakeLock: PowerManager.WakeLock? = null
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     
-    private var remainingSeconds: Int = 0
+    private var totalSeconds: Int = 0
+    private var targetEndTimeMillis: Long = 0L
     private var currentPhase: String = "WORK"
     private var isRunning: Boolean = false
+    private var isPaused: Boolean = false
+    private var pausedRemainingSeconds: Int = 0
     private var onTickCallback: ((Int, String) -> Unit)? = null
     private var onPhaseEndCallback: ((String) -> Unit)? = null
     
@@ -49,9 +53,9 @@ class PomodoroService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> {
-                val totalSeconds = intent.getIntExtra(EXTRA_TOTAL_SECONDS, 25 * 60)
+                val totalSecs = intent.getIntExtra(EXTRA_TOTAL_SECONDS, 25 * 60)
                 val phase = intent.getStringExtra(EXTRA_PHASE) ?: "WORK"
-                startPomodoro(totalSeconds, phase)
+                startPomodoro(totalSecs, phase)
             }
             ACTION_PAUSE -> {
                 pausePomodoro()
@@ -59,75 +63,98 @@ class PomodoroService : Service() {
             ACTION_STOP -> {
                 stopPomodoro()
             }
+            ACTION_RESUME -> {
+                resumePomodoro()
+            }
         }
         return START_NOT_STICKY
     }
 
-    fun startPomodoro(totalSeconds: Int, phase: String) {
-        remainingSeconds = totalSeconds
+    fun startPomodoro(totalSecs: Int, phase: String) {
+        totalSeconds = totalSecs
+        targetEndTimeMillis = System.currentTimeMillis() + (totalSecs * 1000L)
         currentPhase = phase
         isRunning = true
+        isPaused = false
         
-        startForeground(NOTIFICATION_ID, createNotification(remainingSeconds, phase, false))
+        startForeground(NOTIFICATION_ID, createNotification(totalSecs, phase, false))
         
-        wakeLock?.acquire(60 * 60 * 1000L)
+        acquireWakeLock()
         
         timerJob?.cancel()
         timerJob = scope.launch {
-            while (isRunning && remainingSeconds > 0) {
-                delay(1000)
-                remainingSeconds--
-                updateNotification()
-                onTickCallback?.invoke(remainingSeconds, currentPhase)
+            while (isRunning && isActive) {
+                val remaining = calculateRemainingSeconds()
                 
-                if (remainingSeconds <= 0) {
+                if (remaining <= 0) {
                     onPhaseFinish()
                     break
                 }
+                
+                updateNotification()
+                onTickCallback?.invoke(remaining, currentPhase)
+                
+                delay(200)
             }
         }
     }
 
     fun pausePomodoro() {
+        if (!isRunning) return
+        
         isRunning = false
+        isPaused = true
+        pausedRemainingSeconds = calculateRemainingSeconds()
         timerJob?.cancel()
-        wakeLock?.release()
+        releaseWakeLock()
         updateNotification()
     }
 
     fun resumePomodoro() {
-        if (remainingSeconds > 0) {
-            isRunning = true
-            wakeLock?.acquire(60 * 60 * 1000L)
-            
-            timerJob?.cancel()
-            timerJob = scope.launch {
-                while (isRunning && remainingSeconds > 0) {
-                    delay(1000)
-                    remainingSeconds--
-                    updateNotification()
-                    onTickCallback?.invoke(remainingSeconds, currentPhase)
-                    
-                    if (remainingSeconds <= 0) {
-                        onPhaseFinish()
-                        break
-                    }
+        if (!isPaused) return
+        
+        isRunning = true
+        isPaused = false
+        targetEndTimeMillis = System.currentTimeMillis() + (pausedRemainingSeconds * 1000L)
+        
+        acquireWakeLock()
+        
+        timerJob?.cancel()
+        timerJob = scope.launch {
+            while (isRunning && isActive) {
+                val remaining = calculateRemainingSeconds()
+                
+                if (remaining <= 0) {
+                    onPhaseFinish()
+                    break
                 }
+                
+                updateNotification()
+                onTickCallback?.invoke(remaining, currentPhase)
+                
+                delay(200)
             }
         }
     }
 
     fun stopPomodoro() {
         isRunning = false
+        isPaused = false
         timerJob?.cancel()
-        remainingSeconds = 0
         stopMediaPlayer()
+        releaseWakeLock()
         stopForeground(STOP_FOREGROUND_REMOVE)
+    }
+
+    private fun calculateRemainingSeconds(): Int {
+        val now = System.currentTimeMillis()
+        return ((targetEndTimeMillis - now) / 1000L).toInt().coerceAtLeast(0)
     }
 
     private fun onPhaseFinish() {
         isRunning = false
-        wakeLock?.release()
+        isPaused = false
+        releaseWakeLock()
         updateNotification()
         onPhaseEndCallback?.invoke(currentPhase)
         playFinishSound()
@@ -135,26 +162,31 @@ class PomodoroService : Service() {
 
     private fun playFinishSound() {
         try {
-            val uri: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            val uri: Uri? = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                 ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
                 ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
             
-            mediaPlayer?.release()
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(applicationContext, uri)
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
-                isLooping = false
-                setVolume(0.8f, 0.8f)
-                prepare()
-                start()
+            if (uri != null) {
+                mediaPlayer?.release()
+                mediaPlayer = MediaPlayer().apply {
+                    setDataSource(applicationContext, uri)
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_ALARM)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build()
+                    )
+                    isLooping = false
+                    setVolume(0.8f, 0.8f)
+                    setOnCompletionListener { 
+                        stopForeground(STOP_FOREGROUND_REMOVE) 
+                    }
+                    prepare()
+                    start()
+                }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("PomodoroService", "Failed to play finish sound", e)
         }
     }
 
@@ -162,6 +194,26 @@ class PomodoroService : Service() {
         mediaPlayer?.stop()
         mediaPlayer?.release()
         mediaPlayer = null
+    }
+
+    private fun acquireWakeLock() {
+        try {
+            wakeLock?.acquire(60 * 60 * 1000L)
+        } catch (e: Exception) {
+            Log.e("PomodoroService", "Failed to acquire wake lock", e)
+        }
+    }
+
+    private fun releaseWakeLock() {
+        try {
+            wakeLock?.let {
+                if (it.isHeld) {
+                    it.release()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("PomodoroService", "Failed to release wake lock", e)
+        }
     }
 
     fun setOnTickCallback(callback: (Int, String) -> Unit) {
@@ -172,13 +224,15 @@ class PomodoroService : Service() {
         onPhaseEndCallback = callback
     }
 
-    fun getRemainingSeconds(): Int = remainingSeconds
+    fun getRemainingSeconds(): Int = calculateRemainingSeconds()
     fun getCurrentPhase(): String = currentPhase
     fun isRunning(): Boolean = isRunning
+    fun isPaused(): Boolean = isPaused
 
-    fun updatePhase(newPhase: String, totalSeconds: Int) {
+    fun updatePhase(newPhase: String, totalSecs: Int) {
         currentPhase = newPhase
-        remainingSeconds = totalSeconds
+        totalSeconds = totalSecs
+        targetEndTimeMillis = System.currentTimeMillis() + (totalSecs * 1000L)
         updateNotification()
     }
 
@@ -217,9 +271,12 @@ class PomodoroService : Service() {
             else -> phase
         }
 
+        val title = if (isFinished) "$phaseLabel - Finished!" else phaseLabel
+        val content = if (isFinished) "Phase completed" else formatTime(remaining)
+
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(if (isFinished) "$phaseLabel - Finished!" else phaseLabel)
-            .setContentText(if (isFinished) "Phase completed" else formatTime(remaining))
+            .setContentTitle(title)
+            .setContentText(content)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
             .setOngoing(!isFinished && isRunning)
@@ -235,8 +292,9 @@ class PomodoroService : Service() {
     }
 
     private fun updateNotification() {
+        val remaining = calculateRemainingSeconds()
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID, createNotification(remainingSeconds, currentPhase, remainingSeconds <= 0))
+        notificationManager.notify(NOTIFICATION_ID, createNotification(remaining, currentPhase, remaining <= 0))
     }
 
     private fun createNotificationChannel() {
@@ -265,7 +323,7 @@ class PomodoroService : Service() {
         timerJob?.cancel()
         scope.cancel()
         stopMediaPlayer()
-        wakeLock?.release()
+        releaseWakeLock()
     }
 
     companion object {
@@ -275,6 +333,7 @@ class PomodoroService : Service() {
         const val ACTION_START = "dev.mudrock.gunes.POMODORO_START"
         const val ACTION_PAUSE = "dev.mudrock.gunes.POMODORO_PAUSE"
         const val ACTION_STOP = "dev.mudrock.gunes.POMODORO_STOP"
+        const val ACTION_RESUME = "dev.mudrock.gunes.POMODORO_RESUME"
         
         const val EXTRA_TOTAL_SECONDS = "total_seconds"
         const val EXTRA_PHASE = "phase"
