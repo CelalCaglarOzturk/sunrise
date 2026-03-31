@@ -113,11 +113,6 @@ class AlarmScheduler(
                         location.longitude
                     )
 
-                    if (sunTimes.sunrise == null) {
-                        Log.w(TAG, "Null sunrise time for day $i")
-                        continue
-                    }
-
                     alarmTimeMillis = sunTimes.sunrise.time + (alarm.sunOffset * 60 * 1000L)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error calculating sun time", e)

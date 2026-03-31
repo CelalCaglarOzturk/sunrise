@@ -94,6 +94,10 @@
     <string name="sun_based_time">太陽時間</string>
     <string name="normal_time">通常時間</string>
     <string name="sun_clock_description">日の出までの時間。\n+時間 = 日の出後\n(-) = 次の日の出までの時間</string>
+    <string name="location_permission">位置情報の許可</string>
+    <string name="location_permission_desc">太陽ベースのアラームと日の出/日の入り時刻に必要</string>
+    <string name="open_settings">設定を開く</string>
+    <string name="permission_granted">許可済み</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

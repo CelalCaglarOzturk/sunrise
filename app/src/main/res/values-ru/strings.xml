@@ -94,6 +94,10 @@
     <string name="sun_based_time">Солнечное время</string>
     <string name="normal_time">Обычное время</string>
     <string name="sun_clock_description">Время с/до восхода солнца.\n+Часы = после восхода\n(-) = часы до следующего восхода</string>
+    <string name="location_permission">Разрешение на местоположение</string>
+    <string name="location_permission_desc">Требуется для солнечных будильников и времени восхода/заката</string>
+    <string name="open_settings">Открыть настройки</string>
+    <string name="permission_granted">Разрешено</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

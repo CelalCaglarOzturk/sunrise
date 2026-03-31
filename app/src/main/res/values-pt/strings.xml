@@ -94,6 +94,10 @@
     <string name="sun_based_time">Hora Solar</string>
     <string name="normal_time">Hora Normal</string>
     <string name="sun_clock_description">Tempo desde/até o nascer do sol.\n+Horas = após o nascer do sol\n(-) = horas até o próximo nascer do sol</string>
+    <string name="location_permission">Permissão de Localização</string>
+    <string name="location_permission_desc">Obrigatório para alarmes baseados no sol e horários de nascer/pôr do sol</string>
+    <string name="open_settings">Abrir Configurações</string>
+    <string name="permission_granted">Concedido</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

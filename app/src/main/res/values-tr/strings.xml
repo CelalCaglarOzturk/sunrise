@@ -104,5 +104,9 @@
     <string name="lang_russian">Русский</string>
     <string name="lang_arabic">العربية</string>
     <string name="lang_hindi">हिन्दी</string>
-    <string name="lang_turkish">Türkçe</string>
+<string name="lang_turkish">Türkçe</string>
+    <string name="location_permission">Konum İzni</string>
+    <string name="location_permission_desc">Güneş tabanlı alarmlar ve gün doğumu/batımı saatleri için gereklidir</string>
+    <string name="open_settings">Ayarları Aç</string>
+    <string name="permission_granted">Verildi</string>
 </resources>

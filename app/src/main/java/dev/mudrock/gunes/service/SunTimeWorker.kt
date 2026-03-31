@@ -81,10 +81,11 @@ class SunTimeWorker(
                 
                 for (i in 0..4) {
                     val date = Date(now.time + i * 24 * 60 * 60 * 1000L)
-                    val sunTimes = SunCalc.getTimes(date, lat, lng)
-                    
-                    if (sunTimes.sunrise != null && sunTimes.sunset != null) {
+                    try {
+                        val sunTimes = SunCalc.getTimes(date, lat, lng)
                         sunTimesList.add("${sunTimes.sunrise.time},${sunTimes.sunset.time}")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to calculate sun times for day $i", e)
                     }
                 }
                 

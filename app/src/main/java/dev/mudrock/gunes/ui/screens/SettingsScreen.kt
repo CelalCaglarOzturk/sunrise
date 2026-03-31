@@ -1,6 +1,8 @@
 package dev.mudrock.gunes.ui.screens
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -20,9 +22,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import dev.mudrock.gunes.BuildConfig
 import dev.mudrock.gunes.R
 import dev.mudrock.gunes.ui.MainViewModel
@@ -201,6 +205,42 @@ fun SettingsScreen(viewModel: MainViewModel) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Location Permission
+                val context = LocalContext.current
+                var locationPermissionGranted by remember {
+                    mutableStateOf(
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    )
+                }
+                
+                val locationPermissionLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    locationPermissionGranted = isGranted
+                    if (isGranted) {
+                        viewModel.updateLocation()
+                    }
+                }
+                
+                PermissionButton(
+                    label = "Location Permission",
+                    description = "Required for sun-based alarms and sunrise/sunset times",
+                    isGranted = locationPermissionGranted,
+                    onClick = {
+                        if (locationPermissionGranted) {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                        }
+                    }
+                )
+
                 PermissionButton(
                     label = stringResource(R.string.battery_optimization),
                     description = stringResource(R.string.battery_optimization_desc),
@@ -394,6 +434,7 @@ fun SettingsToggleRow(
 fun PermissionButton(
     label: String,
     description: String,
+    isGranted: Boolean = false,
     onClick: () -> Unit
 ) {
     Surface(
@@ -404,12 +445,31 @@ fun PermissionButton(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Text(
-                label,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (isGranted) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            "Granted",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 description,
@@ -421,10 +481,14 @@ fun PermissionButton(
                 onClick = onClick,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = if (isGranted) MaterialTheme.colorScheme.surfaceVariant 
+                                     else MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text(stringResource(R.string.grant_permission), fontWeight = FontWeight.Bold)
+                Text(
+                    if (isGranted) "Open Settings" else stringResource(R.string.grant_permission), 
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

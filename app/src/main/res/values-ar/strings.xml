@@ -94,6 +94,10 @@
     <string name="sun_based_time">وقت الشمس</string>
     <string name="normal_time">الوقت العادي</string>
     <string name="sun_clock_description">الوقت منذ/حتى شروق الشمس.\n+ساعات = بعد الشروق\n(-) = ساعات حتى الشروق التالي</string>
+    <string name="location_permission">إذن الموقع</string>
+    <string name="location_permission_desc">مطلوب لتنبيهات الشمس وأوقات الشروق/الغروب</string>
+    <string name="open_settings">فتح الإعدادات</string>
+    <string name="permission_granted">ممنوح</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

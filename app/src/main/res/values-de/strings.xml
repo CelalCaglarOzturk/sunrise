@@ -94,6 +94,10 @@
     <string name="sun_based_time">Sonnenzeit</string>
     <string name="normal_time">Normalzeit</string>
     <string name="sun_clock_description">Zeit seit/bis Sonnenaufgang.\n+Stunden = nach Sonnenaufgang\n(-) = Stunden bis zum nächsten Sonnenaufgang</string>
+    <string name="location_permission">Standortberechtigung</string>
+    <string name="location_permission_desc">Erforderlich für sonnenbasierte Alarme und Sonnenaufgang/untergangszeiten</string>
+    <string name="open_settings">Einstellungen öffnen</string>
+    <string name="permission_granted">Erteilt</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

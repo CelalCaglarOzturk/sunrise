@@ -51,6 +51,7 @@ class MainViewModel(
         val cached = SunTimeWorker.getCachedSunTimes(application)
         if (cached != null && !SunTimeWorker.needsUpdate(application)) {
             _sunTimes.value = cached
+            _locationError.value = null  // Clear error if we have valid cached data
         }
     }
 

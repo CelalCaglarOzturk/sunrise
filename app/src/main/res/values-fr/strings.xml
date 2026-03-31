@@ -94,6 +94,10 @@
     <string name="sun_based_time">Heure Solaire</string>
     <string name="normal_time">Heure Normale</string>
     <string name="sun_clock_description">Temps depuis/vers le lever du soleil.\n+Heures = après le lever\n(-) = heures jusqu\'au prochain lever</string>
+    <string name="location_permission">Autorisation de Localisation</string>
+    <string name="location_permission_desc">Requis pour les alarmes basées sur le soleil et les horaires de lever/coucher</string>
+    <string name="open_settings">Ouvrir Paramètres</string>
+    <string name="permission_granted">Accordé</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

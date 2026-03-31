@@ -94,6 +94,10 @@
     <string name="sun_based_time">太阳时间</string>
     <string name="normal_time">正常时间</string>
     <string name="sun_clock_description">距离日出的时间。\n+小时 = 日出后\n(-) = 距离下次日出的小时数</string>
+    <string name="location_permission">位置权限</string>
+    <string name="location_permission_desc">基于太阳的闹钟和日出/日落时间所需</string>
+    <string name="open_settings">打开设置</string>
+    <string name="permission_granted">已授权</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>
