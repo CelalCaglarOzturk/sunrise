@@ -66,6 +66,16 @@
             android:foregroundServiceType="mediaPlayback"
             android:exported="false"
         />
+        <service
+            android:name=".service.TimerService"
+            android:foregroundServiceType="dataSync|mediaPlayback"
+            android:exported="false"
+        />
+        <service
+            android:name=".service.PomodoroService"
+            android:foregroundServiceType="dataSync|mediaPlayback"
+            android:exported="false"
+        />
         <receiver android:name=".service.BootReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

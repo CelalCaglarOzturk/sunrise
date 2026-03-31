@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -35,6 +36,16 @@ data class AppSettings(
     val pomodoroLastUpdateTime: Long = 0
 )
 
+data class TimerState(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val label: String = "",
+    val durationSeconds: Int = 0,
+    val remainingSeconds: Int = 0,
+    val isRunning: Boolean = false,
+    val isPaused: Boolean = false,
+    val createdAt: Long = System.currentTimeMillis()
+)
+
 class SettingsRepository(private val context: Context, private val gson: Gson) {
     private val dataStore = context.dataStore
     private val sharedPrefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -56,6 +67,7 @@ class SettingsRepository(private val context: Context, private val gson: Gson) {
         val POMODORO_AUTO_START_WORK = booleanPreferencesKey("pomodoro_auto_start_work")
         val POMODORO_LAST_UPDATE_TIME = longPreferencesKey("pomodoro_last_update_time")
         val FIRST_LAUNCH = booleanPreferencesKey("first_launch")
+        val TIMERS = stringSetPreferencesKey("timers")
     }
 
     companion object {
@@ -148,6 +160,68 @@ class SettingsRepository(private val context: Context, private val gson: Gson) {
             
             // Also save language to SharedPreferences for sync access in attachBaseContext
             sharedPrefs.edit().putString("language", newSettings.language).apply()
+        }
+    }
+    
+    val timers: Flow<List<TimerState>> = dataStore.data.map { prefs ->
+        val timerStrings = prefs[Keys.TIMERS] ?: emptySet()
+        timerStrings.mapNotNull { json ->
+            try {
+                gson.fromJson(json, TimerState::class.java)
+            } catch (e: Exception) {
+                null
+            }
+        }.sortedByDescending { it.createdAt }
+    }
+    
+    suspend fun saveTimers(timerList: List<TimerState>) {
+        dataStore.edit { prefs ->
+            val timerStrings = timerList.map { gson.toJson(it) }.toSet()
+            prefs[Keys.TIMERS] = timerStrings
+        }
+    }
+    
+    suspend fun addTimer(timer: TimerState) {
+        dataStore.edit { prefs ->
+            val existing = prefs[Keys.TIMERS] ?: emptySet()
+            val newList = existing + gson.toJson(timer)
+            prefs[Keys.TIMERS] = newList
+        }
+    }
+    
+    suspend fun updateTimer(timer: TimerState) {
+        dataStore.edit { prefs ->
+            val existing = (prefs[Keys.TIMERS] ?: emptySet()).toMutableList()
+            val index = existing.indexOfFirst { 
+                try {
+                    gson.fromJson(it, TimerState::class.java).id == timer.id
+                } catch (e: Exception) {
+                    false
+                }
+            }
+            if (index >= 0) {
+                existing[index] = gson.toJson(timer)
+                prefs[Keys.TIMERS] = existing.toSet()
+            }
+        }
+    }
+    
+    suspend fun deleteTimer(timerId: String) {
+        dataStore.edit { prefs ->
+            val existing = (prefs[Keys.TIMERS] ?: emptySet()).filterNot {
+                try {
+                    gson.fromJson(it, TimerState::class.java).id == timerId
+                } catch (e: Exception) {
+                    false
+                }
+            }.toSet()
+            prefs[Keys.TIMERS] = existing
+        }
+    }
+    
+    suspend fun clearTimers() {
+        dataStore.edit { prefs ->
+            prefs.remove(Keys.TIMERS)
         }
     }
 }

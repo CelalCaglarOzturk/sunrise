@@ -107,9 +107,15 @@
     <string name="upcoming_sun_times">Upcoming Sun Times</string>
     <string name="location_permission_required">Location Permission Required</string>
     <string name="location_permission_desc_sun">Please grant location permission to see sun times</string>
+    <string name="location_error">Location Error</string>
+    <string name="location_error_desc">Unable to get location. Please check your location settings.</string>
+    <string name="try_again">Try Again</string>
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="sunset">Sunset</string>
+    <string name="sun_based_time">Sun-Based Time</string>
+    <string name="normal_time">Normal Time</string>
+    <string name="sun_clock_description">Time since/until sunrise.\n+Hours = after sunrise\n(+) = Hours until next sunrise</string>
 
     <!-- Repeat patterns -->
 

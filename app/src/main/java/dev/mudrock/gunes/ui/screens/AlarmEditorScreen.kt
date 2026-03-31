@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -186,9 +188,14 @@ fun AlarmEditorScreen(
                     FormSection(
                         title = stringResource(R.string.sun_offset)
                     ) {
-                        // Preview of actual time
                         val sunriseTime = sunTimes.firstOrNull()?.sunrise
-                        val previewTime = if (sunriseTime != null && location != null) {
+                        val dateFormat = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+                        
+                        val sunriseText = if (sunriseTime != null) {
+                            dateFormat.format(sunriseTime)
+                        } else "--:--"
+                        
+                        val previewTime = if (sunriseTime != null) {
                             val calendar = Calendar.getInstance()
                             calendar.time = sunriseTime
                             calendar.add(Calendar.MINUTE, sunOffset)
@@ -197,20 +204,70 @@ fun AlarmEditorScreen(
                             String.format(java.util.Locale.US, "%02d:%02d", hour, minute)
                         } else "--:--"
 
-                        Text(
-                            text = previewTime,
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
+                        if (sunriseTime != null) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Icon(
+                                            Icons.Default.WbSunny,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = sunriseText,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = FontFamily.Monospace
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.sunrise),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text(
+                                            text = previewTime,
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = FontFamily.Monospace,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.normal_time),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
 
-                        // Hours and Minutes Pickers
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Hours picker
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
                                     text = stringResource(R.string.hours),
@@ -232,7 +289,6 @@ fun AlarmEditorScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
 
-                            // Minutes picker
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
                                     text = stringResource(R.string.minutes),
@@ -261,6 +317,33 @@ fun AlarmEditorScreen(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
+                        
+                        if (sunriseTime == null && location == null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.LocationOn,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Location needed to calculate sun times",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
                     }
                 } else {
                     FormSection(title = stringResource(R.string.time)) {

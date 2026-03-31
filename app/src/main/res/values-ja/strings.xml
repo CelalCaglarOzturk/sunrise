@@ -88,6 +88,12 @@
     <string name="today">今日</string>
     <string name="tomorrow">明日</string>
     <string name="sunset">日の入り</string>
+    <string name="location_error">位置情報エラー</string>
+    <string name="location_error_desc">位置情報を取得できませんでした。位置設定を確認してください。</string>
+    <string name="try_again">再試行</string>
+    <string name="sun_based_time">太陽時間</string>
+    <string name="normal_time">通常時間</string>
+    <string name="sun_clock_description">日の出までの時間。\n+時間 = 日の出後\n(-) = 次の日の出までの時間</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

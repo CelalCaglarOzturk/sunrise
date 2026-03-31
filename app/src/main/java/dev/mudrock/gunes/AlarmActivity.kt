@@ -70,14 +70,17 @@ class AlarmActivity : ComponentActivity() {
                 val snoozeMinutes = 5
                 val calendar = Calendar.getInstance()
                 calendar.add(Calendar.MINUTE, snoozeMinutes)
+                val snoozeTime = String.format(java.util.Locale.US, "%02d:%02d", 
+                    calendar.get(Calendar.HOUR_OF_DAY), 
+                    calendar.get(Calendar.MINUTE))
                 
                 val snoozedAlarm = alarm.copy(
-                    time = String.format(java.util.Locale.US, "%02d:%02d", 
-                        calendar.get(Calendar.HOUR_OF_DAY), 
-                        calendar.get(Calendar.MINUTE)),
+                    time = snoozeTime,
                     useSunTime = false,
+                    sunOffset = 0,
                     deleteAfterUse = true,
-                    enabled = true
+                    enabled = true,
+                    label = "${alarm.label.ifEmpty { "Alarm" }} (Snoozed)"
                 )
                 
                 alarmDao.insertAlarm(snoozedAlarm)

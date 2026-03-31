@@ -88,6 +88,12 @@
     <string name="today">Сегодня</string>
     <string name="tomorrow">Завтра</string>
     <string name="sunset">Закат</string>
+    <string name="location_error">Ошибка местоположения</string>
+    <string name="location_error_desc">Не удалось получить местоположение. Проверьте настройки местоположения.</string>
+    <string name="try_again">Повторить</string>
+    <string name="sun_based_time">Солнечное время</string>
+    <string name="normal_time">Обычное время</string>
+    <string name="sun_clock_description">Время с/до восхода солнца.\n+Часы = после восхода\n(-) = часы до следующего восхода</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

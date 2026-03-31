@@ -40,6 +40,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -64,7 +65,8 @@ fun AlarmListScreen(viewModel: MainViewModel) {
         alarms.sortedWith(compareBy<Alarm> { !it.enabled }.thenBy { it.time })
     }
     
-    // Update location and sun times when screen loads and permission is granted
+    val locationError by viewModel.locationError.collectAsState()
+    
     LaunchedEffect(locationPermissionState.status.isGranted) {
         if (locationPermissionState.status.isGranted) {
             viewModel.updateLocation()
@@ -181,6 +183,7 @@ fun AlarmListScreen(viewModel: MainViewModel) {
                 SunTimesSection(
                     sunTimes = sunTimes,
                     hasLocationPermission = locationPermissionState.status.isGranted,
+                    locationError = locationError,
                     onRequestPermission = {
                         if (locationPermissionState.status.shouldShowRationale) {
                             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -190,7 +193,8 @@ fun AlarmListScreen(viewModel: MainViewModel) {
                         } else {
                             locationPermissionState.launchPermissionRequest()
                         }
-                    }
+                    },
+                    onRetry = { viewModel.updateLocation() }
                 )
             }
             
@@ -262,21 +266,50 @@ fun DigitalClock(settings: dev.mudrock.gunes.data.AppSettings, sunriseTime: Date
             .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val timeString = if (useSunBased && sunriseTime != null) {
-            val diffMillis = currentTime.time - sunriseTime.time
-            val diffMinutes = diffMillis / 60000.0
-            val isBefore = diffMinutes < 0
-            val absMinutes = Math.abs(diffMinutes)
-            val hours = (absMinutes / 60).toInt()
-            val mins = (absMinutes % 60).toInt()
-            val secs = ((absMinutes % 1) * 60).toInt()
+        if (useSunBased && sunriseTime != null) {
+            val sunBasedInfo = calculateSunBasedTime(currentTime, sunriseTime, settings.showSeconds)
+            
+            Text(
+                text = sunBasedInfo.timeString,
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.primary
+            )
 
-            val sign = if (isBefore) "-" else "+"
-            val format = if (settings.showSeconds) "%s%02d:%02d:%02d" else "%s%02d:%02d"
-            if (settings.showSeconds) {
-                String.format(Locale.getDefault(), format, sign, hours, mins, secs)
-            } else {
-                String.format(Locale.getDefault(), format, sign, hours, mins)
+            val datePattern = "EEEE, MMMM d, yyyy"
+            Text(
+                text = SimpleDateFormat(datePattern, Locale.getDefault()).format(currentTime),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.WbSunny,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = stringResource(R.string.sun_based_clock),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            
+            sunBasedInfo.dayInfo?.let { info ->
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = info,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
             }
         } else {
             val pattern = if (settings.use24HourFormat) {
@@ -284,33 +317,65 @@ fun DigitalClock(settings: dev.mudrock.gunes.data.AppSettings, sunriseTime: Date
             } else {
                 if (settings.showSeconds) "h:mm:ss a" else "h:mm a"
             }
-            SimpleDateFormat(pattern, Locale.getDefault()).format(currentTime)
-        }
+            val timeString = SimpleDateFormat(pattern, Locale.getDefault()).format(currentTime)
 
-        Text(
-            text = timeString,
-            style = MaterialTheme.typography.displayLarge,
-            fontWeight = FontWeight.Bold,
-            fontFamily = FontFamily.Monospace,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        val datePattern = "EEEE, MMMM d, yyyy"
-        Text(
-            text = SimpleDateFormat(datePattern, Locale.getDefault()).format(currentTime),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-
-        if (useSunBased) {
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = stringResource(R.string.sun_based_clock),
-                style = MaterialTheme.typography.labelMedium,
+                text = timeString,
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace,
                 color = MaterialTheme.colorScheme.primary
+            )
+
+            val datePattern = "EEEE, MMMM d, yyyy"
+            Text(
+                text = SimpleDateFormat(datePattern, Locale.getDefault()).format(currentTime),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
         }
     }
+}
+
+data class SunBasedTimeInfo(
+    val timeString: String,
+    val dayInfo: String?
+)
+
+fun calculateSunBasedTime(currentTime: Date, sunriseTime: Date, showSeconds: Boolean): SunBasedTimeInfo {
+    val diffMillis = currentTime.time - sunriseTime.time
+    val millisInDay = 24 * 60 * 60 * 1000L
+    
+    val dayCount = (diffMillis / millisInDay).toInt()
+    val remainderMillis = diffMillis % millisInDay
+    
+    val isBeforeSunrise = remainderMillis < 0
+    
+    val displayMillis = if (isBeforeSunrise) {
+        millisInDay + remainderMillis
+    } else {
+        remainderMillis
+    }
+    
+    val totalMinutes = displayMillis / 60000.0
+    val hours = (totalMinutes / 60).toInt()
+    val mins = (totalMinutes % 60).toInt()
+    val secs = ((totalMinutes % 1) * 60).toInt()
+    
+    val timeString = if (showSeconds) {
+        String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, mins, secs)
+    } else {
+        String.format(Locale.getDefault(), "%02d:%02d", hours, mins)
+    }
+    
+    val dayInfo = when {
+        isBeforeSunrise -> null
+        dayCount == 0 -> null
+        dayCount == 1 -> "Day 2"
+        else -> "Day ${dayCount + 1}"
+    }
+    
+    return SunBasedTimeInfo(timeString, dayInfo)
 }
 
 @Composable
@@ -544,7 +609,9 @@ fun formatRepeatDays(alarm: Alarm): String {
 fun SunTimesSection(
     sunTimes: List<SunTimes>,
     hasLocationPermission: Boolean,
-    onRequestPermission: () -> Unit
+    locationError: String?,
+    onRequestPermission: () -> Unit,
+    onRetry: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -557,59 +624,130 @@ fun SunTimesSection(
             modifier = Modifier.padding(bottom = 12.dp)
         )
         
-        if (!hasLocationPermission || sunTimes.isEmpty()) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+        when {
+            locationError != null -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
                 ) {
-                    Icon(
-                        Icons.Default.LocationOn,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(32.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        stringResource(R.string.location_permission_required),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        stringResource(R.string.location_permission_desc_sun),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Button(
-                        onClick = onRequestPermission,
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(stringResource(R.string.grant_permission))
+                        Icon(
+                            Icons.Default.LocationOff,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            stringResource(R.string.location_error),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            stringResource(R.string.location_error_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = onRetry,
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text(stringResource(R.string.try_again))
+                        }
                     }
                 }
             }
-        } else {
-            sunTimes.take(3).forEachIndexed { index, times ->
-                SunTimeRow(
-                    sunTimes = times,
-                    isToday = index == 0,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+            !hasLocationPermission -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Default.LocationOn,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            stringResource(R.string.location_permission_required),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            stringResource(R.string.location_permission_desc_sun),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = onRequestPermission,
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text(stringResource(R.string.grant_permission))
+                        }
+                    }
+                }
+            }
+            sunTimes.isEmpty() -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+            else -> {
+                sunTimes.take(3).forEachIndexed { index, times ->
+                    SunTimeRow(
+                        sunTimes = times,
+                        isToday = index == 0,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
             }
         }
     }

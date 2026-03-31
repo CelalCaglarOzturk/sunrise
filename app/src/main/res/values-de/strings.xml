@@ -88,6 +88,12 @@
     <string name="today">Heute</string>
     <string name="tomorrow">Morgen</string>
     <string name="sunset">Sonnenuntergang</string>
+    <string name="location_error">Standortfehler</string>
+    <string name="location_error_desc">Standort konnte nicht abgerufen werden. Bitte überprüfen Sie die Standorteinstellungen.</string>
+    <string name="try_again">Erneut versuchen</string>
+    <string name="sun_based_time">Sonnenzeit</string>
+    <string name="normal_time">Normalzeit</string>
+    <string name="sun_clock_description">Zeit seit/bis Sonnenaufgang.\n+Stunden = nach Sonnenaufgang\n(-) = Stunden bis zum nächsten Sonnenaufgang</string>
     <string name="lang_english">English</string>
     <string name="lang_spanish">Español</string>
     <string name="lang_french">Français</string>

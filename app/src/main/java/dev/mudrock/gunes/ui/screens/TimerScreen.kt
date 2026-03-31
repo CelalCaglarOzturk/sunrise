@@ -503,8 +503,8 @@ fun WheelPicker(
 
     LaunchedEffect(value) {
         if (value != selectedValue) {
-            val targetIndex = value - range.first
-            listState.animateScrollToItem(targetIndex)
+            val index = value - range.first
+            listState.animateScrollToItem(index + 2)
         }
     }
 

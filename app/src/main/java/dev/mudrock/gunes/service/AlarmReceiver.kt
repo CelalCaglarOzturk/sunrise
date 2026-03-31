@@ -43,7 +43,6 @@ class AlarmReceiver : BroadcastReceiver() {
                 val alarm = alarmDao.getAlarmById(alarmId)
                 
                 if (alarm != null && alarm.enabled) {
-                    // Start Alarm Service
                     val serviceIntent = Intent(context, AlarmService::class.java).apply {
                         putExtra("ALARM_ID", alarm.id)
                         putExtra("ALARM_LABEL", alarm.label)
@@ -60,7 +59,6 @@ class AlarmReceiver : BroadcastReceiver() {
                         Log.e(TAG, "Failed to start AlarmService", e)
                     }
 
-                    // Reschedule or Delete
                     if (alarm.deleteAfterUse) {
                         alarmDao.deleteAlarm(alarm)
                     } else {

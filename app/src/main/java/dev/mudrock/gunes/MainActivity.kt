@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val viewModel: MainViewModel = viewModel(
-                factory = ViewModelFactory(appContainer)
+                factory = ViewModelFactory(appContainer, application)
             )
             
             val settings by viewModel.settings.collectAsState()

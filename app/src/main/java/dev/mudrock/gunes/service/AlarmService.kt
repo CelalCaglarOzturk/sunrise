@@ -12,6 +12,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -27,8 +28,19 @@ class AlarmService : Service() {
     private var vibrator: Vibrator? = null
     private var volumeJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Main + Job())
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        @Suppress("DEPRECATION")
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "AlarmService:WakeLock"
+        )
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val alarmId = intent?.getStringExtra("ALARM_ID") ?: return START_NOT_STICKY
@@ -36,14 +48,15 @@ class AlarmService : Service() {
         val soundUriString = intent.getStringExtra("SOUND_URI")
         val volume = intent.getIntExtra("VOLUME", 100)
         val gradualVolume = intent.getBooleanExtra("GRADUAL_VOLUME", false)
-        val gradualDuration = intent.getIntExtra("GRADUAL_DURATION", 0)
+        val gradualDuration = intent.getIntExtra("GRADUAL_DURATION", 30)
         val shouldVibrate = intent.getBooleanExtra("VIBRATE", true)
+
+        wakeLock?.acquire(10 * 60 * 1000L)
 
         startForeground(1, createNotification(label, alarmId))
 
         startAlarm(soundUriString, volume, gradualVolume, gradualDuration, shouldVibrate)
 
-        // Launch Activity
         val activityIntent = Intent(this, AlarmActivity::class.java).apply {
             this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION
             putExtra("ALARM_ID", alarmId)
@@ -175,5 +188,6 @@ class AlarmService : Service() {
         vibrator?.cancel()
         volumeJob?.cancel()
         scope.cancel()
+        wakeLock?.release()
     }
 }
