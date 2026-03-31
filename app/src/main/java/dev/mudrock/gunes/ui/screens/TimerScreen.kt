@@ -1,5 +1,7 @@
 package dev.mudrock.gunes.ui.screens
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import dev.mudrock.gunes.R
+import dev.mudrock.gunes.service.TimerService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -39,14 +43,15 @@ data class TimerItem(
     val id: String = UUID.randomUUID().toString(),
     val label: String,
     val durationSeconds: Int,
-    val remainingSeconds: Int,
+    var remainingSeconds: Int,
     val isRunning: Boolean = false,
     val isPaused: Boolean = false,
-    val startTimeMillis: Long = 0L
+    val targetEndTimeMillis: Long = 0L
 ) : Parcelable
 
 @Composable
 fun TimerScreen() {
+    val context = LocalContext.current
     var timers by rememberSaveable { mutableStateOf<List<TimerItem>>(emptyList()) }
     var showAddTimer by remember { mutableStateOf(false) }
 
@@ -69,20 +74,23 @@ fun TimerScreen() {
                     TimerCard(
                         timer = timer,
                         onStart = {
+                            val targetEndTime = System.currentTimeMillis() + (timer.remainingSeconds * 1000L)
                             timers = timers.map { item ->
                                 if (item.id == timer.id) item.copy(
                                     isRunning = true,
                                     isPaused = false,
-                                    startTimeMillis = System.currentTimeMillis()
+                                    targetEndTimeMillis = targetEndTime
                                 )
                                 else item
                             }
+                            startTimerService(context, timer.id, timer.remainingSeconds, timer.label)
                         },
                         onPause = {
                             timers = timers.map { item ->
                                 if (item.id == timer.id) item.copy(isRunning = false, isPaused = true)
                                 else item
                             }
+                            stopTimerService(context)
                         },
                         onReset = {
                             timers = timers.map { item ->
@@ -90,7 +98,7 @@ fun TimerScreen() {
                                     isRunning = false,
                                     isPaused = false,
                                     remainingSeconds = item.durationSeconds,
-                                    startTimeMillis = 0L
+                                    targetEndTimeMillis = 0L
                                 )
                                 else item
                             }
@@ -138,24 +146,55 @@ fun TimerScreen() {
     }
 
     timers.forEach { timer ->
-        if (timer.isRunning && timer.remainingSeconds > 0) {
-            LaunchedEffect(timer.id) {
-                var elapsed = 0L
-                val startRemaining = timer.remainingSeconds
-                while (elapsed < startRemaining * 1000L) {
-                    delay(1000)
-                    elapsed += 1000
-                    val newRemaining = (startRemaining - (elapsed / 1000)).toInt().coerceAtLeast(0)
-                    timers = timers.map { item ->
-                        if (item.id == timer.id && item.isRunning) {
-                            item.copy(remainingSeconds = newRemaining)
-                        } else item
+        if (timer.isRunning && timer.targetEndTimeMillis > 0) {
+            key(timer.id, timer.targetEndTimeMillis) {
+                LaunchedEffect(timer.id) {
+                    while (timer.isRunning && timer.targetEndTimeMillis > 0) {
+                        val now = System.currentTimeMillis()
+                        val remaining = ((timer.targetEndTimeMillis - now) / 1000).toInt().coerceAtLeast(0)
+                        
+                        if (remaining != timer.remainingSeconds) {
+                            timers = timers.map { item ->
+                                if (item.id == timer.id && item.isRunning) {
+                                    item.copy(remainingSeconds = remaining)
+                                } else item
+                            }
+                        }
+                        
+                        if (remaining <= 0) {
+                            timers = timers.map { item ->
+                                if (item.id == timer.id) item.copy(
+                                    isRunning = false,
+                                    remainingSeconds = 0
+                                )
+                                else item
+                            }
+                            stopTimerService(context)
+                            break
+                        }
+                        
+                        delay(100)
                     }
-                    if (newRemaining == 0) break
                 }
             }
         }
     }
+}
+
+private fun startTimerService(context: Context, timerId: String, seconds: Int, label: String) {
+    val intent = Intent(context, TimerService::class.java).apply {
+        action = TimerService.ACTION_START
+        putExtra(TimerService.EXTRA_TOTAL_SECONDS, seconds)
+        putExtra(TimerService.EXTRA_LABEL, label)
+    }
+    context.startForegroundService(intent)
+}
+
+private fun stopTimerService(context: Context) {
+    val intent = Intent(context, TimerService::class.java).apply {
+        action = TimerService.ACTION_STOP
+    }
+    context.startService(intent)
 }
 
 @Composable

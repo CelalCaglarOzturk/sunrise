@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.mudrock.gunes.BuildConfig
 import dev.mudrock.gunes.R
 import dev.mudrock.gunes.ui.MainViewModel
 
@@ -82,6 +83,33 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     onClick = { viewModel.updateSettings { s -> s.copy(defaultClockMode = "sun") } },
                     modifier = Modifier.weight(1f)
                 )
+            }
+            
+            if (settings.defaultClockMode == "sun") {
+                Spacer(modifier = Modifier.height(8.dp))
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            stringResource(R.string.sun_clock_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                }
             }
         }
 
@@ -249,7 +277,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        "${stringResource(R.string.version)} ${stringResource(R.string.app_version)}",
+                        "${stringResource(R.string.version)} ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )

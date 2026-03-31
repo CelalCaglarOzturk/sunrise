@@ -1,5 +1,7 @@
 package dev.mudrock.gunes.ui.screens
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -21,6 +23,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.res.stringResource
 import dev.mudrock.gunes.R
+import dev.mudrock.gunes.service.PomodoroService
 import dev.mudrock.gunes.ui.MainViewModel
 import kotlinx.coroutines.delay
 import java.util.UUID
@@ -60,6 +64,7 @@ data class PomodoroState(
 
 @Composable
 fun PomodoroScreen(viewModel: MainViewModel) {
+    val context = LocalContext.current
     val settings by viewModel.settings.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
     
@@ -93,6 +98,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
             isRunning = false,
             targetEndTimeMillis = 0L
         )
+        stopPomodoroService(context)
     }
 
     fun moveToNextPhase(completed: Boolean = true) {
@@ -138,6 +144,12 @@ fun PomodoroScreen(viewModel: MainViewModel) {
             isRunning = shouldAutoStart,
             targetEndTimeMillis = if (shouldAutoStart) now + (newRemainingSeconds * 1000L) else 0L
         )
+
+        if (shouldAutoStart) {
+            startPomodoroService(context, newRemainingSeconds, newPhase.name)
+        } else {
+            stopPomodoroService(context)
+        }
     }
 
     fun startTimer() {
@@ -146,6 +158,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
             isRunning = true,
             targetEndTimeMillis = now + (pomodoroState.remainingSeconds * 1000L)
         )
+        startPomodoroService(context, pomodoroState.remainingSeconds, pomodoroState.currentPhase.name)
     }
 
     fun pauseTimer() {
@@ -153,6 +166,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
             isRunning = false,
             targetEndTimeMillis = 0L
         )
+        stopPomodoroService(context)
     }
 
     val totalSeconds = getTotalSeconds(pomodoroState.currentPhase)
@@ -160,6 +174,7 @@ fun PomodoroScreen(viewModel: MainViewModel) {
 
     DisposableEffect(Unit) {
         onDispose {
+            stopPomodoroService(context)
             viewModel.updateSettings { s ->
                 s.copy(
                     pomodoroRemainingSeconds = pomodoroState.remainingSeconds,
@@ -688,4 +703,20 @@ fun formatPomodoroTime(seconds: Int): String {
     val mins = seconds / 60
     val secs = seconds % 60
     return String.format(java.util.Locale.US, "%02d:%02d", mins, secs)
+}
+
+private fun startPomodoroService(context: Context, seconds: Int, phase: String) {
+    val intent = Intent(context, PomodoroService::class.java).apply {
+        action = PomodoroService.ACTION_START
+        putExtra(PomodoroService.EXTRA_TOTAL_SECONDS, seconds)
+        putExtra(PomodoroService.EXTRA_PHASE, phase)
+    }
+    context.startForegroundService(intent)
+}
+
+private fun stopPomodoroService(context: Context) {
+    val intent = Intent(context, PomodoroService::class.java).apply {
+        action = PomodoroService.ACTION_STOP
+    }
+    context.startService(intent)
 }
