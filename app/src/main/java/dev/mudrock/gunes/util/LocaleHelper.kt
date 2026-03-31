@@ -10,7 +10,7 @@ object LocaleHelper {
         val locale = if (languageCode == "zh") {
             Locale.SIMPLIFIED_CHINESE
         } else {
-            Locale(languageCode)
+            Locale.forLanguageTag(languageCode)
         }
         Locale.setDefault(locale)
 
@@ -27,7 +27,7 @@ object LocaleHelper {
         val locale = if (languageCode == "zh") {
             Locale.SIMPLIFIED_CHINESE
         } else {
-            Locale(languageCode)
+            Locale.forLanguageTag(languageCode)
         }
         Locale.setDefault(locale)
 
